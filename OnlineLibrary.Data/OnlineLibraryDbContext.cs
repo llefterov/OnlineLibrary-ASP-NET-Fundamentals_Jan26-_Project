@@ -16,6 +16,7 @@ public class OnlineLibraryDbContext : IdentityDbContext<IdentityUser>
     public virtual DbSet<Author> Authors { get; set; } = null!;
     public virtual DbSet<Publisher> Publishers { get; set; } = null!;
     public virtual DbSet<BookAuthor> BooksAuthors { get; set; } = null!;
+    public virtual DbSet<UserBook> UsersBooks { get; set; } = null!;
 
 
 

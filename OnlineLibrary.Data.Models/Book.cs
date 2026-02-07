@@ -57,6 +57,8 @@ namespace OnlineLibrary.Data.Models
         public Publisher Publisher { get; set; } = null!;
 
         public virtual ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
+
+        public virtual ICollection<UserBook> UsersBooks { get; set; } = new HashSet<UserBook>();
     }
 
     public enum BookGenre

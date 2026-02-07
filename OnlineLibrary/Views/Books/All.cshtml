@@ -1,0 +1,110 @@
+@using OnlineLibrary.Web.ViewModels.Books
+@model IEnumerable<BooksAllViewModel>
+@{
+    ViewData["Title"] = "All Books";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Books" asp-action="Add" class="btn btn-sm btn-outline-primary">Add New Book</a>
+        }
+
+    </div>
+
+    @if (!Model?.Any() ?? true)
+    {
+        <div class="alert alert-info">No books found.</div>
+    }
+    else
+    {
+        <div class="row gy-4">
+            @foreach (var book in Model)
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm card-accent">
+                        <div class="row g-0 align-items-stretch">
+                            <div class="col-md-3">
+                                <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? "/images/placeholder-book.jpg" : book.CoverUrl)" class="img-fluid w-100 h-100 rounded-start" alt="@book.Title"
+                                     style="object-fit:cover; min-height:220px; max-height:320px;" />
+                            </div>
+
+                            <div class="col-md-9">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h4 class="card-title mb-1">@book.Title</h4>
+                                            <p class="card-subtitle mb-2 text-muted small">@book.PublisherName</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary me-1">@book.GenreName</span>
+                                            <span class="badge @(book.isRead ? "bg-success" : "bg-secondary")">
+                                                @(book.isRead ? "Read" : "Not read")
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <p class="mb-2">@book.Description</p>
+
+                                    <div class="row mb-2">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1 small text-muted"><strong>Authors:</strong> @book.AuthorsName</p>
+                                            <p class="mb-1 small text-muted"><strong>Rating:</strong> @book.Rating / 5</p>
+                                        </div>
+                                        <div class="col-sm-6 text-sm-end">
+                                            <p class="mb-1 small text-muted"><strong>Added:</strong> @book.DateAdded.ToString("yyyy-MM-dd")</p>
+
+                                            @if (book.AddedByUserName == null)
+                                            {
+                                                <p class="mb-1 small text-muted"><strong>Added by:</strong> unknown </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="mb-1 small text-muted"><strong>Added by:</strong> @book.AddedByUserName</p>
+                                            }
+
+                                            @if (book.DateRead.HasValue)
+                                            {
+                                                <p class="mb-1 small text-muted"><strong>Read:</strong> @book.DateRead.Value.ToString("yyyy-MM-dd")</p>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+
+                                        @if (User?.Identity?.IsAuthenticated == true && book.AddedByUserName != User?.Identity?.Name)
+                                        {
+                                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" class="btn btn-info me-2 w-50">
+                                                <i class="fas fa-info-circle"></i> Details  </a>
+                                                @* <a class="btn btn-sm btn-outline-secondary me-2" asp-controller="Books" asp-action="Details" asp-route-id="@book.Id">Details</a> *@
+                                           
+                                            <form asp-controller="Books" asp-action="Save" method="post" class="w-50">
+                                                <input type="hidden" name="id" value="@book.Id" />
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="fas fa-heart"></i> Favorites
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" class="btn btn-info w-100">
+                                                <i class="fas fa-info-circle"></i> Details
+                                            </a>
+                                        }
+
+                                       @*  <a class="btn btn-sm btn-outline-secondary me-2" asp-controller="Books" asp-action="Details" asp-route-id="@book.Id">Details</a>
+                                        <a class="btn btn-sm btn-outline-primary" asp-controller="Books" asp-action="Edit" asp-route-id="@book.Id">Edit</a>
+                                        <a class="btn btn-sm btn-outline-danger" asp-controller="Books" asp-action="Delete" asp-route-id="@book.Id">Delete</a> *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

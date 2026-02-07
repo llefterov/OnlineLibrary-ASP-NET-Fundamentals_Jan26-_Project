@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OnlineLibrary.Data.Models\OnlineLibrary.Data.Models.csproj" />
     <ProjectReference Include="..\OnlineLibrary.GCommon\OnlineLibrary.GCommon.csproj" />
   </ItemGroup>
 

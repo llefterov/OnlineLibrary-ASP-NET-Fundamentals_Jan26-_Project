@@ -26,6 +26,12 @@
                     <li class="nav-item"><a class="nav-link" href="/Books/All">Books</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Authors/All">Authors</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Publishers/All">Publishers</a></li>
+
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="/Books/Favorite">Favorites</a></li>
+                    }
+
                     <li class="nav-item"><a class="nav-link" href="/Home/Privacy">Privacy</a></li>
                 </ul>
                 <partial name="_LoginPartial" />
