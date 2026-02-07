@@ -6,4 +6,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineLibrary.Data.Models\OnlineLibrary.Data.Models.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Data\OnlineLibrary.Data.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.GCommon\OnlineLibrary.GCommon.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Web.ViewModels\OnlineLibrary.Web.ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc" Version="10.0.2" />
+  </ItemGroup>
+
 </Project>
