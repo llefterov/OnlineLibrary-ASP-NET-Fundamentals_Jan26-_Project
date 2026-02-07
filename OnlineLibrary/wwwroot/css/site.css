@@ -29,3 +29,22 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+:root {
+    --brand-primary: #0d6efd;
+    --brand-accent: #6f42c1;
+    --muted-bg: #f8f9fa;
+}
+
+.brand-accent {
+    color: var(--brand-accent);
+}
+
+.card-accent {
+    border-left: 6px solid var(--brand-accent);
+}
+
+.page-header-hero {
+    background: linear-gradient(90deg, rgba(13,110,253,0.08), rgba(111,66,193,0.04));
+    padding: 2rem 0;
+}
