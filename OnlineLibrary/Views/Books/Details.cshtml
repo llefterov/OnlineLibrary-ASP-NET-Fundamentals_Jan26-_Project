@@ -1,0 +1,74 @@
+﻿@using OnlineLibrary.Web.ViewModels.Books
+@model BookDetailsViewModel
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<link rel="stylesheet" href="~/css/book-details-actions.css" asp-append-version="true" />
+
+<div class="container py-4">
+    <div class="mb-3 d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="h4 mb-0">@Model.Title</h1>
+            <p class="text-muted small mb-0">@Model.PublisherName</p>
+        </div>
+
+        <div class="details-action-bar" role="group" aria-label="Book actions">
+            <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Back to list</a>
+
+            @if (User?.Identity?.IsAuthenticated == true && !Model.IsAddedByUser && !Model.IsAddedToUserCollection)
+            {
+                <a class="btn btn-filled-primary" asp-controller="Books" asp-action="Save" asp-route-id="@Model.Id">Add to Favorites</a>
+            }
+
+            @if (Model.IsAddedByUser)
+            {
+                <a class="btn btn-filled-primary" asp-controller="Books" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+                <a class="btn btn-filled-danger" asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="row g-0">
+        <div class="col-md-3">
+            <img src="@(string.IsNullOrEmpty(Model.CoverUrl) ? "/images/placeholder-book.jpg" : Model.CoverUrl)" class="img-fluid w-100 h-100 rounded-start" alt="@Model.Title" style="object-fit:cover; min-height:220px; max-height:320px;" />
+        </div>
+        <div class="col-md-9">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Title</h5>
+                <p class="mb-2">@Model.Description</p>
+
+                <div class="mb-2">
+                    <strong>Genre:</strong> @Model.GenreName
+                    <span class="badge @(Model.isRead ? "bg-success ms-2" : "bg-secondary ms-2")">@(Model.isRead ? "Read" : "Not read")</span>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 small text-muted">
+                        <div><strong>Rating:</strong> @Model.Rating / 5</div>
+                        <div><strong>Added:</strong> @Model.DateAdded.ToString("yyyy-MM-dd")</div>
+
+                        @if (Model.AddedByUserName == null)
+                        {
+                            <div><strong>Added by:</strong> unknown</div>
+                        }
+                        else
+                        {
+                            <div><strong>Added by:</strong> @Model.AddedByUserName</div>
+                        }
+                    </div>
+                    <div class="col-sm-6 text-sm-end small text-muted">
+                        @if (Model.DateRead.HasValue)
+                        {
+                            <div><strong>Read:</strong> @Model.DateRead.Value.ToString("yyyy-MM-dd")</div>
+                        }
+                        <div><strong>Authors:</strong> @Model.AuthorsName</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

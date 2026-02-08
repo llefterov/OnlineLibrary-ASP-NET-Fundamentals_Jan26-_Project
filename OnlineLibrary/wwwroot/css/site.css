@@ -48,3 +48,69 @@ body {
     background: linear-gradient(90deg, rgba(13,110,253,0.08), rgba(111,66,193,0.04));
     padding: 2rem 0;
 }
+
+
+
+/*Home page styles*/
+
+:root {
+    --warm-1: #ff7a18; /* orange */
+    --warm-2: #ffb86b; /* light orange */
+    --warm-3: #fff0e6; /* very light peach */
+    --accent: #b2451f; /* deep warm accent */
+    --text-dark: #3b2f2a;
+}
+
+.explore-section {
+    background: linear-gradient(135deg, var(--warm-3) 0%, rgba(255,184,107,0.12) 40%, rgba(255,122,24,0.06) 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: var(--text-dark);
+}
+
+.section-title {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.shadow-card {
+    box-shadow: 0 8px 24px rgba(178,69,31,0.12);
+}
+
+.hover-zoom {
+    transition: transform .35s ease, filter .35s ease;
+    filter: saturate(1.05) contrast(1.02);
+    max-width: 320px;
+    width: 100%;
+}
+
+    .hover-zoom:hover {
+        transform: translateY(-6px) scale(1.02);
+        filter: saturate(1.12) hue-rotate(-6deg);
+    }
+
+/* Ensure the column and its contents are centered and constrained */
+.card-content {
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1.display-4 {
+    color: var(--warm-1);
+}
+
+h5 {
+    color: #7a2e14;
+    margin-bottom: .25rem;
+}
+
+p {
+    color: #5a3f36;
+}
+
+
+

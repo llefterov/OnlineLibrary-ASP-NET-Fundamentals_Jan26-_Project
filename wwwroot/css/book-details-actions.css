@@ -1,0 +1,61 @@
+/* Separate and lightly filled action buttons for Views/Books/Details.cshtml */
+
+.details-action-bar {
+  display: flex;
+  gap: 0.5rem;               /* space between buttons */
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Base adjustments so buttons fit nicely inside card header */
+.details-action-bar .btn {
+  padding: .375rem .6rem;
+  font-size: .9rem;
+  border-width: 1px;
+  border-radius: .375rem;
+}
+
+/* Filled-but-light color variants (use same hue as outline hover, lighter background) */
+.btn-filled-primary {
+  background-color: rgba(13, 110, 253, 0.12);
+  border-color: rgba(13, 110, 253, 0.28);
+  color: #0d6efd;
+}
+.btn-filled-primary:hover,
+.btn-filled-primary:focus {
+  background-color: rgba(13, 110, 253, 0.18);
+  color: #0b5ed7;
+}
+
+.btn-filled-secondary {
+  background-color: rgba(108, 117, 125, 0.10);
+  border-color: rgba(108, 117, 125, 0.22);
+  color: #6c757d;
+}
+.btn-filled-secondary:hover,
+.btn-filled-secondary:focus {
+  background-color: rgba(108, 117, 125, 0.16);
+  color: #5c636a;
+}
+
+.btn-filled-danger {
+  background-color: rgba(220, 53, 69, 0.10);
+  border-color: rgba(220, 53, 69, 0.22);
+  color: #dc3545;
+}
+.btn-filled-danger:hover,
+.btn-filled-danger:focus {
+  background-color: rgba(220, 53, 69, 0.18);
+  color: #c82333;
+}
+
+/* Responsive tightening */
+@media (max-width: 576px) {
+  .details-action-bar {
+    gap: 0.35rem;
+  }
+  .details-action-bar .btn {
+    padding: .32rem .5rem;
+    font-size: .85rem;
+  }
+}

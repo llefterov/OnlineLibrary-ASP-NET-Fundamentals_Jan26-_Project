@@ -1,0 +1,59 @@
+/* Styles for Views/Books/Details.cshtml - buttons inside card and filled-but-light styles */
+
+.card-action-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Filled-but-lighter button variants (use same hue as outline hover, lighter background) */
+.btn-filled-primary {
+  background-color: rgba(13, 110, 253, 0.12);
+  border-color: rgba(13, 110, 253, 0.24);
+  color: #0d6efd;
+}
+.btn-filled-primary:hover,
+.btn-filled-primary:focus {
+  background-color: rgba(13, 110, 253, 0.18);
+  color: #0b5ed7;
+}
+
+.btn-filled-secondary {
+  background-color: rgba(108, 117, 125, 0.12);
+  border-color: rgba(108, 117, 125, 0.22);
+  color: #6c757d;
+}
+.btn-filled-secondary:hover,
+.btn-filled-secondary:focus {
+  background-color: rgba(108, 117, 125, 0.18);
+  color: #5c636a;
+}
+
+.btn-filled-danger {
+  background-color: rgba(220, 53, 69, 0.10);
+  border-color: rgba(220, 53, 69, 0.22);
+  color: #dc3545;
+}
+.btn-filled-danger:hover,
+.btn-filled-danger:focus {
+  background-color: rgba(220, 53, 69, 0.18);
+  color: #c82333;
+}
+
+/* Small visual adjustments so buttons fit nicely inside the card header */
+.card .btn {
+  padding: .35rem .6rem;
+  font-size: .9rem;
+}
+
+/* Ensure wrapped buttons keep compact spacing on small screens */
+@media (max-width: 576px) {
+  .card-action-bar {
+    gap: 0.375rem;
+  }
+  .card .btn {
+    padding: .3rem .5rem;
+    font-size: .85rem;
+  }
+}

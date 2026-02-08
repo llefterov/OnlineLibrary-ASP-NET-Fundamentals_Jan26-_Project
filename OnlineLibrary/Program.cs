@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
+using OnlineLibrary.Services.Core;
+using OnlineLibrary.Services.Core.Interfaces;
 
 namespace OnlineLibrary
 {
@@ -20,7 +22,7 @@ namespace OnlineLibrary
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             /* Register custom Services and DI*/
-
+            builder.Services.AddScoped<IBooksService, BooksService>();
 
             /* Register Identity in DI */
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

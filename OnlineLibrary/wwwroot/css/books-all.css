@@ -1,0 +1,138 @@
+/* Styles for Views/Books/All.cshtml (kept view-scoped in a static file) */
+
+/* Card sizing variables (adjust once to change final card size) */
+.cards-grid {
+    --card-image-height: 320px;
+    --card-top-height: 92px; /* increased to give more room for title/publisher */
+    --card-bottom-height: 64px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Each card's width is controlled here — this is also the picture width */
+.book-card {
+    width: 280px; /* card width = picture width */
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+    /* Card visual: fixed total height so all cards match despite variable text length */
+    .book-card .card {
+        height: calc(var(--card-image-height) + var(--card-top-height) + var(--card-bottom-height));
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        border-radius: .5rem;
+        overflow: hidden;
+    }
+
+/* Top area (title / publisher / genre) above the picture */
+/* fixed height to avoid taller titles increasing card size */
+.card-top {
+    height: var(--card-top-height);
+    padding: .6rem .75rem 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+}
+
+    /* Truncate long titles and publisher names */
+    /* Allow up to 2 title lines, then ellipsis */
+    .card-top .card-title {
+        margin: 0;
+        font-weight: 600;
+        font-size: clamp(0.95rem, 1.6vw, 1.08rem); /* slightly larger allowed */
+        line-height: 1.1;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+        max-width: 100%;
+    }
+
+    /* Publisher — single line truncation */
+    .card-top .card-subtitle {
+        margin: 0;
+        font-size: 0.82rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* Genre badge */
+    .card-top .badge {
+        margin-top: .25rem;
+        font-size: .75rem;
+    }
+
+/* Image area: fills card width and keeps consistent aspect */
+.card-cover {
+    width: 100%;
+    height: var(--card-image-height);
+    object-fit: cover;
+    display: block;
+    background: #f5f5f5;
+}
+
+/* Bottom area (rating + actions) under the picture */
+/* fixed height so it doesn't grow and change card size */
+.card-bottom {
+    height: var(--card-bottom-height);
+    padding: .6rem .75rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .4rem;
+}
+
+/* Buttons row */
+.card-actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+    /* Make buttons slightly smaller to fit narrow card */
+    .card-actions .btn {
+        font-size: .85rem;
+        padding: .35rem .6rem;
+    }
+
+/* Small screens: make cards narrower and image/areas shorter */
+@media (max-width: 576px) {
+    .book-card {
+        width: 46%;
+    }
+    /* two cards per row */
+    .cards-grid {
+        --card-image-height: 200px;
+        --card-top-height: 80px; /* increased to keep spacing on small screens */
+        --card-bottom-height: 56px;
+    }
+}
+
+/* Very small screens: single column */
+@media (max-width: 360px) {
+    .book-card {
+        width: 100%;
+    }
+
+    .cards-grid {
+        --card-image-height: 180px;
+        --card-top-height: 72px;
+        --card-bottom-height: 56px;
+    }
+}
