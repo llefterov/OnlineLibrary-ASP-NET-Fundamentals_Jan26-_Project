@@ -18,6 +18,8 @@ namespace OnlineLibrary.Services.Core
             this.dbContext = dbContext;
         }
 
+   
+
         public async Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId)
         {
             var allBooks = await dbContext.Books
@@ -37,6 +39,7 @@ namespace OnlineLibrary.Services.Core
                     b.CoverUrl,
                     b.AddedByUser,
                     b.PublisherId,
+                    b.Rating,
                     PublisherName = b.Publisher.Name,
                     b.UsersBooks
                 })
@@ -48,6 +51,7 @@ namespace OnlineLibrary.Services.Core
                     Title = b.Title,
                     Genre = b.Genre,
                     GenreName = b.Genre.ToString(),
+                    Rating = b.Rating,
                     CoverUrl = b.CoverUrl,
                     AddedByUserName = b.AddedByUser.UserName, // null-safe
                     PublisherId = b.PublisherId,
@@ -71,6 +75,7 @@ namespace OnlineLibrary.Services.Core
 
             return (publishers, authors);
         }
+
 
         public async Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id)
         {
@@ -124,6 +129,42 @@ namespace OnlineLibrary.Services.Core
         {
             return await dbContext.UsersBooks
                 .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
+        }
+
+
+
+        public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
+        {
+            await GetAuthorsAndPublishersAsync();
+
+            BookCreateViewModel createModel = new BookCreateViewModel();
+
+            return createModel;
+        }
+
+        public async Task CreateBookAsync(BookCreateViewModel inputModel, string? userId)
+        {
+          
+            var book = new Book
+            {
+                Title = inputModel.Title,
+                Description = inputModel.Description,
+                Genre = Enum.Parse<BookGenre>(inputModel.Genre),
+                isRead = inputModel.isRead,
+                DateRead = inputModel.DateRead,
+                Rating = inputModel.Rating,
+                CoverUrl = inputModel.CoverUrl,
+                DateAdded = inputModel.DateAdded,
+                PublisherId = inputModel.PublisherId,
+                AddedByUserId = userId, 
+                IsDeleted = false
+            };
+
+             // Save book first so the DB generates Id
+                dbContext.Books.Add(book);
+               await dbContext.SaveChangesAsync(); // book.Id populated
+          
+            
         }
     }
 }

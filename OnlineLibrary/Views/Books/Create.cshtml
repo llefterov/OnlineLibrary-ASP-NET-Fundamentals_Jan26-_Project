@@ -1,0 +1,95 @@
+@using OnlineLibrary.Web.ViewModels.Books
+@model BookCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Book";
+}
+
+<div class="container py-4">
+    <div class="card card-accent shadow-sm mx-auto" style="max-width:900px;">
+        <div class="card-body">
+            <h2 class="card-title brand-accent mb-3">@ViewData["Title"]</h2>
+
+            <form asp-controller="Books" asp-action="Create" method="post" class="needs-validation" novalidate="novalidate">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Genre" class="form-label"></label>
+                        <select asp-for="Genre" class="form-select" asp-items="Html.GetEnumSelectList(typeof(OnlineLibrary.Data.Models.BookGenre))"></select>
+                        <span asp-validation-for="Genre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Rating" class="form-label"></label>
+                        <input asp-for="Rating" type="number" min="0" max="5" class="form-control" />
+                        <span asp-validation-for="Rating" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PublisherId" class="form-label">Publisher</label>
+                        <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.Publishers">
+                            <option value="">-- Select publisher --</option>
+                        </select>
+                        <span asp-validation-for="PublisherId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch my-3">
+                    <input asp-for="isRead" class="form-check-input" />
+                    <label asp-for="isRead" class="form-check-label"></label>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DateRead" class="form-label"></label>
+                        <input asp-for="DateRead" type="date" class="form-control" />
+                        <span asp-validation-for="DateRead" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DateAdded" class="form-label"></label>
+                        <input asp-for="DateAdded" type="date" class="form-control" />
+                        <span asp-validation-for="DateAdded" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AuthorIds" class="form-label">Authors</label>
+                    <select asp-for="AuthorIds" asp-items="ViewBag.Authors" class="form-select" multiple size="6"></select>
+                    <span asp-validation-for="AuthorIds" class="text-danger small"></span>
+                    <div class="form-text">Hold Ctrl (Cmd) to select multiple authors.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CoverUrl" class="form-label"></label>
+                    <input asp-for="CoverUrl" class="form-control" />
+                    <span asp-validation-for="CoverUrl" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a asp-controller="Books" asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

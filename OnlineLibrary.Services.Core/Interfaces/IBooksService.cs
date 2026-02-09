@@ -19,5 +19,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<bool> IsBookAddedByUserAsync(string? userId, System.Guid bookId);
 
         Task<bool> IsBookAddedToUserCollectionAsync(string? userId, System.Guid bookId);
+
+        Task<BookCreateViewModel> GetBookCreateViewModelAsync();
+
+        Task CreateBookAsync(BookCreateViewModel model, string? userId);
     }
 }

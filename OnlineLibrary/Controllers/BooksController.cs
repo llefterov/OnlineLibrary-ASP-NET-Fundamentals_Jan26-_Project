@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
@@ -38,7 +39,7 @@ namespace OnlineLibrary.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Details(Guid id)
         {
-          var bookDetails = await booksService.GetBookDetailsByIdAsync(id);
+            var bookDetails = await booksService.GetBookDetailsByIdAsync(id);
             if (bookDetails == null)
             {
                 logger.LogWarning("Book with ID {BookId} not found.", id);
@@ -55,12 +56,58 @@ namespace OnlineLibrary.Web.Controllers
             return View(bookDetails);
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Create()
+        {
+            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
 
+            var model = await booksService.GetBookCreateViewModelAsync();
 
-        //var(publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-        //ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-        //ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Create(BookCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+                ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+                ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+
+                var createModel = await booksService.GetBookCreateViewModelAsync();
+
+                return View(createModel);
+            }
+
+            string? userId = GetUserId();
+
+            try
+            {
+                await booksService.CreateBookAsync(model, userId);
+
+            return RedirectToAction("All");
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, ""); 
+
+                return View(model);
+            }
+
+        }
+
 
 
     }
+    //var(publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+    //ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+    //ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+
 }
+
+
