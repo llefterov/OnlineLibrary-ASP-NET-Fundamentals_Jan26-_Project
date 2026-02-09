@@ -15,7 +15,8 @@
         </div>
 
         <div class="details-action-bar" role="group" aria-label="Book actions">
-            <a class="btn btn-filled-secondary" onclick="history.back()" @*asp- controller="Books" asp-action="All" *@>Back to list</a> 
+           @*  <a class="btn btn-filled-secondary" onclick="history.back()" asp-controller="Books" asp-action="All">Back to list</a>  *@
+            <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Browse all books</a>
 
             @if (User?.Identity?.IsAuthenticated == true && !Model.IsAddedByUser && !Model.IsAddedToUserCollection)
             {

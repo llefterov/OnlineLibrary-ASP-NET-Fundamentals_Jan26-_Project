@@ -1,0 +1,105 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using OnlineLibrary.Web.ViewModels.Books
+@model BookEditViewModel
+
+@{
+    ViewData["Title"] = "Edit Book";
+    var routeId = ViewContext.RouteData.Values["id"];
+    var authorsSelect = ViewBag.Authors as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var selectedAuthorIds = Model?.AuthorIds ?? new List<int>();
+}
+
+<div class="container py-4">
+    <div class="card card-accent shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title brand-accent mb-3">@ViewData["Title"]</h2>
+
+            <form asp-controller="Books" asp-action="Edit" asp-route-id="@routeId" method="post" class="needs-validation" novalidate="novalidate">
+                @Html.AntiForgeryToken()
+
+                @* Post the id route value too (Edit action expects id route param) *@
+                <input type="hidden" name="id" value="@routeId" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Genre" class="form-label"></label>
+                        <select asp-for="Genre" class="form-select" asp-items="Html.GetEnumSelectList(typeof(OnlineLibrary.Data.Models.BookGenre))"></select>
+                        <span asp-validation-for="Genre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Rating" class="form-label"></label>
+                        <input asp-for="Rating" type="number" min="0" max="5" class="form-control" />
+                        <span asp-validation-for="Rating" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PublisherId" class="form-label">Publisher</label>
+                        <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.Publishers">
+                            <option value="">-- Select publisher --</option>
+                        </select>
+                        <span asp-validation-for="PublisherId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch my-3">
+                    <input asp-for="isRead" class="form-check-input" />
+                    <label asp-for="isRead" class="form-check-label"></label>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DateRead" class="form-label"></label>
+                        <input asp-for="DateRead" type="date" class="form-control" />
+                        <span asp-validation-for="DateRead" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DateAdded" class="form-label"></label>
+                        <input asp-for="DateAdded" type="date" class="form-control" />
+                        <span asp-validation-for="DateAdded" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AuthorIds" class="form-label">Authors</label>
+
+                    @* Let the tag helper render options from ViewBag.Authors (SelectListItem.Selected is respected) *@
+                    <select asp-for="AuthorIds" class="form-select" multiple size="6" asp-items="ViewBag.Authors"></select>
+
+                    <span asp-validation-for="AuthorIds" class="text-danger small"></span>
+                    <div class="form-text">Hold Ctrl (Cmd) to select multiple authors.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CoverUrl" class="form-label"></label>
+                    <input asp-for="CoverUrl" class="form-control" />
+                    <span asp-validation-for="CoverUrl" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <a class="btn btn-outline-secondary" asp-controller="Books" asp-action="Details" asp-route-id="@routeId">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

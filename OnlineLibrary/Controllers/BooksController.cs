@@ -90,7 +90,7 @@ namespace OnlineLibrary.Web.Controllers
             {
                 await booksService.CreateBookAsync(model, userId);
 
-            return RedirectToAction("All");
+                return RedirectToAction("All");
             }
             catch (Exception e)
             {
@@ -117,6 +117,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Save(Guid id)
         {
             string? userId = GetUserId();
@@ -136,6 +137,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Remove(Guid id)
         {
             string? userId = GetUserId();
@@ -148,13 +150,81 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("Favorites");
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
 
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var model = await booksService.GetBookForEditAsync(id, userId);
+
+                return View(model);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (ArgumentException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Edit([FromRoute] Guid id, BookEditViewModel model)
+        {
+            if (id != model.Id || id == Guid.Empty)
+            {
+                return BadRequest();
+            }
+
+
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+                ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+                ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+                return View(model);
+            }
+
+            try
+            {
+                await booksService.EditBookAsync(model, userId);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+
+            return RedirectToAction("Details", new { id = model.Id });
+        }
+
+
+
+
+
+        //var(publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+        //ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+        //ViewBag.Authors = new SelectList(authors, "Id", "FullName");
 
     }
-    //var(publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-    //ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-    //ViewBag.Authors = new SelectList(authors, "Id", "FullName");
-
 }
 
 

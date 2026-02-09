@@ -84,6 +84,7 @@ namespace OnlineLibrary.Services.Core
             // Load the entity with related data first (server-side)
             var bookEntity = await dbContext
                 .Books
+                .Where(b => !b.IsDeleted)
                 .Include(b => b.Publisher)
                 .Include(b => b.UsersBooks)
                 .Include(b => b.BooksAuthors)
@@ -172,7 +173,7 @@ namespace OnlineLibrary.Services.Core
             catch (Exception)
             {
 
-                throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\""); 
+                throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
             }
 
             // Create BookAuthor records linking saved book to selected authors
@@ -243,5 +244,112 @@ namespace OnlineLibrary.Services.Core
             dbContext.UsersBooks.Remove(userBook);
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, string userId)
+        {
+            // Load the entity with related data first (server-side)
+            var bookEntity = await dbContext
+                .Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.Publisher)
+                .Include(b => b.UsersBooks)
+                .Include(b => b.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
+                .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (bookEntity == null)
+            {
+                throw new InvalidOperationException("Destination not found");
+            }
+
+            // Map to view model in-memory (safe for string.Join and enum ToString)
+            var bookDetails = new BookEditViewModel
+            {
+                Id = bookEntity.Id,
+                Title = bookEntity.Title,
+                Description = bookEntity.Description,
+                Genre = bookEntity.Genre.ToString(),
+                //GenreName = bookEntity.Genre.ToString(),
+                isRead = bookEntity.isRead,
+                DateRead = bookEntity.DateRead,
+                Rating = bookEntity.Rating,
+                CoverUrl = bookEntity.CoverUrl,
+                DateAdded = bookEntity.DateAdded,
+                PublisherId = bookEntity.PublisherId,
+                AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
+                //PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
+                //AuthorsName = string.Join(", ", bookEntity.BooksAuthors
+                //    .Select(ba => ba.Author.FullName)),
+                //AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
+                //IsAddedByUser = false,
+                //IsAddedToUserCollection = false
+            };
+
+            return (bookDetails);
+        }
+
+        public async Task EditBookAsync(BookEditViewModel inputModel, string userId)
+        {
+            var bookEntity = dbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.BooksAuthors)
+                .FirstOrDefault(b => b.Id == inputModel.Id);
+
+            if (bookEntity == null)
+            {
+                throw new InvalidOperationException("Book not found");
+            }
+
+            try
+            {
+                // Update book properties
+                bookEntity.Title = inputModel.Title;
+                bookEntity.Description = inputModel.Description;
+                bookEntity.Genre = Enum.Parse<BookGenre>(inputModel.Genre);
+                bookEntity.isRead = inputModel.isRead;
+                bookEntity.DateRead = inputModel.DateRead;
+                bookEntity.Rating = inputModel.Rating;
+                bookEntity.CoverUrl = inputModel.CoverUrl;
+                bookEntity.DateAdded = inputModel.DateAdded;
+                bookEntity.PublisherId = inputModel.PublisherId;
+                // Update BookAuthor relationships
+                var existingAuthorIds = bookEntity.BooksAuthors
+                    .Select(ba => ba.AuthorId)
+                    .ToList();
+
+                var newAuthorIds = inputModel.AuthorIds ?? new List<int>();
+
+                // Remove unselected authors
+                var toRemove = bookEntity.BooksAuthors
+                    .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
+                    .ToList();
+
+                dbContext.BooksAuthors.RemoveRange(toRemove);
+
+                // Add newly selected authors
+                var toAdd = newAuthorIds
+                    .Except(existingAuthorIds)
+                    .Select(authorId => new BookAuthor
+                    {
+                        BookId = bookEntity.Id,
+                        AuthorId = authorId
+                    });
+
+                await dbContext.BooksAuthors.AddRangeAsync(toAdd);
+                await dbContext.SaveChangesAsync();
+
+                          }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
+
+            }
+
+
+
+        }
     }
 }
+

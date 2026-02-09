@@ -29,5 +29,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task RemoveFevBookAsync(Guid id, string userId);
 
+        Task<BookEditViewModel> GetBookForEditAsync(Guid id, string userId);
+
+        Task EditBookAsync(BookEditViewModel model, string userId);
+
     }
 }
