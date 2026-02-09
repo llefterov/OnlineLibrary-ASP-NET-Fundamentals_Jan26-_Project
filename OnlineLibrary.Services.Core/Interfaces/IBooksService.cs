@@ -7,8 +7,6 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IBooksService
     {
-        //Task<Book?> GetBookAsync(Guid id);
-
         Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId);
 
         Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
@@ -33,5 +31,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task EditBookAsync(BookEditViewModel model, string userId);
 
+        Task<BookDeleteViewModel>GetBookDeleteDetailsAsync(Guid id, string userId);
+
+        Task DeleteBookAsync(Guid id, string userId);
     }
 }

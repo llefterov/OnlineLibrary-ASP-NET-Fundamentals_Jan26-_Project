@@ -216,13 +216,47 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("Details", new { id = model.Id });
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
+            var book = await booksService.GetBookDeleteDetailsAsync(id, userId);
 
+            return View(book);
+        }
 
+        [HttpPost, ActionName("Delete")]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //var(publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-        //ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-        //ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+            try
+            {
+                await booksService.DeleteBookAsync(id, userId);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (ArgumentException)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction("All");
+        }
 
     }
 }

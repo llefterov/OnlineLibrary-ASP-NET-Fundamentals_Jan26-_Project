@@ -271,7 +271,6 @@ namespace OnlineLibrary.Services.Core
                 Title = bookEntity.Title,
                 Description = bookEntity.Description,
                 Genre = bookEntity.Genre.ToString(),
-                //GenreName = bookEntity.Genre.ToString(),
                 isRead = bookEntity.isRead,
                 DateRead = bookEntity.DateRead,
                 Rating = bookEntity.Rating,
@@ -279,12 +278,6 @@ namespace OnlineLibrary.Services.Core
                 DateAdded = bookEntity.DateAdded,
                 PublisherId = bookEntity.PublisherId,
                 AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-                //PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
-                //AuthorsName = string.Join(", ", bookEntity.BooksAuthors
-                //    .Select(ba => ba.Author.FullName)),
-                //AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
-                //IsAddedByUser = false,
-                //IsAddedToUserCollection = false
             };
 
             return (bookDetails);
@@ -349,6 +342,55 @@ namespace OnlineLibrary.Services.Core
 
 
 
+        }
+
+        public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, string userId)
+        {
+            var book = await dbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.AddedByUser)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                throw new ArgumentException("Book not found");
+            }
+
+            if (book.AddedByUserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
+            }
+
+            var deleteModel = new BookDeleteViewModel
+            {
+                Id = book.Id,
+                Title = book.Title,
+                AddedByUserName = book.AddedByUser?.UserName, // null-safe access
+                CoverUrl = book.CoverUrl
+            };
+
+            return deleteModel;
+
+        }
+
+        public async Task DeleteBookAsync(Guid id, string userId)
+        {
+            var book = await dbContext.Books
+                 .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+
+            if (book == null)
+            {
+                throw new ArgumentException("Book not found.");
+            }
+
+            if (book.AddedByUserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
+            }
+
+            book.IsDeleted = true;
+            await dbContext.SaveChangesAsync();
         }
     }
 }

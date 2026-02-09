@@ -1,0 +1,36 @@
+@using OnlineLibrary.Web.ViewModels.Books   
+@model BookDeleteViewModel
+
+@{
+    ViewData["Title"] = "Delete Book";
+}
+
+<div class="container py-4">
+    <div class="card card-accent shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title brand-accent mb-3">@ViewData["Title"]</h2>
+
+            <div class="mb-3">
+                <h4 class="mb-2">@Model.Title</h4>
+                
+                <div class="mb-2">
+                    <img src="@Model.CoverUrl" alt="Cover" class="img-thumbnail" style="max-height:200px;" />
+                </div>
+            </div>
+
+            <form asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="needs-validation">
+                @Html.AntiForgeryToken()
+
+                <div class="alert alert-warning" role="alert">
+                    Are you sure you want to delete the book <strong>@Model.Title</strong>?
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a class="btn btn-outline-secondary" asp-controller="Books" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+                    <a class="btn btn-link text-muted ms-auto" asp-controller="Books" asp-action="All">Back to list</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
