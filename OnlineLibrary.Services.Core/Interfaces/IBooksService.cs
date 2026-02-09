@@ -23,5 +23,11 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookCreateViewModel> GetBookCreateViewModelAsync();
 
         Task CreateBookAsync(BookCreateViewModel model, string? userId);
+
+        Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(string userId);
+        Task SaveFevBookAsync(Guid id, string userId);
+
+        Task RemoveFevBookAsync(Guid id, string userId);
+
     }
 }

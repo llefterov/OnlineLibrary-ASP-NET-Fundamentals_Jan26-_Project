@@ -94,11 +94,58 @@ namespace OnlineLibrary.Web.Controllers
             }
             catch (Exception e)
             {
-                logger.LogError(e, ""); 
+                logger.LogError(e, "An error occurred while creating a book with name {BookTitle}", model.Title);
 
                 return View(model);
             }
 
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Favorites()
+        {
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            IEnumerable<BookFavoritesViewModel> models = await booksService.GetFavoriteBooksAsync(userId);
+
+            return View(models);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Save(Guid id)
+        {
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            await booksService.SaveFevBookAsync(id, userId);
+
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer))
+            {
+                return Redirect(referer);
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Remove(Guid id)
+        {
+            string? userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            await booksService.RemoveFevBookAsync(id, userId);
+            return RedirectToAction("Favorites");
         }
 
 

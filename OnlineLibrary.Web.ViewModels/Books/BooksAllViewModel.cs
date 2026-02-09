@@ -35,6 +35,8 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public int PublisherId { get; set; }
 
+        public bool IsAddedByUser { get; set; }
+
         public bool IsAddedToUserCollection { get; set; }
 
         // Extra friendly fields for the view

@@ -40,7 +40,7 @@
                             <p class="mb-0 small text-muted"><strong>Rating:</strong> @book.Rating / 5</p>
 
                             <div class="card-actions">
-                                @if (User?.Identity?.IsAuthenticated == true && book.AddedByUserName != User?.Identity?.Name)
+                                @if (User?.Identity?.IsAuthenticated == true && book.AddedByUserName != User?.Identity?.Name && !book.IsAddedToUserCollection)
                                 {
                                     <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-info">
                                         <i class="fas fa-info-circle"></i> Details

@@ -18,7 +18,7 @@ namespace OnlineLibrary.Services.Core
             this.dbContext = dbContext;
         }
 
-   
+
 
         public async Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId)
         {
@@ -56,6 +56,8 @@ namespace OnlineLibrary.Services.Core
                     AddedByUserName = b.AddedByUser.UserName, // null-safe
                     PublisherId = b.PublisherId,
                     PublisherName = b.PublisherName,
+                    IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
+                    IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                 })
                 .ToListAsync();
 
@@ -117,7 +119,7 @@ namespace OnlineLibrary.Services.Core
                 IsAddedToUserCollection = false
             };
             return bookDetails;
-        }                   
+        }
 
         public async Task<bool> IsBookAddedByUserAsync(string? userId, Guid bookId)
         {
@@ -144,7 +146,7 @@ namespace OnlineLibrary.Services.Core
 
         public async Task CreateBookAsync(BookCreateViewModel inputModel, string? userId)
         {
-          
+
             var book = new Book
             {
                 Title = inputModel.Title,
@@ -156,15 +158,90 @@ namespace OnlineLibrary.Services.Core
                 CoverUrl = inputModel.CoverUrl,
                 DateAdded = inputModel.DateAdded,
                 PublisherId = inputModel.PublisherId,
-                AddedByUserId = userId, 
+                AddedByUserId = userId,
+
                 IsDeleted = false
             };
 
-             // Save book first so the DB generates Id
-                dbContext.Books.Add(book);
-               await dbContext.SaveChangesAsync(); // book.Id populated
-          
-            
+            try
+            {
+                // Save book first so the DB generates Id
+                await dbContext.Books.AddAsync(book);
+                await dbContext.SaveChangesAsync(); // book.Id populated
+            }
+            catch (Exception)
+            {
+
+                throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\""); 
+            }
+
+            // Create BookAuthor records linking saved book to selected authors
+            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
+            {
+                var bookAuthors = inputModel.AuthorIds
+                       .Select(autorId => new BookAuthor
+                       {
+                           AuthorId = autorId,
+                           BookId = book.Id
+                       })
+                       .ToList();
+                try
+                {
+                    await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    throw new InvalidOperationException("At least one author must be selected.");
+                }
+
+            }
+        }
+
+        public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(string userId)
+        {
+            var fevBooks = await dbContext.UsersBooks
+                .Where(ub => ub.UserId == userId)
+                .Include(ub => ub.Book)
+                .Select(ub => new BookFavoritesViewModel
+                {
+                    Id = ub.Book.Id,
+                    Title = ub.Book.Title,
+                    CoverUrl = ub.Book.CoverUrl
+                })
+                .ToListAsync();
+            return fevBooks;
+        }
+
+        public async Task SaveFevBookAsync(Guid id, string userId)
+        {
+            if (await dbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
+            {
+                return;
+            }
+
+            var userBook = new UserBook
+            {
+                BookId = id,
+                UserId = userId
+            };
+
+            await dbContext.UsersBooks.AddAsync(userBook);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveFevBookAsync(Guid id, string userId)
+        {
+            var userBook = await dbContext.UsersBooks
+                 .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
+
+            if (userBook == null)
+            {
+                return;
+            }
+
+            dbContext.UsersBooks.Remove(userBook);
+            await dbContext.SaveChangesAsync();
         }
     }
 }
