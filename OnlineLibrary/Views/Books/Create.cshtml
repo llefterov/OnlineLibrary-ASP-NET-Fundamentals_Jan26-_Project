@@ -45,6 +45,7 @@
                         <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.Publishers">
                             <option value="">-- Select publisher --</option>
                         </select>
+                        <p class="form-text text-danger">If the publisher is not listed, you can add it from the <a asp-controller="Publisher" asp-action="All">Publishers</a> page. Then start again.</p>
                         <span asp-validation-for="PublisherId" class="text-danger small"></span>
                     </div>
                 </div>
@@ -73,6 +74,8 @@
                     <select asp-for="AuthorIds" asp-items="ViewBag.Authors" class="form-select" multiple size="6"></select>
                     <span asp-validation-for="AuthorIds" class="text-danger small"></span>
                     <div class="form-text">Hold Ctrl (Cmd) to select multiple authors.</div>
+                    <p class="form-text text-danger">If the author is not listed, you can add it from the <a asp-controller="Author" asp-action="All">Authors</a> page.Then start again.</p>
+
                 </div>
 
                 <div class="mb-3">

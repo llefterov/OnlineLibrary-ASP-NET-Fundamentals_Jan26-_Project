@@ -160,7 +160,6 @@ namespace OnlineLibrary.Services.Core
                 DateAdded = inputModel.DateAdded,
                 PublisherId = inputModel.PublisherId,
                 AddedByUserId = userId,
-
                 IsDeleted = false
             };
 
@@ -349,6 +348,8 @@ namespace OnlineLibrary.Services.Core
             var book = await dbContext.Books
                 .Where(b => !b.IsDeleted)
                 .Include(b => b.AddedByUser)
+                .Include(ba => ba.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == id);
 
@@ -357,6 +358,7 @@ namespace OnlineLibrary.Services.Core
                 throw new ArgumentException("Book not found");
             }
 
+           
             if (book.AddedByUserId != userId)
             {
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
@@ -376,8 +378,11 @@ namespace OnlineLibrary.Services.Core
 
         public async Task DeleteBookAsync(Guid id, string userId)
         {
+            // Load tracked entity with related collections (no AsNoTracking)
             var book = await dbContext.Books
-                 .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.AddedByUser)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
             {
@@ -389,7 +394,20 @@ namespace OnlineLibrary.Services.Core
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
             }
 
+            // Remove dependent BookAuthor entries
+            var bookAuthorEntries = dbContext.BooksAuthors
+                .Where(ba => ba.BookId == id);
+            dbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
+
+            // Remove dependent UserBook entries (user collections)
+            var userBookEntries = dbContext.UsersBooks
+                .Where(ub => ub.BookId == id);
+            dbContext.UsersBooks.RemoveRange(userBookEntries);
+
+
+            // Soft-delete the book
             book.IsDeleted = true;
+
             await dbContext.SaveChangesAsync();
         }
     }

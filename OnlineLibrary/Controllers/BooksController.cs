@@ -23,6 +23,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All()
         {
             var userId = GetUserId();
@@ -36,7 +37,7 @@ namespace OnlineLibrary.Web.Controllers
 
 
         [HttpGet]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
             var bookDetails = await booksService.GetBookDetailsByIdAsync(id);
@@ -57,7 +58,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Create()
         {
             var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
@@ -70,7 +70,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Create(BookCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -102,7 +101,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Favorites()
         {
             string? userId = GetUserId();
@@ -117,7 +115,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Save(Guid id)
         {
             string? userId = GetUserId();
@@ -137,7 +134,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Remove(Guid id)
         {
             string? userId = GetUserId();
@@ -151,7 +147,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Edit(Guid id)
         {
             var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
@@ -181,7 +176,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Edit([FromRoute] Guid id, BookEditViewModel model)
         {
             if (id != model.Id || id == Guid.Empty)
@@ -217,7 +211,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
             string? userId = GetUserId();
@@ -232,7 +225,6 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {

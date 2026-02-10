@@ -15,7 +15,13 @@
         </div>
 
         <div class="details-action-bar" role="group" aria-label="Book actions">
+
+            <button type="button" class="btn btn-warning d-flex justify-content-center align-items-center flex-fill mx-1" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+
             <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Browse all books</a>
+
 
             @if (User?.Identity?.IsAuthenticated == true && !Model.IsAddedByUser && !Model.IsAddedToUserCollection)
             {
@@ -27,7 +33,7 @@
                 </form>
             }
 
-            @if (Model.IsAddedByUser)
+            @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true))
             {
                 <a class="btn btn-filled-primary" asp-controller="Books" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
                 <a class="btn btn-filled-danger" asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>

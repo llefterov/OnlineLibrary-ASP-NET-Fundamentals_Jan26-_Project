@@ -1,0 +1,36 @@
+@using OnlineLibrary.Web.ViewModels.Author
+@model AuthorAddViewModel
+
+@{
+    ViewData["Title"] = "Add Author";
+}
+
+<div class="container py-4">
+    <div class="card card-accent shadow-sm mx-auto" style="max-width:720px;">
+        <div class="card-body">
+            <h2 class="card-title brand-accent mb-3">@ViewData["Title"]</h2>
+
+            <form asp-controller="Author" asp-action="Add" method="post" class="needs-validation" novalidate="novalidate">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a asp-controller="Author" asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+}

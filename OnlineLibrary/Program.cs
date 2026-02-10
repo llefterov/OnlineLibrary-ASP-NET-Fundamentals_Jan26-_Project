@@ -23,9 +23,21 @@ namespace OnlineLibrary
 
             /* Register custom Services and DI*/
             builder.Services.AddScoped<IBooksService, BooksService>();
+            builder.Services.AddScoped<IAuthorService, AuthorService>();
+            builder.Services.AddScoped<IPublisherService, PublisherService>();
 
             /* Register Identity in DI */
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            })
+
+
+
                 .AddEntityFrameworkStores<OnlineLibraryDbContext>();
             builder.Services.AddControllersWithViews();
 
