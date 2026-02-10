@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnlineLibrary.Data;
 using OnlineLibrary.Services.Core.Exceptions;
@@ -129,16 +130,10 @@ namespace OnlineLibrary.Web.Controllers
                 return View(inputModel);
             }
 
-
             try
             {
                 await authorService.UpdateAuthorAsync(id, inputModel);
-            }
-            catch (AuthorDoesntExistException ex)
-            {
-                logger.LogWarning(ex, "Attempt to update non-existing author with id {AuthorId}", id);
-                ModelState.AddModelError(string.Empty, "The author you are trying to update does not exist.");
-                return NotFound();
+                return RedirectToAction("All", "Author");
             }
             catch (AuthorUpdateExeption ex)
             {
@@ -152,8 +147,63 @@ namespace OnlineLibrary.Web.Controllers
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the author. Please contact support.");
                 return View(inputModel);
             }
-            return RedirectToAction("All", "Author");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            var authorToDelete = await authorService.GetAuthorDeleteDetailsAsync(id);
+
+            if (authorToDelete == null)
+            {
+                return NotFound();
+            }
+
+            return View(authorToDelete);
+
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed([FromRoute] int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+               await authorService.DeleteAuthorAsync(id);
+                return RedirectToAction("All", "Author");
+            }
+            catch (AuthorDoesntExistException)
+            {
+                logger.LogWarning("Attempt to delete non-existing author with id {AuthorId}", id);
+                ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
+
+                return NotFound();
+
+            }
+            catch (AuthorDeleteException ex)
+            {
+                logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
+                ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
+                return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
+                return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
+            }
+
+
+
+        }
+
+
+
+
 
 
         //try
@@ -182,6 +232,7 @@ namespace OnlineLibrary.Web.Controllers
         //}
 
         //return View(inputModel);
+
 
 
 

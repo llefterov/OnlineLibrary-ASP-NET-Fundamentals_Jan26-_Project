@@ -128,12 +128,56 @@ namespace OnlineLibrary.Services.Core
                 throw new AuthorUpdateExeption("Unable to update the author in the database.");
             }
 
+        }
 
-
-
+        public async Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id)
+        {
+            var authorToDelete = dbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .Select(a => new AuthorDeleteViewModel
+                {
+                    Id = a.Id,
+                    FullName = a.FullName,
+                    BooksAuthors = a.BooksAuthors
+                })
+                .FirstOrDefault(a => a.Id == id);
+            return authorToDelete;
 
         }
-    } 
+
+        public async Task DeleteAuthorAsync(int id)
+        {
+            var author = await dbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            if (author.BooksAuthors.Any())
+            {
+
+                throw new AuthorDeleteException("Cannot delete author with associated books.");
+
+            }
+
+            dbContext.Authors.Remove(author);
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // wrap low-level exception to a service-level exception
+                throw new AuthorDeleteException("Unable to delete the author from the database.");
+            }
+
+        }
+    }
 }
 
 

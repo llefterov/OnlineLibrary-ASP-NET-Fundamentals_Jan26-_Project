@@ -19,5 +19,13 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task UpdateAuthorAsync(int id, AuthorEditViewModel model);
         Task<bool> ExistsAsync(int id);
+
+        Task DeleteAuthorAsync(int id);
+
+        Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id);
+
+
+
+
     }
 }
