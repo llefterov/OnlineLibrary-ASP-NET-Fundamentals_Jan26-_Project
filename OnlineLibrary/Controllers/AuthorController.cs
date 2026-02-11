@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnlineLibrary.Data;
-using OnlineLibrary.Services.Core.Exceptions;
+using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Author;
 using System;
@@ -196,47 +196,7 @@ namespace OnlineLibrary.Web.Controllers
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
                 return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
             }
-
-
-
         }
-
-
-
-
-
-
-        //try
-        //{
-        //    await authorService.UpdateAuthorAsync(inputModel);
-        //    return RedirectToAction("All", "Author");
-        //}
-        //catch (AuthorAlreadyExistsException ex)
-        //{
-        //    logger.LogWarning(ex, "Attempt to add existing author {FullName}", inputModel.FullName);
-        //    // bind error to the FullName field so user sees the specific issue
-        //    ModelState.AddModelError(nameof(AuthorAddViewModel.FullName), ex.Message);
-        //    return View(inputModel);
-        //}
-        //catch (AuthorCreateException ex)
-        //{
-        //    logger.LogError(ex, "An error occurred while adding a new author.");
-        //    ModelState.AddModelError(string.Empty, "An error occurred while adding the author. Please try again.");
-        //    return View(inputModel);
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "Unexpected error while adding author.");
-        //    ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
-        //    return View(inputModel);
-        //}
-
-        //return View(inputModel);
-
-
-
-
-
     }
 }
 

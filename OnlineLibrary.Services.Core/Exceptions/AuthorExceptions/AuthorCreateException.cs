@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineLibrary.Services.Core.Exceptions
+namespace OnlineLibrary.Services.Core.Exceptions.AuthorExceptions
 {
     public class AuthorCreateException : Exception
     {

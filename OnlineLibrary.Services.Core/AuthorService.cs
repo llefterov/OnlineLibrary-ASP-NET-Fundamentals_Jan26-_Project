@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Core.Exceptions;
+using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Author;
 using System;
@@ -166,6 +166,7 @@ namespace OnlineLibrary.Services.Core
             }
 
             dbContext.Authors.Remove(author);
+
             try
             {
                 await dbContext.SaveChangesAsync();

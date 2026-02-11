@@ -9,12 +9,21 @@ namespace OnlineLibrary.Services.Core.Interfaces
     public interface IPublisherService
     {
 
-        Task<IEnumerable<PublisherAllViewModel>> GetAllAsync();
-        Task<PublisherDetailsViewModel?> GetByIdAsync(int id);
-        //Task<TKey> CreateAsync(TCreateModel model, string? userId = null);
-        //Task UpdateAsync(TKey id, TEditModel model, string? userId = null);
-        //Task DeleteAsync(TKey id, string? userId = null);
-        //Task<bool> ExistsAsync(TKey id);
+        Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync();
+        Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(int id);
+
+        PublisherAddViewModel GetEmtyPublisherFormModelAsync();
+
+        Task AddPublisherAsync(PublisherAddViewModel model);
+
+        Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(int id);
+
+        Task UpdatePublisherAsync(int id, PublisherEditViewModel model);
+        Task<bool> ExistsAsync(int id);
+
+        Task DeletePublisherAsync(int id);
+
+        Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(int id);
 
 
 
