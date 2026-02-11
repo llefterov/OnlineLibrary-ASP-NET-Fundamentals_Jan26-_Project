@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data;
-using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Core;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
 
@@ -12,12 +9,10 @@ namespace OnlineLibrary.Web.Controllers
 {
     public class BooksController : BaseController
     {
-        private readonly OnlineLibraryDbContext dbContext;
         private readonly IBooksService booksService;
         private readonly ILogger<BooksController> logger;
-        public BooksController(OnlineLibraryDbContext dbContext, IBooksService booksService, ILogger<BooksController> logger)
+        public BooksController(IBooksService booksService, ILogger<BooksController> logger)
         {
-            this.dbContext = dbContext;
             this.booksService = booksService;
             this.logger = logger;
         }

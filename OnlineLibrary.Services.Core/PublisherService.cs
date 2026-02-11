@@ -47,6 +47,8 @@ namespace OnlineLibrary.Services.Core
                    Id = p.Id,
                    Name = p.Name,
                    Books = p.Books
+                   .OrderBy(b => b.Title)
+                     .ToList()
                })
                .FirstOrDefaultAsync(p => p.Id == id);
 

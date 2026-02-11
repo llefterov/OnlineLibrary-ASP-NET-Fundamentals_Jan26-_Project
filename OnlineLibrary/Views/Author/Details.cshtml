@@ -29,7 +29,7 @@
             else
             {
                 <div class="row g-3">
-                    @foreach (var ba in Model.BooksAuthors.OrderBy(ba => ba.Book?.Title))
+                    @foreach (var ba in Model.BooksAuthors)
                     {
                         var book = ba.Book;
                         if (book == null) { continue; }

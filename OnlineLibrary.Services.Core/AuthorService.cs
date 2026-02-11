@@ -44,6 +44,8 @@ namespace OnlineLibrary.Services.Core
                     Id = a.Id,
                     FullName = a.FullName,
                     BooksAuthors = a.BooksAuthors
+                    .OrderBy(ba => ba.Book.Title)
+                    .ToList()
                 })
                 .FirstOrDefaultAsync();
 

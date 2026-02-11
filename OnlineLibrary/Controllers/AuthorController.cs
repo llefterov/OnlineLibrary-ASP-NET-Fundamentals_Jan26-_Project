@@ -1,25 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using OnlineLibrary.Data;
 using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Author;
-using System;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace OnlineLibrary.Web.Controllers
 {
     public class AuthorController : BaseController
     {
-        private readonly OnlineLibraryDbContext dbContext;
         private readonly IAuthorService authorService;
         private readonly ILogger<AuthorController> logger;
-        public AuthorController(OnlineLibraryDbContext dbContext, IAuthorService authorService, ILogger<AuthorController> logger)
+        public AuthorController(IAuthorService authorService, ILogger<AuthorController> logger)
         {
-            this.dbContext = dbContext;
             this.authorService = authorService;
             this.logger = logger;
         }
