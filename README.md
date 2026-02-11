@@ -14,6 +14,7 @@ A comprehensive online library management system built with **ASP.NET Core MVC**
 - **Genre Categorization**: Organize books by genres (Biography, Romance, Mystery, Fantasy, Science Fiction, Horror, Thriller, Historical Fiction, Self-Help, Other)
 - **Author & Publisher Management**: Complete CRUD operations (Create, Read, Update, Delete) for authors and publishers
 - **Quick Add Feature**: Add new authors/publishers on-the-fly while creating books
+- **My Books Collection**: View and manage only the books you've added to the library
 - **User Book Collections**: Users can maintain their personal book collections
 - **Filter Capabilities**: View all books by a specific author or publisher through Details pages
 - **Responsive UI**: Modern Bootstrap 5 interface with custom styling
@@ -87,7 +88,7 @@ OnlineLibrary/
 - `Title` (string, max 250 chars)
 - `Description` (string, max 1000 chars)
 - `Genre` (Enum: Biography, Romance, Mystery, Fantasy, ScienceFiction, Horror, Thriller, HistoricalFiction, SelfHelp, Other)
-- `isRead` (bool)
+- `IsRead` (bool)
 - `DateRead` (DateTime?)
 - `Rating` (int, 0-5)
 - `CoverUrl` (string, max 2083 chars)
@@ -155,7 +156,7 @@ Update the connection string in `OnlineLibrary/appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=OnlineLibraryDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\mssqllocaldb;Database=OnlineLibraryDb;Trusted_Connection=True;MultipleActiveResultSets=true"
   }
 }
 ```
@@ -186,7 +187,7 @@ Navigate to `https://localhost:5001` or `http://localhost:5000`
 
 ### Creating an Account
 1. Click **Register** in the navigation menu
-2. Fill in your email and password
+2. Fill in your email and password (minimum 6 characters, 4 unique characters)
 3. Confirm your registration
 
 ### Adding a Book
@@ -202,6 +203,9 @@ Navigate to `https://localhost:5001` or `http://localhost:5000`
 4. Select existing author or add new author on-the-fly
 5. Click **Create**
 
+### Viewing My Books
+Navigate to **Books** > **My Books** to see a personalized view of all books you've added to the library. This filtered view shows only the books created by the currently logged-in user, making it easy to manage your contributions to the library.
+
 ### Managing Your Collection
 - Mark books as read/unread
 - Add reading dates
@@ -209,6 +213,7 @@ Navigate to `https://localhost:5001` or `http://localhost:5000`
 - View all books in the library
 - Add books to your personal collection
 - Remove books from your collection
+- View your personal book contributions in 'My Books'
 - Filter by author or publisher through Details pages
 
 ### Managing Authors & Publishers
@@ -256,6 +261,8 @@ The database is seeded with sample data:
 
 - **ASP.NET Core Identity** for user management
 - Password hashing and validation
+- Enhanced password requirements (6+ characters, 4 unique characters)
+- Account lockout after 5 failed login attempts (5-minute duration)
 - CSRF protection
 - Secure cookie authentication
 - User-specific book collections
@@ -268,6 +275,7 @@ The database is seeded with sample data:
 - **Responsive Design**: Mobile-first approach with Bootstrap 5
 - **Custom Branding**: Gradient navigation with brand colors
 - **Card-Based Layout**: Modern card design for book display
+- **User-Specific Views**: 'My Books' page for personal contributions
 - **Hover Effects**: Interactive UI elements
 - **Clean Typography**: Professional font hierarchy
 - **Intuitive Navigation**: Easy access to all features
