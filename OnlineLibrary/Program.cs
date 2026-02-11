@@ -29,11 +29,26 @@ namespace OnlineLibrary
             /* Register Identity in DI */
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
-                options.Password.RequireDigit = false;
+                /* SignIn settings */
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                /* User settings */
+                options.User.RequireUniqueEmail = true;
+
+                /* Lockout settins - After 5 failed attemptes to login -> Account is locked for 5 min */
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+
+                /* Password settings - for development*/
+
+                options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 4;
             })
 
 

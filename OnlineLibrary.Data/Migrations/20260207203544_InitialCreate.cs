@@ -47,7 +47,7 @@ namespace OnlineLibrary.Data.Migrations
                     Title = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Genre = table.Column<int>(type: "int", maxLength: 100, nullable: false),
-                    isRead = table.Column<bool>(type: "bit", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
                     DateRead = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     CoverUrl = table.Column<string>(type: "nvarchar(2083)", maxLength: 2083, nullable: false),
@@ -122,7 +122,7 @@ namespace OnlineLibrary.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "Books",
-                columns: new[] { "Id", "AddedByUserId", "CoverUrl", "DateAdded", "DateRead", "Description", "Genre", "IsDeleted", "PublisherId", "Rating", "Title", "isRead" },
+                columns: new[] { "Id", "AddedByUserId", "CoverUrl", "DateAdded", "DateRead", "Description", "Genre", "IsDeleted", "PublisherId", "Rating", "Title", "IsRead" },
                 values: new object[,]
                 {
                     { new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"), null, "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg", new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Classic mystery featuring detective Hercule Poirot.", 2, false, 5, 0, "Murder on the Orient Express", false },

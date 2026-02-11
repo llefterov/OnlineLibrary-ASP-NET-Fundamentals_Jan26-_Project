@@ -64,6 +64,52 @@ namespace OnlineLibrary.Services.Core
             return allBooks;
         }
 
+        public async Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(string? userId)
+        {
+            var allBooks = await dbContext.Books
+               .Where(b => !b.IsDeleted)
+               .Include(b => b.UsersBooks)
+               .Include(b => b.Publisher)
+               .Include(b => b.BooksAuthors)
+                   .ThenInclude(ba => ba.Author)
+               .Include(b => b.AddedByUser) // ensure username is loaded
+               .AsNoTracking()
+               .Select(b => new
+               {
+                   b.Id,
+                   b.Title,
+                   b.Description,
+                   b.Genre,
+                   b.CoverUrl,
+                   b.AddedByUser,
+                   b.PublisherId,
+                   b.Rating,
+                   PublisherName = b.Publisher.Name,
+                   b.UsersBooks
+               })
+               .OrderBy(b => b.Title)
+               .ThenBy(b => b.Genre)
+               .Select(b => new BooksAllViewModel
+               {
+                   Id = b.Id,
+                   Title = b.Title,
+                   Genre = b.Genre,
+                   GenreName = b.Genre.ToString(),
+                   Rating = b.Rating,
+                   CoverUrl = b.CoverUrl,
+                   AddedByUserName = b.AddedByUser.UserName, // null-safe
+                   PublisherId = b.PublisherId,
+                   PublisherName = b.PublisherName,
+                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
+                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
+               })
+               .Where(b => b.IsAddedByUser == true)
+               .ToListAsync();
+
+            return allBooks;
+        }
+
+
         // Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.
         public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync()
         {
@@ -106,7 +152,7 @@ namespace OnlineLibrary.Services.Core
                 Description = bookEntity.Description,
                 Genre = bookEntity.Genre,
                 GenreName = bookEntity.Genre.ToString(),
-                isRead = bookEntity.isRead,
+                IsRead = bookEntity.IsRead,
                 DateRead = bookEntity.DateRead,
                 Rating = bookEntity.Rating,
                 CoverUrl = bookEntity.CoverUrl,
@@ -119,6 +165,12 @@ namespace OnlineLibrary.Services.Core
                 IsAddedByUser = false,
                 IsAddedToUserCollection = false
             };
+
+            if (bookDetails.IsRead == false)
+            {
+                bookDetails.DateRead = null;
+            }
+
             return bookDetails;
         }
 
@@ -153,7 +205,7 @@ namespace OnlineLibrary.Services.Core
                 Title = inputModel.Title,
                 Description = inputModel.Description,
                 Genre = Enum.Parse<BookGenre>(inputModel.Genre),
-                isRead = inputModel.isRead,
+                IsRead = inputModel.IsRead,
                 DateRead = inputModel.DateRead,
                 Rating = inputModel.Rating,
                 CoverUrl = inputModel.CoverUrl,
@@ -270,7 +322,7 @@ namespace OnlineLibrary.Services.Core
                 Title = bookEntity.Title,
                 Description = bookEntity.Description,
                 Genre = bookEntity.Genre.ToString(),
-                isRead = bookEntity.isRead,
+                IsRead = bookEntity.IsRead,
                 DateRead = bookEntity.DateRead,
                 Rating = bookEntity.Rating,
                 CoverUrl = bookEntity.CoverUrl,
@@ -300,7 +352,7 @@ namespace OnlineLibrary.Services.Core
                 bookEntity.Title = inputModel.Title;
                 bookEntity.Description = inputModel.Description;
                 bookEntity.Genre = Enum.Parse<BookGenre>(inputModel.Genre);
-                bookEntity.isRead = inputModel.isRead;
+                bookEntity.IsRead = inputModel.IsRead;
                 bookEntity.DateRead = inputModel.DateRead;
                 bookEntity.Rating = inputModel.Rating;
                 bookEntity.CoverUrl = inputModel.CoverUrl;
@@ -410,6 +462,8 @@ namespace OnlineLibrary.Services.Core
 
             await dbContext.SaveChangesAsync();
         }
+
+       
     }
 }
 

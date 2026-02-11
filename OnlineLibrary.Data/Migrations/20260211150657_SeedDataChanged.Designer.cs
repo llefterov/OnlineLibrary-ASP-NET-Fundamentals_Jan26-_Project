@@ -316,7 +316,7 @@ namespace OnlineLibrary.Data.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<bool>("isRead")
+                    b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -340,7 +340,7 @@ namespace OnlineLibrary.Data.Migrations
                             PublisherId = 1,
                             Rating = 5,
                             Title = "Pride and Prejudice",
-                            isRead = true
+                            IsRead = true
                         },
                         new
                         {
@@ -354,7 +354,7 @@ namespace OnlineLibrary.Data.Migrations
                             PublisherId = 2,
                             Rating = 5,
                             Title = "1984",
-                            isRead = true
+                            IsRead = true
                         },
                         new
                         {
@@ -367,7 +367,7 @@ namespace OnlineLibrary.Data.Migrations
                             PublisherId = 3,
                             Rating = 0,
                             Title = "Foundation",
-                            isRead = false
+                            IsRead = false
                         },
                         new
                         {
@@ -381,7 +381,7 @@ namespace OnlineLibrary.Data.Migrations
                             PublisherId = 4,
                             Rating = 5,
                             Title = "The Hobbit",
-                            isRead = true
+                            IsRead = true
                         },
                         new
                         {
@@ -394,7 +394,7 @@ namespace OnlineLibrary.Data.Migrations
                             PublisherId = 5,
                             Rating = 0,
                             Title = "Murder on the Orient Express",
-                            isRead = false
+                            IsRead = false
                         });
                 });
 

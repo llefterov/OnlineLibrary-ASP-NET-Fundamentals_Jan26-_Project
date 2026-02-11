@@ -30,6 +30,17 @@ namespace OnlineLibrary.Web.Controllers
             return View(allBooks);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> MyBooks()
+        {
+            var userId = GetUserId();
+
+            var myBooks = await booksService.GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+
+            return View(myBooks);
+        }
+
+
 
         [HttpGet]
         [AllowAnonymous]

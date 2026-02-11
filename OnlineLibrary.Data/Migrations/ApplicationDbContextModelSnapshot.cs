@@ -239,7 +239,7 @@ namespace OnlineLibrary.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
 
                     b.HasData(
                         new
@@ -302,6 +302,9 @@ namespace OnlineLibrary.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PublisherId")
                         .HasColumnType("int");
 
@@ -313,16 +316,13 @@ namespace OnlineLibrary.Data.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<bool>("isRead")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AddedByUserId");
 
                     b.HasIndex("PublisherId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
 
                     b.HasData(
                         new
@@ -334,10 +334,10 @@ namespace OnlineLibrary.Data.Migrations
                             Description = "A classic novel about love and society in early 19th-century England.",
                             Genre = 0,
                             IsDeleted = false,
+                            IsRead= true,
                             PublisherId = 1,
                             Rating = 5,
-                            Title = "Pride and Prejudice",
-                            isRead = true
+                            Title = "Pride and Prejudice"
                         },
                         new
                         {
@@ -348,10 +348,10 @@ namespace OnlineLibrary.Data.Migrations
                             Description = "Dystopian novel about surveillance and totalitarianism.",
                             Genre = 4,
                             IsDeleted = false,
+                            IsRead= true,
                             PublisherId = 2,
                             Rating = 5,
-                            Title = "1984",
-                            isRead = true
+                            Title = "1984"
                         },
                         new
                         {
@@ -361,10 +361,10 @@ namespace OnlineLibrary.Data.Migrations
                             Description = "Epic science fiction series about the fall and rise of galactic empires.",
                             Genre = 4,
                             IsDeleted = false,
+                            IsRead= false,
                             PublisherId = 3,
                             Rating = 0,
-                            Title = "Foundation",
-                            isRead = false
+                            Title = "Foundation"
                         },
                         new
                         {
@@ -375,10 +375,10 @@ namespace OnlineLibrary.Data.Migrations
                             Description = "Fantasy adventure preceding the events of The Lord of the Rings.",
                             Genre = 3,
                             IsDeleted = false,
+                            IsRead= true,
                             PublisherId = 4,
                             Rating = 5,
-                            Title = "The Hobbit",
-                            isRead = true
+                            Title = "The Hobbit"
                         },
                         new
                         {
@@ -388,10 +388,10 @@ namespace OnlineLibrary.Data.Migrations
                             Description = "Classic mystery featuring detective Hercule Poirot.",
                             Genre = 2,
                             IsDeleted = false,
+                            IsRead= false,
                             PublisherId = 5,
                             Rating = 0,
-                            Title = "Murder on the Orient Express",
-                            isRead = false
+                            Title = "Murder on the Orient Express"
                         });
                 });
 
@@ -407,7 +407,7 @@ namespace OnlineLibrary.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("BooksAuthors");
+                    b.ToTable("BooksAuthors", (string)null);
 
                     b.HasData(
                         new
@@ -452,7 +452,7 @@ namespace OnlineLibrary.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Publishers");
+                    b.ToTable("Publishers", (string)null);
 
                     b.HasData(
                         new
@@ -494,7 +494,7 @@ namespace OnlineLibrary.Data.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("UsersBooks");
+                    b.ToTable("UsersBooks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

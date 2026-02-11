@@ -26,7 +26,7 @@ namespace OnlineLibrary.Data.Models
         public BookGenre Genre { get; set; }
 
         [Required]
-        public bool isRead { get; set; }
+        public bool IsRead { get; set; }
 
         public DateTime? DateRead { get; set; }
 

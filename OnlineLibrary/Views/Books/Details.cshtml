@@ -16,8 +16,8 @@
 
         <div class="details-action-bar" role="group" aria-label="Book actions">
 
-            <button type="button" class="btn btn-warning d-flex justify-content-center align-items-center flex-fill mx-1" onclick="history.back()">
-                <i class="fas fa-arrow-left"></i> Back
+            <button type="button" class="btn btn-warning" onclick="history.back()" aria-label="Go back">
+                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Back
             </button>
 
             <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Browse all books</a>
@@ -54,7 +54,11 @@
 
                 <div class="mb-2">
                     <strong>Genre:</strong> @Model.GenreName
-                    <span class="badge @(Model.isRead ? "bg-success ms-2" : "bg-secondary ms-2")">@(Model.isRead ? "Read" : "Not read")</span>
+
+                    @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true))
+                    {
+                        <span class="badge @(Model.IsRead ? "bg-success ms-2" : "bg-secondary ms-2")">@(Model.IsRead ? "Read" : "Not read")</span>
+                    }
                 </div>
 
                 <div class="row">

@@ -9,6 +9,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
     {
         Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId);
 
+        Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(string? userId);
+
         Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
 
         // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.

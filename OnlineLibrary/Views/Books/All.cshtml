@@ -12,6 +12,7 @@
 
         @if (User?.Identity?.IsAuthenticated == true)
         {
+            <a asp-controller="Books" asp-action="MyBooks" class="btn btn-sm btn-outline-primary">My Books</a>
             <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-outline-primary">Add New Book</a>
         }
     </div>
