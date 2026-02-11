@@ -1,9 +1,8 @@
-﻿using OnlineLibrary.Services.Core.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OnlineLibrary.Services.Core.Exceptions
+namespace OnlineLibrary.Services.Core.Exceptions.AuthorExceptions
 {
     public class AuthorUpdateExeption :Exception
     {

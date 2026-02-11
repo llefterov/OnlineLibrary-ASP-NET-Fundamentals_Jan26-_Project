@@ -1,7 +1,4 @@
-﻿
-using OnlineLibrary.Services.Core;
-
-namespace OnlineLibrary.Services.Core.Exceptions
+﻿namespace OnlineLibrary.Services.Core.Exceptions.AuthorExceptions
 {
     [Serializable]
     public class AuthorDoesntExistException : Exception
