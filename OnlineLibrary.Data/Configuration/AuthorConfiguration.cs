@@ -15,8 +15,8 @@ namespace OnlineLibrary.Data.Configuration
                 new Author { Id = 1, FullName = "Jane Austen" },
                new Author { Id = 2, FullName = "George Orwell" },
                new Author { Id = 3, FullName = "Isaac Asimov" },
-               new Author { Id = 4, FullName = "Agatha Christie" },
-               new Author { Id = 5, FullName = "J.K. Rowling" });
+               new Author { Id = 4, FullName = "R.R. Tolkien" });
+               new Author { Id = 5, FullName = "Agatha Christie" },
         }
     }
 }
