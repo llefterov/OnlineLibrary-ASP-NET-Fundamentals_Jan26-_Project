@@ -24,7 +24,7 @@ namespace OnlineLibrary.Web.ViewModels.Books
         public bool IsRead { get; set; }
 
 
-        public DateTime? DateRead { get; set; }
+        public string? DateRead { get; set; }
 
         [Required]
         public int Rating { get; set; }
@@ -32,8 +32,8 @@ namespace OnlineLibrary.Web.ViewModels.Books
        
         public string CoverUrl { get; set; } = null!;
 
-        
-        public DateTime DateAdded { get; set; }
+
+        public string DateAdded { get; set; } = null!;
 
        
         public int PublisherId { get; set; }

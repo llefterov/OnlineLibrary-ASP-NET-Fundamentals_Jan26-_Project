@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Globalization;
+using static OnlineLibrary.GCommon.ApplicationConstants;
 
 namespace OnlineLibrary.Services.Core
 {
@@ -54,7 +56,7 @@ namespace OnlineLibrary.Services.Core
                         Title = ba.Book.Title,
                         CoverUrl = ba.Book.CoverUrl,
                         Rating = ba.Book.Rating,
-                        DateAdded = ba.Book.DateAdded,
+                        DateAdded = ba.Book.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
                         GenreName = ba.Book.Genre.ToString(),
                         PublisherName = ba.Book.Publisher != null ? ba.Book.Publisher.Name : string.Empty,
                         Description = ba.Book.Description

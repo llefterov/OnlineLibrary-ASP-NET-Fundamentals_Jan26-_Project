@@ -65,7 +65,7 @@
                 <div class="row">
                     <div class="col-sm-6 small text-muted">
                         <div><strong>Rating:</strong> @Model.Rating / 5</div>
-                        <div><strong>Added:</strong> @Model.DateAdded.ToString("yyyy-MM-dd")</div>
+                        <div><strong>Added:</strong> @Model.DateAdded</div>
 
                         @if (Model.AddedByUserName == null)
                         {
@@ -80,9 +80,9 @@
                     @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true))
                     {
                         <div class="col-sm-6 text-sm-end small text-muted">
-                            @if (Model.DateRead.HasValue)
+                            @if (!string.IsNullOrEmpty(Model.DateRead))
                             {
-                                <div><strong>Read:</strong> @Model.DateRead.Value.ToString("yyyy-MM-dd")</div>
+                                <div><strong>Read:</strong> @Model.DateRead</div>
                             }
                         </div>
                     }

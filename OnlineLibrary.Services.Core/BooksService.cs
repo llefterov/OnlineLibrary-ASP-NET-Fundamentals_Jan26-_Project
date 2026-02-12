@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using static OnlineLibrary.GCommon.ApplicationConstants;
 
 namespace OnlineLibrary.Services.Core
 {
@@ -154,10 +155,10 @@ namespace OnlineLibrary.Services.Core
                 Genre = bookEntity.Genre,
                 GenreName = bookEntity.Genre.ToString(),
                 IsRead = bookEntity.IsRead,
-                DateRead = bookEntity.DateRead,
+                DateRead = bookEntity.DateRead?.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
                 Rating = bookEntity.Rating,
                 CoverUrl = bookEntity.CoverUrl,
-                DateAdded = bookEntity.DateAdded,
+                DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
                 PublisherId = bookEntity.PublisherId,
                 PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
                 AuthorsName = string.Join(", ", bookEntity.BooksAuthors

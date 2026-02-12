@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using static OnlineLibrary.GCommon.ApplicationConstants;
+using System.Globalization;
 
 namespace OnlineLibrary.Services.Core
 {
@@ -59,7 +61,7 @@ namespace OnlineLibrary.Services.Core
                          Title = b.Title,
                          CoverUrl = b.CoverUrl,
                          Rating = b.Rating,
-                         DateAdded = b.DateAdded,
+                         DateAdded = b.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
                          GenreName = b.Genre.ToString(),
                          AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
                          Description = b.Description
