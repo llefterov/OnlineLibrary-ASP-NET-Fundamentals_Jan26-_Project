@@ -27,7 +27,7 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public DateTime? DateRead { get; set; }
 
-
+        [Range(BookRatingMinValue, BookRatingMaxValue)]
         public int Rating { get; set; }
 
         [Required]

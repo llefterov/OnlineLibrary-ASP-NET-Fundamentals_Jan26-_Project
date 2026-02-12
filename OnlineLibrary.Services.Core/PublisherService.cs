@@ -10,6 +10,7 @@ using OnlineLibrary.Web.ViewModels.Publisher;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace OnlineLibrary.Services.Core
 {
@@ -42,15 +43,30 @@ namespace OnlineLibrary.Services.Core
         {
             var publisher = await dbContext.Publishers
                .Include(p => p.Books)
+               .ThenInclude(b => b.BooksAuthors)
+               .ThenInclude(ba => ba.Author)
+               .AsNoTracking()
+               .Where(p => p.Id == id)
                .Select(p => new PublisherDetailsViewModel
                {
                    Id = p.Id,
                    Name = p.Name,
-                   Books = p.Books
+                   BooksWithAuthorName = p.Books
                    .OrderBy(b => b.Title)
+                     .Select(b => new PublisherBookViewModel
+                     {
+                         Id = b.Id,
+                         Title = b.Title,
+                         CoverUrl = b.CoverUrl,
+                         Rating = b.Rating,
+                         DateAdded = b.DateAdded,
+                         GenreName = b.Genre.ToString(),
+                         AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
+                         Description = b.Description
+                     })
                      .ToList()
                })
-               .FirstOrDefaultAsync(p => p.Id == id);
+               .FirstOrDefaultAsync();
 
             return publisher;
         }

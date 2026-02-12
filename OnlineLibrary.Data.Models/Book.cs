@@ -50,11 +50,11 @@ namespace OnlineLibrary.Data.Models
         [Required]
         public int PublisherId { get; set; }
 
-        public bool IsDeleted { get; set; } = false;
-
         [Required]
         [ForeignKey(nameof(PublisherId))]
         public Publisher Publisher { get; set; } = null!;
+
+        public bool IsDeleted { get; set; } = false;
 
         public virtual ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
 

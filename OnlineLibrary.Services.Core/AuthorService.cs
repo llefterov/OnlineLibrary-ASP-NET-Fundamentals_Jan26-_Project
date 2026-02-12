@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace OnlineLibrary.Services.Core
 {
@@ -38,13 +39,26 @@ namespace OnlineLibrary.Services.Core
             var author = await dbContext.Authors
                 .Include(a => a.BooksAuthors)
                 .ThenInclude(ba => ba.Book)
+                .ThenInclude(b => b.Publisher)
+                .AsNoTracking()
                 .Where(a => a.Id == id)
                 .Select(a => new AuthorDetailsViewModel
                 {
                     Id = a.Id,
                     FullName = a.FullName,
-                    BooksAuthors = a.BooksAuthors
+                    BooksWithPublisherName = a.BooksAuthors
                     .OrderBy(ba => ba.Book.Title)
+                    .Select(ba => new AuthorBookViewModel
+                    {
+                        Id = ba.Book.Id,
+                        Title = ba.Book.Title,
+                        CoverUrl = ba.Book.CoverUrl,
+                        Rating = ba.Book.Rating,
+                        DateAdded = ba.Book.DateAdded,
+                        GenreName = ba.Book.Genre.ToString(),
+                        PublisherName = ba.Book.Publisher != null ? ba.Book.Publisher.Name : string.Empty,
+                        Description = ba.Book.Description
+                    })
                     .ToList()
                 })
                 .FirstOrDefaultAsync();

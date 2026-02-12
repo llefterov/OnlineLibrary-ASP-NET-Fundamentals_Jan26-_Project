@@ -22,17 +22,16 @@
         <div class="card-body">
             <h5 class="card-title mb-3">Books by @Model.FullName</h5>
 
-            @if (Model.BooksAuthors == null || !Model.BooksAuthors.Any())
+            @if (Model.BooksWithPublisherName == null || !Model.BooksWithPublisherName.Any())
             {
                 <div class="alert alert-info mb-0">No books found for this author.</div>
             }
             else
             {
                 <div class="row g-3">
-                    @foreach (var ba in Model.BooksAuthors)
+                  @foreach (var book in Model.BooksWithPublisherName)
                     {
-                        var book = ba.Book;
-                        if (book == null) { continue; }
+                       if (book == null) { continue; }
 
                         <div class="col-12">
                             <div class="card h-100">
@@ -49,9 +48,10 @@
                                                 <div>
                                                     <h5 class="card-title mb-1">@book.Title</h5>
                                                     <p class="card-subtitle mb-2 text-muted small">
-                                                        @if (book.Publisher != null)
+                                                        <strong>Publisher:</strong>
+                                                        @if (!string.IsNullOrWhiteSpace(book.PublisherName))
                                                         {
-                                                            @book.Publisher.Name
+                                                            @book.PublisherName
                                                         }
                                                         else
                                                         {
@@ -61,10 +61,7 @@
                                                 </div>
 
                                                 <div class="text-end">
-                                                    <span class="badge bg-primary">@book.Genre.ToString()</span>
-                                                    <span class="badge @(book.IsRead ? "bg-success" : "bg-secondary") ms-1">
-                                                        @(book.IsRead ? "Read" : "Not read")
-                                                    </span>
+                                                    <span class="badge bg-primary">@book.GenreName</span>
                                                 </div>
                                             </div>
 
@@ -77,16 +74,7 @@
                                                 <div class="small text-muted">
                                                     <div>Rating: @book.Rating / 5</div>
                                                     <div>Added: @book.DateAdded.ToString("yyyy-MM-dd")</div>
-                                                    @if (book.DateRead.HasValue)
-                                                    {
-                                                        <div>Read: @book.DateRead.Value.ToString("yyyy-MM-dd")</div>
-                                                    }
                                                 </div>
-
-                                              @*   <div>
-                                                    <a class="btn btn-sm btn-outline-secondary me-2" asp-controller="Books" asp-action="Details" asp-route-id="@book.Id">Details</a>
-                                                    <a class="btn btn-sm btn-outline-primary" asp-controller="Books" asp-action="Edit" asp-route-id="@book.Id">Edit</a>
-                                                </div> *@
                                             </div>
                                         </div>
                                     </div>

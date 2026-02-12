@@ -20,6 +20,9 @@
         public const int BookDescriptionMinLength = 2;
         public const int BookDescriptionMaxLength = 1000;
 
+        public const int BookRatingMinValue = 0;
+        public const int BookRatingMaxValue = 5;
+
 
         public const int BookCoverUrlMinLength = 7;
         public const int BookCoverUrlMaxLength = 2083; // Maximum URL length in Internet Explorer
