@@ -302,10 +302,10 @@ The database is seeded with sample data:
 ## 📝 Validation Rules
 
 **Books:**
-- **Title**: Required, 1-250 characters
-- **Description**: Required, 1-1000 characters
+- **Title**: Required, 2-250 characters
+- **Description**: Required, 2-1000 characters
 - **Genre**: Required (must be valid enum value)
-- **CoverUrl**: **Optional** - Valid URL format when provided (max 2083 chars)
+- **CoverUrl**: **Optional** - Valid URL format when provided (7-2083 chars)
 - **AddedByUserId**: **Required** - Every book must be associated with a user
 - **PublisherId**: Required (must reference existing publisher)
 - **Rating**: 0-5 (0 = not rated)
