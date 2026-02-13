@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
+using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
+using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
 using System;
@@ -54,7 +56,7 @@ namespace OnlineLibrary.Services.Core
                     Genre = b.Genre,
                     GenreName = b.Genre.ToString(),
                     Rating = b.Rating,
-                    CoverUrl = b.CoverUrl,
+                    CoverUrl = b.CoverUrl ?? string.Empty,
                     AddedByUserName = b.AddedByUser.UserName, // null-safe
                     PublisherId = b.PublisherId,
                     PublisherName = b.PublisherName,
@@ -98,19 +100,18 @@ namespace OnlineLibrary.Services.Core
                    Genre = b.Genre,
                    GenreName = b.Genre.ToString(),
                    Rating = b.Rating,
-                   CoverUrl = b.CoverUrl,
+                   CoverUrl = b.CoverUrl ?? string.Empty,
                    AddedByUserName = b.AddedByUser.UserName, // null-safe
                    PublisherId = b.PublisherId,
                    PublisherName = b.PublisherName,
-                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
-                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
+                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id.ToLower() == userId.ToLower(),
+                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId.ToLower() == userId.ToLower() && ub.BookId == b.Id)
                })
                .Where(b => b.IsAddedByUser == true)
                .ToListAsync();
 
             return allBooks;
         }
-
 
         // Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.
         public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync()
@@ -155,10 +156,10 @@ namespace OnlineLibrary.Services.Core
                 Genre = bookEntity.Genre,
                 GenreName = bookEntity.Genre.ToString(),
                 IsRead = bookEntity.IsRead,
-                DateRead = bookEntity.DateRead?.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
+                DateRead = bookEntity.DateRead?.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
                 Rating = bookEntity.Rating,
-                CoverUrl = bookEntity.CoverUrl,
-                DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
+                CoverUrl = bookEntity.CoverUrl ?? string.Empty,
+                DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
                 PublisherId = bookEntity.PublisherId,
                 PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
                 AuthorsName = string.Join(", ", bookEntity.BooksAuthors
@@ -199,18 +200,39 @@ namespace OnlineLibrary.Services.Core
             return createModel;
         }
 
-        public async Task CreateBookAsync(BookCreateViewModel inputModel, string? userId)
+        public async Task CreateBookAsync(BookCreateViewModel inputModel, string userId)
         {
+
+            // Validate publisher exists
+            if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
+            {
+                throw new PublisherDoesntExistException("Selected publisher does not exist.");
+            }
+
+            // Validate provided author ids (if any) before creating the book to avoid FK errors
+            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
+            {
+                var validAuthorIds = await dbContext.Authors
+                    .Where(a => inputModel.AuthorIds.Contains(a.Id))
+                    .Select(a => a.Id)
+                    .ToListAsync();
+
+                var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
+                if (invalidIds.Any())
+                {
+                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
+                }
+            }
 
             var book = new Book
             {
                 Title = inputModel.Title,
                 Description = inputModel.Description,
-                Genre = Enum.Parse<BookGenre>(inputModel.Genre),
+                Genre = inputModel.Genre,
                 IsRead = inputModel.IsRead,
                 DateRead = inputModel.DateRead,
                 Rating = inputModel.Rating,
-                CoverUrl = inputModel.CoverUrl,
+                CoverUrl = inputModel.CoverUrl ?? string.Empty,
                 DateAdded = inputModel.DateAdded,
                 PublisherId = inputModel.PublisherId,
                 AddedByUserId = userId,
@@ -239,16 +261,9 @@ namespace OnlineLibrary.Services.Core
                            BookId = book.Id
                        })
                        .ToList();
-                try
-                {
-                    await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (Exception)
-                {
-                    throw new InvalidOperationException("At least one author must be selected.");
-                }
 
+                await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
+                await dbContext.SaveChangesAsync();
             }
         }
 
@@ -261,7 +276,7 @@ namespace OnlineLibrary.Services.Core
                 {
                     Id = ub.Book.Id,
                     Title = ub.Book.Title,
-                    CoverUrl = ub.Book.CoverUrl
+                    CoverUrl = ub.Book.CoverUrl ?? string.Empty
                 })
                 .ToListAsync();
             return fevBooks;
@@ -323,7 +338,7 @@ namespace OnlineLibrary.Services.Core
                 Id = bookEntity.Id,
                 Title = bookEntity.Title,
                 Description = bookEntity.Description,
-                Genre = bookEntity.Genre.ToString(),
+                Genre = bookEntity.Genre,
                 IsRead = bookEntity.IsRead,
                 DateRead = bookEntity.DateRead,
                 Rating = bookEntity.Rating,
@@ -348,22 +363,46 @@ namespace OnlineLibrary.Services.Core
                 throw new InvalidOperationException("Book not found");
             }
 
+            // Update book properties
+            bookEntity.Title = inputModel.Title;
+            bookEntity.Description = inputModel.Description;
+            bookEntity.Genre = inputModel.Genre;
+            bookEntity.IsRead = inputModel.IsRead;
+            bookEntity.DateRead = inputModel.DateRead;
+            bookEntity.Rating = inputModel.Rating;
+            bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
+            bookEntity.DateAdded = inputModel.DateAdded;
+            bookEntity.PublisherId = inputModel.PublisherId;
+            // Update BookAuthor relationships
+            var existingAuthorIds = bookEntity.BooksAuthors
+                .Select(ba => ba.AuthorId)
+                .ToList();
+
+            // Validate publisher exists
+            if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
+            {
+                throw new PublisherDoesntExistException("Selected publisher does not exist.");
+            }
+
+            // Validate provided author ids (if any) before creating the book to avoid FK errors
+            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
+            {
+                var validAuthorIds = await dbContext.Authors
+                    .Where(a => inputModel.AuthorIds.Contains(a.Id))
+                    .Select(a => a.Id)
+                    .ToListAsync();
+
+                var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
+                if (invalidIds.Any())
+                {
+                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
+                }
+            }
+
             try
             {
-                // Update book properties
-                bookEntity.Title = inputModel.Title;
-                bookEntity.Description = inputModel.Description;
-                bookEntity.Genre = Enum.Parse<BookGenre>(inputModel.Genre);
-                bookEntity.IsRead = inputModel.IsRead;
-                bookEntity.DateRead = inputModel.DateRead;
-                bookEntity.Rating = inputModel.Rating;
-                bookEntity.CoverUrl = inputModel.CoverUrl;
-                bookEntity.DateAdded = inputModel.DateAdded;
-                bookEntity.PublisherId = inputModel.PublisherId;
-                // Update BookAuthor relationships
-                var existingAuthorIds = bookEntity.BooksAuthors
-                    .Select(ba => ba.AuthorId)
-                    .ToList();
+
+
 
                 var newAuthorIds = inputModel.AuthorIds ?? new List<int>();
 
@@ -386,7 +425,7 @@ namespace OnlineLibrary.Services.Core
                 await dbContext.BooksAuthors.AddRangeAsync(toAdd);
                 await dbContext.SaveChangesAsync();
 
-                          }
+            }
             catch (Exception)
             {
                 throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
@@ -412,7 +451,7 @@ namespace OnlineLibrary.Services.Core
                 throw new ArgumentException("Book not found");
             }
 
-           
+
             if (book.AddedByUserId != userId)
             {
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
@@ -465,7 +504,7 @@ namespace OnlineLibrary.Services.Core
             await dbContext.SaveChangesAsync();
         }
 
-       
+
     }
 }
 

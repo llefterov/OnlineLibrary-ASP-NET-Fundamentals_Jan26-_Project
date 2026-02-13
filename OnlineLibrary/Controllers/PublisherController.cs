@@ -129,6 +129,12 @@ namespace OnlineLibrary.Web.Controllers
                 await publisherService.UpdatePublisherAsync(id, inputModel);
                 return RedirectToAction("All", "Publisher");
             }
+            catch (PublisherDoesntExistException ex)
+            {
+                logger.LogError(ex,"Publisher does not exist");
+                ModelState.AddModelError(string.Empty, "Publisher does not exist");
+                return View(inputModel);
+            }
             catch (PublisherUpdateExeption ex)
             {
                 logger.LogError(ex, "An error occurred while updating publisher with id {PublisherId}.", id);
@@ -147,14 +153,32 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var publisherToDelete = await publisherService.GetPublisherDeleteDetailsAsync(id);
-
-            if (publisherToDelete == null)
+            if (id <= 0)
             {
+                return BadRequest();
+            }
+
+            try
+            {
+
+            var publisherToDelete = await publisherService.GetPublisherDeleteDetailsAsync(id);
+                return View(publisherToDelete);
+            }
+            catch (PublisherDoesntExistException)
+            {
+                logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
+                ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
+
                 return NotFound();
             }
 
-            return View(publisherToDelete);
+
+            //if (publisherToDelete == null)
+            //{
+            //    return NotFound();
+            //}
+
+          
 
         }
 

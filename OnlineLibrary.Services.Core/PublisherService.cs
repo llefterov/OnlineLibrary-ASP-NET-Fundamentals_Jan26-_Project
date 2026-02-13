@@ -32,10 +32,10 @@ namespace OnlineLibrary.Services.Core
             var publishers = await dbContext.Publishers
             .OrderBy(p => p.Name)
             .Select(p => new PublisherAllViewModel
-         {
-             Id = p.Id,
-             Name = p.Name
-         })
+            {
+                Id = p.Id,
+                Name = p.Name
+            })
          .ToListAsync();
 
             return publishers;
@@ -54,14 +54,15 @@ namespace OnlineLibrary.Services.Core
                    Id = p.Id,
                    Name = p.Name,
                    BooksWithAuthorName = p.Books
+                   .Where(b => !b.IsDeleted)
                    .OrderBy(b => b.Title)
                      .Select(b => new PublisherBookViewModel
                      {
                          Id = b.Id,
                          Title = b.Title,
-                         CoverUrl = b.CoverUrl,
+                         CoverUrl = b.CoverUrl ?? string.Empty,
                          Rating = b.Rating,
-                         DateAdded = b.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
+                         DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
                          GenreName = b.Genre.ToString(),
                          AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
                          Description = b.Description
@@ -119,6 +120,13 @@ namespace OnlineLibrary.Services.Core
 
             var publisher = await dbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
 
+            if (publisher == null)
+            {
+
+                throw new PublisherDoesntExistException("Publisher does not exist");
+
+            }
+
             var inputModel = new PublisherEditViewModel
             {
                 Id = publisher.Id,
@@ -131,6 +139,11 @@ namespace OnlineLibrary.Services.Core
         {
             var publisher = dbContext.Publishers
                .FirstOrDefault(p => p.Id == model.Id);
+
+            if (publisher == null)
+            {
+                throw new PublisherDoesntExistException("Publisher does not exist");
+            }
 
             publisher.Name = model.Name;
 
@@ -167,7 +180,13 @@ namespace OnlineLibrary.Services.Core
                     Name = b.Name,
                     Books = b.Books
                 })
-                .FirstOrDefaultAsync(b  => b.Id == id);
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (publisherToDelete == null)
+            {
+                throw new PublisherDoesntExistException("Publisher does not exist");
+            }
+
 
             return publisherToDelete;
 

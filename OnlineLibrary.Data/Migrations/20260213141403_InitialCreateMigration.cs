@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OnlineLibrary.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreateMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,8 +50,8 @@ namespace OnlineLibrary.Data.Migrations
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
                     DateRead = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: false),
-                    CoverUrl = table.Column<string>(type: "nvarchar(2083)", maxLength: 2083, nullable: false),
-                    AddedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    CoverUrl = table.Column<string>(type: "nvarchar(2083)", maxLength: 2083, nullable: true),
+                    AddedByUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PublisherId = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -63,7 +63,8 @@ namespace OnlineLibrary.Data.Migrations
                         name: "FK_Books_AspNetUsers_AddedByUserId",
                         column: x => x.AddedByUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Books_Publishers_PublisherId",
                         column: x => x.PublisherId,
@@ -96,6 +97,35 @@ namespace OnlineLibrary.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UsersBooks",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsersBooks", x => new { x.UserId, x.BookId });
+                    table.ForeignKey(
+                        name: "FK_UsersBooks_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_UsersBooks_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "c8cb7abb-9a55-43ca-922c-2eac92b1e651", 0, "b470e7b3-30bb-4b2c-aa33-7194da1a6e2d", "admin@onlinelibrary.com", true, false, null, "ADMIN@ONLINELIBRARY.COM", "ADMIN@ONLINELIBRARY.COM", "AQAAAAIAAYagAAAAEHIaJlSfhU4K8tmJOH0vNC1Seaj11r0efwD90KrvKI+D5PDGPPUoibcXFsK6Gfh1Yg==", null, false, "", false, "admin@onlinelibrary.com" });
+
             migrationBuilder.InsertData(
                 table: "Authors",
                 columns: new[] { "Id", "FullName" },
@@ -104,8 +134,8 @@ namespace OnlineLibrary.Data.Migrations
                     { 1, "Jane Austen" },
                     { 2, "George Orwell" },
                     { 3, "Isaac Asimov" },
-                    { 4, "Agatha Christie" },
-                    { 5, "J.K. Rowling" }
+                    { 4, "R.R. Tolkien" },
+                    { 5, "Agatha Christie" }
                 });
 
             migrationBuilder.InsertData(
@@ -122,14 +152,14 @@ namespace OnlineLibrary.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "Books",
-                columns: new[] { "Id", "AddedByUserId", "CoverUrl", "DateAdded", "DateRead", "Description", "Genre", "IsDeleted", "PublisherId", "Rating", "Title", "IsRead" },
+                columns: new[] { "Id", "AddedByUserId", "CoverUrl", "DateAdded", "DateRead", "Description", "Genre", "IsDeleted", "IsRead", "PublisherId", "Rating", "Title" },
                 values: new object[,]
                 {
-                    { new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"), null, "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg", new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Classic mystery featuring detective Hercule Poirot.", 2, false, 5, 0, "Murder on the Orient Express", false },
-                    { new Guid("23c5dbca-dba7-46ff-ae96-7b233a8ca88c"), null, "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9458059_p_v10_ac.jpg", new DateTime(2018, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2018, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Fantasy adventure preceding the events of The Lord of the Rings.", 3, false, 4, 5, "The Hobbit", true },
-                    { new Guid("2dc0a369-6c0d-44a7-a7b0-41959009d322"), null, "https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg", new DateTime(2019, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2019, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Dystopian novel about surveillance and totalitarianism.", 4, false, 2, 5, "1984", true },
-                    { new Guid("c697d648-8fc0-41cb-9fb1-105792262850"), null, "https://cdn.mos.cms.futurecdn.net/oFCCtndaa9gxNqmJDY6Rp8.jpg", new DateTime(2021, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Epic science fiction series about the fall and rise of galactic empires.", 4, false, 3, 0, "Foundation", false },
-                    { new Guid("f0c604df-a030-437f-9028-0ada33e35b85"), null, "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg", new DateTime(2020, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2020, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "A classic novel about love and society in early 19th-century England.", 0, false, 1, 5, "Pride and Prejudice", true }
+                    { new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"), "c8cb7abb-9a55-43ca-922c-2eac92b1e651", "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg", new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Classic mystery featuring detective Hercule Poirot.", 2, false, false, 5, 0, "Murder on the Orient Express" },
+                    { new Guid("23c5dbca-dba7-46ff-ae96-7b233a8ca88c"), "c8cb7abb-9a55-43ca-922c-2eac92b1e651", "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9458059_p_v10_ac.jpg", new DateTime(2018, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2018, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Fantasy adventure preceding the events of The Lord of the Rings.", 3, false, true, 4, 5, "The Hobbit" },
+                    { new Guid("2dc0a369-6c0d-44a7-a7b0-41959009d322"), "c8cb7abb-9a55-43ca-922c-2eac92b1e651", "https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg", new DateTime(2019, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2019, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Dystopian novel about surveillance and totalitarianism.", 4, false, true, 2, 5, "1984" },
+                    { new Guid("c697d648-8fc0-41cb-9fb1-105792262850"), "c8cb7abb-9a55-43ca-922c-2eac92b1e651", "https://cdn.mos.cms.futurecdn.net/oFCCtndaa9gxNqmJDY6Rp8.jpg", new DateTime(2021, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Epic science fiction series about the fall and rise of galactic empires.", 4, false, false, 3, 0, "Foundation" },
+                    { new Guid("f0c604df-a030-437f-9028-0ada33e35b85"), "c8cb7abb-9a55-43ca-922c-2eac92b1e651", "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg", new DateTime(2020, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2020, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "A classic novel about love and society in early 19th-century England.", 0, false, true, 1, 5, "Pride and Prejudice" }
                 });
 
             migrationBuilder.InsertData(
@@ -158,6 +188,11 @@ namespace OnlineLibrary.Data.Migrations
                 name: "IX_BooksAuthors_AuthorId",
                 table: "BooksAuthors",
                 column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsersBooks_BookId",
+                table: "UsersBooks",
+                column: "BookId");
         }
 
         /// <inheritdoc />
@@ -167,6 +202,9 @@ namespace OnlineLibrary.Data.Migrations
                 name: "BooksAuthors");
 
             migrationBuilder.DropTable(
+                name: "UsersBooks");
+
+            migrationBuilder.DropTable(
                 name: "Authors");
 
             migrationBuilder.DropTable(
@@ -174,6 +212,11 @@ namespace OnlineLibrary.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Publishers");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUsers",
+                keyColumn: "Id",
+                keyValue: "c8cb7abb-9a55-43ca-922c-2eac92b1e651");
         }
     }
 }

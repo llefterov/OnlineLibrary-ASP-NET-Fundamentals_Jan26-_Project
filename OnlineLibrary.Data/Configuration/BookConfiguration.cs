@@ -7,7 +7,7 @@ using System.Text;
 
 namespace OnlineLibrary.Data.Configuration
 {
-    public class BookConfiguration : IEntityTypeConfiguration<Book>
+    public class BookConfiguration: IEntityTypeConfiguration<Book>
     {
         public void Configure(EntityTypeBuilder<Book> builder)
         {
@@ -23,6 +23,7 @@ namespace OnlineLibrary.Data.Configuration
                     DateRead = new DateTime(2020, 5, 1),
                     Rating = 5,
                     CoverUrl = "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg",
+                    AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                     DateAdded = new DateTime(2020, 1, 15),
                     PublisherId = 1,
 
@@ -37,6 +38,7 @@ namespace OnlineLibrary.Data.Configuration
                     DateRead = new DateTime(2019, 8, 10),
                     Rating = 5,
                     CoverUrl = "https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg",
+                    AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                     DateAdded = new DateTime(2019, 6, 20),
                     PublisherId = 2,
                 },
@@ -50,6 +52,7 @@ namespace OnlineLibrary.Data.Configuration
                     DateRead = null,
                     Rating = 0,
                     CoverUrl = "https://cdn.mos.cms.futurecdn.net/oFCCtndaa9gxNqmJDY6Rp8.jpg",
+                    AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                     DateAdded = new DateTime(2021, 3, 5),
                     PublisherId = 3,
                 },
@@ -63,6 +66,7 @@ namespace OnlineLibrary.Data.Configuration
                     DateRead = new DateTime(2018, 11, 2),
                     Rating = 5,
                     CoverUrl = "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9458059_p_v10_ac.jpg",
+                    AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                     DateAdded = new DateTime(2018, 10, 12),
                     PublisherId = 4,
                 },
@@ -76,6 +80,7 @@ namespace OnlineLibrary.Data.Configuration
                     DateRead = null,
                     Rating = 0,
                     CoverUrl = "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg",
+                    AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                     DateAdded = new DateTime(2022, 7, 1),
                     PublisherId = 5,
                 }

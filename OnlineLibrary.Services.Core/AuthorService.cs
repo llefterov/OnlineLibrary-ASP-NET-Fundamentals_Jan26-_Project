@@ -54,7 +54,7 @@ namespace OnlineLibrary.Services.Core
                     {
                         Id = ba.Book.Id,
                         Title = ba.Book.Title,
-                        CoverUrl = ba.Book.CoverUrl,
+                        CoverUrl = ba.Book.CoverUrl ?? string.Empty,
                         Rating = ba.Book.Rating,
                         DateAdded = ba.Book.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
                         GenreName = ba.Book.Genre.ToString(),
@@ -120,6 +120,11 @@ namespace OnlineLibrary.Services.Core
 
             var author = await dbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
 
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
             var inputModel = new AuthorEditViewModel
             {
                 Id = author.Id,
@@ -128,17 +133,22 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public Task UpdateAuthorAsync(int id, AuthorEditViewModel model)
+        public async Task UpdateAuthorAsync(int id, AuthorEditViewModel model)
         {
-            var author = dbContext.Authors
-               .FirstOrDefault(a => a.Id == model.Id);
+            var author = await dbContext.Authors
+               .FirstOrDefaultAsync(a => a.Id == model.Id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
 
             author.FullName = model.FullName;
 
             try
             {
                 dbContext.Authors.Update(author);
-                return dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -150,16 +160,21 @@ namespace OnlineLibrary.Services.Core
 
         public async Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id)
         {
-            var authorToDelete = dbContext.Authors
+            var authorToDelete = await dbContext.Authors
                 .Include(a => a.BooksAuthors)
-                .ThenInclude(ba => ba.Book)
+                .ThenInclude(ba => ba.Book) 
                 .Select(a => new AuthorDeleteViewModel
                 {
                     Id = a.Id,
                     FullName = a.FullName,
                     BooksAuthors = a.BooksAuthors
                 })
-                .FirstOrDefault(a => a.Id == id);
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (authorToDelete == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
             return authorToDelete;
 
         }
@@ -183,11 +198,11 @@ namespace OnlineLibrary.Services.Core
 
             }
 
+
             dbContext.Authors.Remove(author);
 
             try
             {
-                await dbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -198,6 +213,11 @@ namespace OnlineLibrary.Services.Core
         }
     }
 }
+
+
+
+
+
 
 
 

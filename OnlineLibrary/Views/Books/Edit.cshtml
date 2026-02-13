@@ -80,7 +80,6 @@
                 <div class="mb-3">
                     <label asp-for="AuthorIds" class="form-label">Authors</label>
 
-                    @* Let the tag helper render options from ViewBag.Authors (SelectListItem.Selected is respected) *@
                     <select asp-for="AuthorIds" class="form-select" multiple size="6" asp-items="ViewBag.Authors"></select>
 
                     <span asp-validation-for="AuthorIds" class="text-danger small"></span>

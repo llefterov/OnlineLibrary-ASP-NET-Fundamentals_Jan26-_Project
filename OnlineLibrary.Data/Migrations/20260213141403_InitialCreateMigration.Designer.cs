@@ -12,8 +12,8 @@ using OnlineLibrary.Data;
 namespace OnlineLibrary.Data.Migrations
 {
     [DbContext(typeof(OnlineLibraryDbContext))]
-    [Migration("20260211150657_SeedDataChanged")]
-    partial class SeedDataChanged
+    [Migration("20260213141403_InitialCreateMigration")]
+    partial class InitialCreateMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,6 +140,24 @@ namespace OnlineLibrary.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "b470e7b3-30bb-4b2c-aa33-7194da1a6e2d",
+                            Email = "admin@onlinelibrary.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@ONLINELIBRARY.COM",
+                            NormalizedUserName = "ADMIN@ONLINELIBRARY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHIaJlSfhU4K8tmJOH0vNC1Seaj11r0efwD90KrvKI+D5PDGPPUoibcXFsK6Gfh1Yg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@onlinelibrary.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -279,11 +297,10 @@ namespace OnlineLibrary.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddedByUserId")
-                        .HasMaxLength(450)
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CoverUrl")
-                        .IsRequired()
                         .HasMaxLength(2083)
                         .HasColumnType("nvarchar(2083)");
 
@@ -305,6 +322,9 @@ namespace OnlineLibrary.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PublisherId")
                         .HasColumnType("int");
 
@@ -315,9 +335,6 @@ namespace OnlineLibrary.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -331,70 +348,75 @@ namespace OnlineLibrary.Data.Migrations
                         new
                         {
                             Id = new Guid("f0c604df-a030-437f-9028-0ada33e35b85"),
+                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                             CoverUrl = "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg",
                             DateAdded = new DateTime(2020, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2020, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A classic novel about love and society in early 19th-century England.",
                             Genre = 0,
                             IsDeleted = false,
+                            IsRead = true,
                             PublisherId = 1,
                             Rating = 5,
-                            Title = "Pride and Prejudice",
-                            IsRead = true
+                            Title = "Pride and Prejudice"
                         },
                         new
                         {
                             Id = new Guid("2dc0a369-6c0d-44a7-a7b0-41959009d322"),
+                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                             CoverUrl = "https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg",
                             DateAdded = new DateTime(2019, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2019, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Dystopian novel about surveillance and totalitarianism.",
                             Genre = 4,
                             IsDeleted = false,
+                            IsRead = true,
                             PublisherId = 2,
                             Rating = 5,
-                            Title = "1984",
-                            IsRead = true
+                            Title = "1984"
                         },
                         new
                         {
                             Id = new Guid("c697d648-8fc0-41cb-9fb1-105792262850"),
+                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                             CoverUrl = "https://cdn.mos.cms.futurecdn.net/oFCCtndaa9gxNqmJDY6Rp8.jpg",
                             DateAdded = new DateTime(2021, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Epic science fiction series about the fall and rise of galactic empires.",
                             Genre = 4,
                             IsDeleted = false,
+                            IsRead = false,
                             PublisherId = 3,
                             Rating = 0,
-                            Title = "Foundation",
-                            IsRead = false
+                            Title = "Foundation"
                         },
                         new
                         {
                             Id = new Guid("23c5dbca-dba7-46ff-ae96-7b233a8ca88c"),
+                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                             CoverUrl = "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9458059_p_v10_ac.jpg",
                             DateAdded = new DateTime(2018, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2018, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Fantasy adventure preceding the events of The Lord of the Rings.",
                             Genre = 3,
                             IsDeleted = false,
+                            IsRead = true,
                             PublisherId = 4,
                             Rating = 5,
-                            Title = "The Hobbit",
-                            IsRead = true
+                            Title = "The Hobbit"
                         },
                         new
                         {
                             Id = new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"),
+                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
                             CoverUrl = "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg",
                             DateAdded = new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Classic mystery featuring detective Hercule Poirot.",
                             Genre = 2,
                             IsDeleted = false,
+                            IsRead = false,
                             PublisherId = 5,
                             Rating = 0,
-                            Title = "Murder on the Orient Express",
-                            IsRead = false
+                            Title = "Murder on the Orient Express"
                         });
                 });
 
@@ -555,7 +577,9 @@ namespace OnlineLibrary.Data.Migrations
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AddedByUser")
                         .WithMany()
-                        .HasForeignKey("AddedByUserId");
+                        .HasForeignKey("AddedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OnlineLibrary.Data.Models.Publisher", "Publisher")
                         .WithMany("Books")

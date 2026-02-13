@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using OnlineLibrary.Data.Models;
 using static OnlineLibrary.GCommon.ValidationConstants;
 
 namespace OnlineLibrary.Web.ViewModels.Books
@@ -19,7 +20,7 @@ namespace OnlineLibrary.Web.ViewModels.Books
         public string Description { get; set; } = null!;
 
         [Required]
-        public string Genre { get; set; } = null!;
+        public BookGenre Genre { get; set; }
 
         [Required]
         public bool IsRead { get; set; }
@@ -30,10 +31,9 @@ namespace OnlineLibrary.Web.ViewModels.Books
         [Range(BookRatingMinValue, BookRatingMaxValue)]
         public int Rating { get; set; }
 
-        [Required]
         [MinLength(BookCoverUrlMinLength)]
         [MaxLength(BookCoverUrlMaxLength)]
-        public string CoverUrl { get; set; } = null!;
+        public string? CoverUrl { get; set; }
 
         [Required]
         public DateTime DateAdded { get; set; } = DateTime.UtcNow;

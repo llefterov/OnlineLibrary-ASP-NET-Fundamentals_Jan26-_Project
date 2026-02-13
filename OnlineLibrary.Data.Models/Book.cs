@@ -33,15 +33,15 @@ namespace OnlineLibrary.Data.Models
 
         public int Rating { get; set; }
 
-        [Required]
         [MaxLength(BookCoverUrlMaxLength)]
-        public string CoverUrl { get; set; } = null!;
+        public string? CoverUrl { get; set; }
 
-        [MaxLength(AddedByUserIdMaxLength)]
-        [ForeignKey(nameof(AddedByUser))]
-        public string? AddedByUserId { get; set; }
+        [Required]
+        //[MaxLength(AddedByUserIdMaxLength)]
+        public string AddedByUserId { get; set; } = null!;
 
-        public IdentityUser AddedByUser { get; set; } = null!;
+        [ForeignKey(nameof(AddedByUserId))]
+        public virtual IdentityUser AddedByUser { get; set; } = null!;
 
 
         [Required]

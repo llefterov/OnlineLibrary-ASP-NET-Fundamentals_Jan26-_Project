@@ -9,7 +9,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
     {
         Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId);
 
-        Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(string? userId);
+        Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(string userId);
 
         Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
 
@@ -22,7 +22,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task<BookCreateViewModel> GetBookCreateViewModelAsync();
 
-        Task CreateBookAsync(BookCreateViewModel model, string? userId);
+        Task CreateBookAsync(BookCreateViewModel model, string userId);
 
         Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(string userId);
         Task SaveFevBookAsync(Guid id, string userId);

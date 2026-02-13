@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
+using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
 
@@ -35,6 +37,11 @@ namespace OnlineLibrary.Web.Controllers
         {
             var userId = GetUserId();
 
+            if (userId == null)
+            {
+                return View();
+            }
+
             var myBooks = await booksService.GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
 
             return View(myBooks);
@@ -66,10 +73,7 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
-
+            await AddPublishersAndAuthirsListsAsync();
             var model = await booksService.GetBookCreateViewModelAsync();
 
             return View(model);
@@ -78,32 +82,48 @@ namespace OnlineLibrary.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(BookCreateViewModel model)
         {
+            await AddPublishersAndAuthirsListsAsync();
+
             if (!ModelState.IsValid)
             {
-                var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-                ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-                ViewBag.Authors = new SelectList(authors, "Id", "FullName");
-
-                var createModel = await booksService.GetBookCreateViewModelAsync();
-
-                return View(createModel);
+                return View(model);
             }
 
-            string? userId = GetUserId();
+                string? userId = GetUserId();
+            if (userId == null)
+            {
+                return View();
+            }
 
             try
             {
                 await booksService.CreateBookAsync(model, userId);
-
                 return RedirectToAction("All");
             }
-            catch (Exception e)
+            catch (PublisherDoesntExistException ex)
             {
-                logger.LogError(e, "An error occurred while creating a book with name {BookTitle}", model.Title);
-
+                logger.LogWarning(ex, "Selected publisher does not exist.");
+                ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
                 return View(model);
             }
-
+            catch (AuthorDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "One or more selected authors are invalid.");
+                ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
+                return View(model);
+            }
+            catch (InvalidOperationException ex) // expected/validation errors from service
+            {
+                logger.LogWarning(ex, "Validation while creating book");
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+            catch (Exception ex) // unexpected
+            {
+                logger.LogError(ex, "Unexpected error while creating book");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -155,9 +175,8 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+            await AddPublishersAndAuthirsListsAsync();
+
 
             string? userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
@@ -196,11 +215,11 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            await AddPublishersAndAuthirsListsAsync();
+
             if (!ModelState.IsValid)
             {
-                var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-                ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-                ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+
                 return View(model);
             }
 
@@ -208,10 +227,33 @@ namespace OnlineLibrary.Web.Controllers
             {
                 await booksService.EditBookAsync(model, userId);
             }
-            catch (UnauthorizedAccessException)
+            catch (PublisherDoesntExistException ex)
             {
-                return Unauthorized();
+                logger.LogWarning(ex, "Selected publisher does not exist.");
+                ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
+                return View(model);
             }
+            catch (AuthorDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "One or more selected authors are invalid.");
+                ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
+                return View(model);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                logger.LogError(ex, "Unauthorized access while editing book.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while adding book.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+
+                return View(model);
+            }
+
 
             return RedirectToAction("Details", new { id = model.Id });
         }
@@ -256,7 +298,17 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("All");
         }
 
+        private async Task AddPublishersAndAuthirsListsAsync()
+        {
+            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+        }
+
     }
 }
+
+
+
 
 

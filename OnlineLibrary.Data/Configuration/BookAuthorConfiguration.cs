@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OnlineLibrary.Data.Models;
 using System;
@@ -11,6 +12,7 @@ namespace OnlineLibrary.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<BookAuthor> builder)
         {
+
             // Seed data for BookAuthor relationships
             builder.HasData(
                 new BookAuthor { BookId = Guid.Parse("f0c604df-a030-437f-9028-0ada33e35b85"), AuthorId = 1 }, // Pride and Prejudice - Jane Austen
