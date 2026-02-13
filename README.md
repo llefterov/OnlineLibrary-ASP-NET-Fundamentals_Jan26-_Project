@@ -72,6 +72,7 @@ OnlineLibrary/
 │
 ├── OnlineLibrary.GCommon/                  # Shared constants and utilities
 │   ├── ValidationConstants.cs              # Validation rules
+|   └── ApplicationConstants.cs             # Common Application Constants
 │   └── OnlineLibrary.GCommon.csproj        # Common project file
 │
 └── OnlineLibrary.slnx                      # Solution file
@@ -151,7 +152,7 @@ cd OnlineLibrary-ASP-NET-Fundamentals_Jan26-_Project
 
 ### 2️⃣ Configure Connection String
 
-Update the connection string in `OnlineLibrary/appsettings.json`:
+Update the connection string in `OnlineLibrary/appsettings.Development.json`:
 
 ```json
 {
