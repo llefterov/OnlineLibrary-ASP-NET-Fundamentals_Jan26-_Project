@@ -85,16 +85,16 @@ OnlineLibrary/
 
 **Books**
 - `Id` (Guid) - Primary Key
-- `Title` (string, max 250 chars)
-- `Description` (string, max 1000 chars)
-- `Genre` (Enum: Biography, Romance, Mystery, Fantasy, ScienceFiction, Horror, Thriller, HistoricalFiction, SelfHelp, Other)
+- `Title` (string, max 250 chars) - **Required**
+- `Description` (string, max 1000 chars) - **Required**
+- `Genre` (Enum: Biography, Romance, Mystery, Fantasy, ScienceFiction, Horror, Thriller, HistoricalFiction, SelfHelp, Other) - **Required**
 - `IsRead` (bool)
-- `DateRead` (DateTime?)
+- `DateRead` (DateTime?) - Optional
 - `Rating` (int, 0-5)
-- `CoverUrl` (string, max 2083 chars)
-- `DateAdded` (DateTime)
-- `PublisherId` (int, Foreign Key)
-- `AddedByUserId` (string?, Foreign Key to AspNetUsers)
+- `CoverUrl` (string?, max 2083 chars) - **Optional** (valid URL format when provided)
+- `DateAdded` (DateTime) - **Required**
+- `PublisherId` (int, Foreign Key) - **Required**
+- `AddedByUserId` (string, Foreign Key to AspNetUsers) - **Required** (every book must be associated with a user)
 - `IsDeleted` (bool, soft delete)
 
 **Authors**
@@ -169,9 +169,10 @@ dotnet ef database update
 ```
 
 This will create the database with seed data including:
-- 5 Authors (Jane Austen, George Orwell, Isaac Asimov, R.R. Tolkien, Agatha Christie)
+- **1 Admin User** (email: admin@onlinelibrary.com, password: Admin123!)
+- 5 Authors (Jane Austen, George Orwell, Isaac Asimov, J.R.R. Tolkien, Agatha Christie)
 - 5 Publishers (Apress, Manning Publications, O'Reilly Media, Packt Publishing, Addison-Wesley)
-- 5 Sample books with correct author-book mappings
+- 5 Sample books with correct author-book mappings (all added by the Admin user)
 
 ### 4️⃣ Run the Application
 
@@ -180,6 +181,22 @@ dotnet run
 ```
 
 Navigate to `https://localhost:5001` or `http://localhost:5000`
+
+---
+
+## 👤 Default Admin User
+
+The database is seeded with a default admin user for testing purposes:
+
+| Property | Value |
+|----------|-------|
+| **Email** | admin@onlinelibrary.com |
+| **Password** | Admin123! |
+| **Username** | admin@onlinelibrary.com |
+
+> **Note:** All 5 seeded books are associated with this admin user.
+
+> ⚠️ **Security Warning:** Change this password immediately in production environments!
 
 ---
 
@@ -285,11 +302,13 @@ The database is seeded with sample data:
 ## 📝 Validation Rules
 
 **Books:**
-- Title: 2-250 characters
-- Description: 2-1000 characters
-- Cover URL: Valid URL format, 7-2083 characters
-- Rating: 0-5 stars
-- Genre: Must be valid enum value
+- **Title**: Required, 2-250 characters
+- **Description**: Required, 2-1000 characters
+- **Genre**: Required (must be valid enum value)
+- **CoverUrl**: **Optional** - Valid URL format when provided (7-2083 chars)
+- **AddedByUserId**: **Required** - Every book must be associated with a user
+- **PublisherId**: Required (must reference existing publisher)
+- **Rating**: 0-5 (0 = not rated)
 
 **Authors:**
 - Full Name: 2-150 characters
