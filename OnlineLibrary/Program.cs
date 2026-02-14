@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
 using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Services.Core;
@@ -28,33 +29,10 @@ namespace OnlineLibrary
 
             /* Register Identity in DI */
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-            {
-                /* SignIn settings */
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-
-                /* User settings */
-                options.User.RequireUniqueEmail = true;
-
-                /* Lockout settins - After 5 failed attemptes to login -> Account is locked for 5 min */
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-                /* Password settings - for development*/
-
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequiredUniqueChars = 4;
-            })
-
-
-
-                .AddEntityFrameworkStores<OnlineLibraryDbContext>();
+            ConfigureIdentity(options,builder.Configuration))
+            .AddEntityFrameworkStores<OnlineLibraryDbContext>();
             builder.Services.AddControllersWithViews();
+
 
             WebApplication app = builder.Build();
 
@@ -73,7 +51,6 @@ namespace OnlineLibrary
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            /* Allows us to use default Authorisation of Identity */
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -86,6 +63,27 @@ namespace OnlineLibrary
                .WithStaticAssets();
 
             app.Run();
+        }
+
+        private static void ConfigureIdentity(IdentityOptions options, ConfigurationManager configuration)
+        {
+            /* Bind the whole IdentityOptions section from configuration in appsettings.json or appsettings.Development.json, which will override the defaults. Default environment is Development, so appsettings.Development.json will be used.*/
+            configuration.GetSection("IdentityOptions").Bind(options);
+
+            /* Support legacy minute-based lockout key (DefaultLockoutTimeSpanMin) if present. */
+            var minutes = configuration.GetValue<int?>("IdentityOptions:Lockout:DefaultLockoutTimeSpanMin");
+            if (minutes.HasValue)
+            {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(minutes.Value);
+            }
+            else
+            {
+                var timespanString = configuration.GetValue<string>("IdentityOptions:Lockout:DefaultLockoutTimeSpan");
+                if (!string.IsNullOrEmpty(timespanString) && TimeSpan.TryParse(timespanString, out var ts))
+                {
+                    options.Lockout.DefaultLockoutTimeSpan = ts;
+                }
+            }
         }
     }
 }

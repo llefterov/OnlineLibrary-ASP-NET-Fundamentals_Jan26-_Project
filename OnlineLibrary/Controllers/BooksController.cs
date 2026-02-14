@@ -259,7 +259,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
         {
             string? userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
@@ -269,12 +269,16 @@ namespace OnlineLibrary.Web.Controllers
 
             var book = await booksService.GetBookDeleteDetailsAsync(id, userId);
 
+            // Preserve the returnUrl so the POST can redirect back to the previous page
+            var referer = Request.Headers["Referer"].ToString();
+            ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
+
             return View(book);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
         {
             string? userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
@@ -295,7 +299,30 @@ namespace OnlineLibrary.Web.Controllers
                 return NotFound();
             }
 
-            return RedirectToAction("All");
+            // Prefer an explicit returnUrl, otherwise fall back to the Referer header if provided.
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                // Avoid redirecting back to a details page for a deleted book
+                if (returnUrl.Contains("/Details", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("All");
+                }
+
+                return Redirect(returnUrl);
+            }
+
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer) && Url.IsLocalUrl(referer))
+            {
+                if (referer.Contains("/Details", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("All");
+                }
+
+                return Redirect(referer);
+            }
+
+            return RedirectToAction("MyBooks");
         }
 
         private async Task AddPublishersAndAuthirsListsAsync()

@@ -14,12 +14,14 @@
                 <h4 class="mb-2">@Model.Title</h4>
                 
                 <div class="mb-2">
-                    <img src="@Model.CoverUrl" alt="Cover" class="img-thumbnail" style="max-height:200px;" />
+                    <img src="@(string.IsNullOrEmpty(Model.CoverUrl) ? "/images/placeholder-book.jpg" : Model.CoverUrl)" alt="Cover" class="img-thumbnail" style="max-height:200px;" />
                 </div>
             </div>
 
             <form asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="needs-validation">
                 @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@(ViewData["ReturnUrl"] as string)" />
+                <input type="hidden" name="returnUrl" value="@(ViewData["ReturnUrl"] as string)" />
 
                 <div class="alert alert-warning" role="alert">
                     Are you sure you want to delete the book <strong>@Model.Title</strong>?
@@ -27,7 +29,8 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-danger">Delete</button>
-                    <a class="btn btn-outline-secondary" asp-controller="Books" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+                    <a class="btn btn-outline-secondary" asp-controller="Books" asp-action="Details" asp-route-id="@Model.Id" asp-route-returnUrl="@(ViewData["ReturnUrl"] as string)">Cancel</a>
+                    <a class="btn btn-link text-muted ms-auto" asp-controller="Books" asp-action="MyBooks">Back to My Books</a>
                     <a class="btn btn-link text-muted ms-auto" asp-controller="Books" asp-action="All">Back to list</a>
                 </div>
             </form>

@@ -16,9 +16,7 @@
         <div>
             @if (User?.Identity?.IsAuthenticated == true)
             {
-                <button type="button" class="btn btn-warning" onclick="history.back()">
-                    <i class="fas fa-arrow-left me-1"></i> Back
-                </button>
+                <a asp-controller="Books" asp-action="All" class="btn btn-sm btn-outline-primary ms-2">Browse all books</a>
                 <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-outline-primary ms-2">Add New Book</a>
             }
         </div>

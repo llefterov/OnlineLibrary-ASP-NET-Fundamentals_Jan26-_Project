@@ -99,11 +99,15 @@ namespace OnlineLibrary.Web.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
         }
 
+        public PasswordOptions PasswordOptions { get; private set; }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            // expose the default password requirements to the Razor page
+            PasswordOptions = _userManager.Options.Password;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)

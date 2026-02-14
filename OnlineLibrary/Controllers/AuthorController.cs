@@ -177,6 +177,7 @@ namespace OnlineLibrary.Web.Controllers
                 return NotFound();
 
             }
+
             catch (AuthorDeleteException ex)
             {
                 logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);

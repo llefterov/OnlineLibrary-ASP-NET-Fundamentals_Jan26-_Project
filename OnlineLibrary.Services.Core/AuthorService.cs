@@ -186,6 +186,10 @@ namespace OnlineLibrary.Services.Core
                 .ThenInclude(ba => ba.Book)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
+            var inputModel = await GetAuthorDeleteDetailsAsync(id);
+
+
+
             if (author == null)
             {
                 throw new AuthorDoesntExistException("Author not found.");
@@ -203,6 +207,7 @@ namespace OnlineLibrary.Services.Core
 
             try
             {
+                dbContext.SaveChanges();
             }
             catch (DbUpdateException)
             {
