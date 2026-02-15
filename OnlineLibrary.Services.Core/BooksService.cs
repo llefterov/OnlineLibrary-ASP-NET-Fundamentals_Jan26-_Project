@@ -182,14 +182,11 @@ namespace OnlineLibrary.Services.Core
             return await dbContext.Books
                  .AnyAsync(b => b.AddedByUserId == userId && b.Id == bookId);
         }
-
         public async Task<bool> IsBookAddedToUserCollectionAsync(string? userId, Guid bookId)
         {
             return await dbContext.UsersBooks
                 .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
         }
-
-
 
         public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
         {
@@ -202,7 +199,6 @@ namespace OnlineLibrary.Services.Core
 
         public async Task CreateBookAsync(BookCreateViewModel inputModel, string userId)
         {
-
             // Validate publisher exists
             if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
             {
@@ -247,7 +243,6 @@ namespace OnlineLibrary.Services.Core
             }
             catch (Exception)
             {
-
                 throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
             }
 
@@ -401,9 +396,6 @@ namespace OnlineLibrary.Services.Core
 
             try
             {
-
-
-
                 var newAuthorIds = inputModel.AuthorIds ?? new List<int>();
 
                 // Remove unselected authors
@@ -429,11 +421,7 @@ namespace OnlineLibrary.Services.Core
             catch (Exception)
             {
                 throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
-
             }
-
-
-
         }
 
         public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, string userId)
@@ -451,7 +439,6 @@ namespace OnlineLibrary.Services.Core
                 throw new ArgumentException("Book not found");
             }
 
-
             if (book.AddedByUserId != userId)
             {
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
@@ -466,7 +453,6 @@ namespace OnlineLibrary.Services.Core
             };
 
             return deleteModel;
-
         }
 
         public async Task DeleteBookAsync(Guid id, string userId)
@@ -497,14 +483,11 @@ namespace OnlineLibrary.Services.Core
                 .Where(ub => ub.BookId == id);
             dbContext.UsersBooks.RemoveRange(userBookEntries);
 
-
             // Soft-delete the book
             book.IsDeleted = true;
 
             await dbContext.SaveChangesAsync();
         }
-
-
     }
 }
 

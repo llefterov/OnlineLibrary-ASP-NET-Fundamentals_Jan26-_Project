@@ -10,26 +10,17 @@ namespace OnlineLibrary.Web.ViewModels.Books
     public class BooksAllViewModel
     {
 
-
         public Guid Id { get; set; }
 
-       
         public string Title { get; set; } = null!;
-
-      
-
        
         public BookGenre Genre { get; set; }
 
         public bool IsRead { get; set; }
 
-
-
         public int Rating { get; set; }
 
-       
         public string CoverUrl { get; set; } = null!;
-
 
        public string? AddedByUserName { get; set; }
 

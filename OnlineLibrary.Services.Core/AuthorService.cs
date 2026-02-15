@@ -90,7 +90,6 @@ namespace OnlineLibrary.Services.Core
                 FullName = inputModel.FullName
             };
 
-            // business-level check -> throw domain-specific exception
             if (await dbContext.Authors.AnyAsync(a => a.FullName == author.FullName))
             {
                 throw new AuthorAlreadyExistsException(author.FullName);
@@ -104,7 +103,6 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException dbEx)
             {
-                // wrap low-level exception to a service-level exception
                 throw new AuthorCreateException("Unable to save the author to the database.", dbEx);
             }
         }
@@ -152,7 +150,6 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException)
             {
-                // wrap low-level exception to a service-level exception
                 throw new AuthorUpdateExeption("Unable to update the author in the database.");
             }
 
@@ -211,20 +208,9 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException)
             {
-                // wrap low-level exception to a service-level exception
                 throw new AuthorDeleteException("Unable to delete the author from the database.");
             }
-
         }
     }
 }
-
-
-
-
-
-
-
-
-
 

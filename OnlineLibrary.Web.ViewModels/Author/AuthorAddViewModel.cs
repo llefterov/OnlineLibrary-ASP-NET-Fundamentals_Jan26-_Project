@@ -15,8 +15,5 @@ namespace OnlineLibrary.Web.ViewModels.Author
         [MaxLength(AuthorFullNameMaxLength)]
         public string FullName { get; set; } = null!;
 
-
-
-
     }
 }

@@ -43,7 +43,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public string? AddedByUserId { get; set; }
 
-
         public List<int> AuthorIds { get; set; } = new();
     }
 }

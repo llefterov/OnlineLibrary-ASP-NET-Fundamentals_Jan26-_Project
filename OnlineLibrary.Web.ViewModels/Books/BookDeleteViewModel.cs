@@ -13,10 +13,5 @@ namespace OnlineLibrary.Web.ViewModels.Books
         public string? AddedByUserName { get; set; }
 
         public string? CoverUrl { get; set; }
-
-
-
-
-
     }
 }

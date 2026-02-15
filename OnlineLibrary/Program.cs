@@ -13,9 +13,8 @@ namespace OnlineLibrary
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            /* Get database connection string */
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
 
             /* Register DbContext in DI */
             builder.Services.AddDbContext<OnlineLibraryDbContext>(options =>
@@ -32,7 +31,6 @@ namespace OnlineLibrary
             ConfigureIdentity(options,builder.Configuration))
             .AddEntityFrameworkStores<OnlineLibraryDbContext>();
             builder.Services.AddControllersWithViews();
-
 
             WebApplication app = builder.Build();
 

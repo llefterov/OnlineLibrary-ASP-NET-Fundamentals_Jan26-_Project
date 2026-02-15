@@ -27,8 +27,6 @@ namespace OnlineLibrary.Web.Controllers
 
             var allBooks = await booksService.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
 
-
-
             return View(allBooks);
         }
 
@@ -46,8 +44,6 @@ namespace OnlineLibrary.Web.Controllers
 
             return View(myBooks);
         }
-
-
 
         [HttpGet]
         [AllowAnonymous]
@@ -177,7 +173,6 @@ namespace OnlineLibrary.Web.Controllers
         {
             await AddPublishersAndAuthirsListsAsync();
 
-
             string? userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
@@ -208,7 +203,6 @@ namespace OnlineLibrary.Web.Controllers
                 return BadRequest();
             }
 
-
             string? userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
@@ -219,7 +213,6 @@ namespace OnlineLibrary.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-
                 return View(model);
             }
 
@@ -253,7 +246,6 @@ namespace OnlineLibrary.Web.Controllers
 
                 return View(model);
             }
-
 
             return RedirectToAction("Details", new { id = model.Id });
         }
@@ -321,7 +313,6 @@ namespace OnlineLibrary.Web.Controllers
 
                 return Redirect(referer);
             }
-
             return RedirectToAction("MyBooks");
         }
 
@@ -331,11 +322,5 @@ namespace OnlineLibrary.Web.Controllers
             ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
             ViewBag.Authors = new SelectList(authors, "Id", "FullName");
         }
-
     }
 }
-
-
-
-
-

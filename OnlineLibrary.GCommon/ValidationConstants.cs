@@ -29,11 +29,5 @@
 
         public const int BookGenreMinLength = 1;
         public const int BookGenreMaxLength = 100;
-
-
-
-
-
-
     }
 }

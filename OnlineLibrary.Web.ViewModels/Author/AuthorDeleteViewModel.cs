@@ -10,7 +10,5 @@ namespace OnlineLibrary.Web.ViewModels.Author
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
         public virtual ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
-
-
     }
 }

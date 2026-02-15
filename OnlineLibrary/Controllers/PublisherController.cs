@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Publisher;

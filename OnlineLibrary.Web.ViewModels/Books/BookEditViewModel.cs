@@ -9,7 +9,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
         [Required]
         public Guid Id { get; set; }
 
-
         [Required]
         [MinLength(BookTitleMinLength)]
         [MaxLength(BookTitleMaxLength)]
@@ -26,7 +25,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
         [Required]
         public bool IsRead { get; set; }
 
-
         public DateTime? DateRead { get; set; }
 
         [Range(BookRatingMinValue, BookRatingMaxValue)]
@@ -41,7 +39,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         [Required]
         public int PublisherId { get; set; }
-
 
         public List<int> AuthorIds { get; set; } = new();
     }

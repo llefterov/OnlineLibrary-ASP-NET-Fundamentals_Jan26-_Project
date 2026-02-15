@@ -37,7 +37,7 @@ namespace OnlineLibrary.Data.Models
         public string? CoverUrl { get; set; }
 
         [Required]
-        //[MaxLength(AddedByUserIdMaxLength)]
+        [MaxLength(AddedByUserIdMaxLength)]
         public string AddedByUserId { get; set; } = null!;
 
         [ForeignKey(nameof(AddedByUserId))]

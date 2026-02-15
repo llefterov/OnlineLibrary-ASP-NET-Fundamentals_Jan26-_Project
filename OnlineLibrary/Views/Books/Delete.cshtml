@@ -1,4 +1,4 @@
-@using OnlineLibrary.Web.ViewModels.Books   
+@using OnlineLibrary.Web.ViewModels.Books
 @model BookDeleteViewModel
 
 @{
@@ -12,7 +12,7 @@
 
             <div class="mb-3">
                 <h4 class="mb-2">@Model.Title</h4>
-                
+
                 <div class="mb-2">
                     <img src="@(string.IsNullOrEmpty(Model.CoverUrl) ? "/images/placeholder-book.jpg" : Model.CoverUrl)" alt="Cover" class="img-thumbnail" style="max-height:200px;" />
                 </div>
@@ -20,7 +20,6 @@
 
             <form asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="needs-validation">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="returnUrl" value="@(ViewData["ReturnUrl"] as string)" />
                 <input type="hidden" name="returnUrl" value="@(ViewData["ReturnUrl"] as string)" />
 
                 <div class="alert alert-warning" role="alert">

@@ -63,7 +63,6 @@ namespace OnlineLibrary.Web.Controllers
             catch (AuthorAlreadyExistsException ex)
             {
                 logger.LogWarning(ex, "Attempt to add existing author {FullName}", inputModel.FullName);
-                // bind error to the FullName field so user sees the specific issue
                 ModelState.AddModelError(nameof(AuthorAddViewModel.FullName), ex.Message);
                 return View(inputModel);
             }
@@ -81,7 +80,6 @@ namespace OnlineLibrary.Web.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
@@ -91,6 +89,7 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             var model = new AuthorEditViewModel();
+
             try
             {
                 model = await authorService.GetAuthorForEditByIdAsync(id);
@@ -153,7 +152,6 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             return View(authorToDelete);
-
         }
 
         [HttpPost, ActionName("Delete")]
@@ -175,9 +173,7 @@ namespace OnlineLibrary.Web.Controllers
                 ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
 
                 return NotFound();
-
             }
-
             catch (AuthorDeleteException ex)
             {
                 logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
@@ -193,4 +189,3 @@ namespace OnlineLibrary.Web.Controllers
         }
     }
 }
-

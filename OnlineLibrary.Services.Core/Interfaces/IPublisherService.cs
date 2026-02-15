@@ -24,8 +24,5 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task DeletePublisherAsync(int id);
 
         Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(int id);
-
-
-
     }
 }

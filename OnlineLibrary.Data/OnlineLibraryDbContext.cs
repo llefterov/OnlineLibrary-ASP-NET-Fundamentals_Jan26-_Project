@@ -25,7 +25,7 @@ public class OnlineLibraryDbContext : IdentityDbContext<IdentityUser>
     {
         base.OnModelCreating(builder);
 
-        // Use a deterministic (precomputed) password hash to avoid dynamic changes in HasData
+        // Used a precomputed password hash to avoid dynamic changes in HasData
         var defaultUser = new IdentityUser
         {
             Id = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
@@ -40,7 +40,6 @@ public class OnlineLibraryDbContext : IdentityDbContext<IdentityUser>
             ConcurrencyStamp = "b470e7b3-30bb-4b2c-aa33-7194da1a6e2d"
         };
         builder.Entity<IdentityUser>().HasData(defaultUser);
-
 
         builder.ApplyConfigurationsFromAssembly(typeof(OnlineLibraryDbContext).Assembly);
     }

@@ -9,7 +9,6 @@ namespace OnlineLibrary.Web.ViewModels.Publisher
 {
     public class PublisherAddViewModel
     {
-
         public int Id { get; set; }
 
         [Required]

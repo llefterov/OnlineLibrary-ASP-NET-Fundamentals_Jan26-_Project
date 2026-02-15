@@ -8,34 +8,24 @@ namespace OnlineLibrary.Web.ViewModels.Books
 {
     public class BookDetailsViewModel
     {
-
         public Guid Id { get; set; }
 
-       
         public string Title { get; set; } = null!;
 
-       
         public string Description { get; set; } = null!;
 
-       
         public BookGenre Genre { get; set; }
 
-       
         public bool IsRead { get; set; }
-
 
         public string? DateRead { get; set; }
 
-        [Required]
         public int Rating { get; set; }
 
-       
         public string CoverUrl { get; set; } = null!;
-
 
         public string DateAdded { get; set; } = null!;
 
-       
         public int PublisherId { get; set; }
 
         // Extra friendly fields for the view
@@ -49,7 +39,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public bool IsAddedByUser { get; set; }
         public bool IsAddedToUserCollection { get; set; }
-
 
         public ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
     }

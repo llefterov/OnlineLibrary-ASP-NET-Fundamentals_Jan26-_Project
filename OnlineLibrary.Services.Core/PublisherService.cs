@@ -25,8 +25,6 @@ namespace OnlineLibrary.Services.Core
             this.dbContext = dbContext;
         }
 
-
-
         public async Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync()
         {
             var publishers = await dbContext.Publishers
@@ -75,8 +73,6 @@ namespace OnlineLibrary.Services.Core
         }
 
 
-
-
         public PublisherAddViewModel GetEmtyPublisherFormModelAsync()
         {
             PublisherAddViewModel emptyAuthorFormModel = new PublisherAddViewModel();
@@ -90,7 +86,6 @@ namespace OnlineLibrary.Services.Core
                 Name = inputModel.Name
             };
 
-            // business-level check -> throw domain-specific exception
             if (await dbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
             {
                 throw new PublisherAlreadyExistsException(publisher.Name);
@@ -104,7 +99,6 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException dbEx)
             {
-                // wrap low-level exception to a service-level exception
                 throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
             }
         }
@@ -154,10 +148,8 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException)
             {
-                // wrap low-level exception to a service-level exception
                 throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
             }
-
         }
 
         public async Task<bool> ExistsAsync(int id)
@@ -168,7 +160,6 @@ namespace OnlineLibrary.Services.Core
 
             return publisherExist;
         }
-
 
         public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(int id)
         {
@@ -187,9 +178,7 @@ namespace OnlineLibrary.Services.Core
                 throw new PublisherDoesntExistException("Publisher does not exist");
             }
 
-
             return publisherToDelete;
-
         }
 
         public async Task DeletePublisherAsync(int id)
@@ -218,13 +207,8 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException)
             {
-                // wrap low-level exception to a service-level exception
                 throw new PublisherDeleteException("Unable to delete the publisher from the database.");
             }
-
         }
-
-
-
     }
 }
