@@ -120,9 +120,9 @@ OnlineLibrary/
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **ASP.NET Core MVC** | 6.0+ | Web framework |
-| **Entity Framework Core** | 6.0+ | ORM & Data access |
-| **ASP.NET Core Identity** | 6.0+ | Authentication & Authorization |
+| **ASP.NET Core MVC** | 10.0+ | Web framework |
+| **Entity Framework Core** | 10.0+ | ORM & Data access |
+| **ASP.NET Core Identity** | 10.0+ | Authentication & Authorization |
 | **SQL Server** | - | Database |
 | **Bootstrap** | 5.3.2 | UI framework |
 | **Razor** | - | View engine |
@@ -134,9 +134,9 @@ OnlineLibrary/
 
 Before running this project, ensure you have:
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download) or higher
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or higher
 - [SQL Server](https://www.microsoft.com/sql-server) (LocalDB, Express, or full version)
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/)
+- [Visual Studio 2022 or 2026](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/)
 - [Git](https://git-scm.com/) (optional)
 
 ---
@@ -217,8 +217,8 @@ The database is seeded with a default admin user for testing purposes:
    - Genre (dropdown)
    - Cover URL (image link)
    - Publisher (dropdown or quick-add new)
+   - Select existing author/authors or add new author on-the-fly
    - Reading status and rating (optional)
-4. Select existing author or add new author on-the-fly
 5. Click **Create**
 
 ### Viewing My Books
@@ -240,7 +240,7 @@ Navigate to **Books** > **My Books** to see a personalized view of all books you
 3. **Edit**: Modify existing author or publisher information
 4. **Delete**: Remove authors or publishers (with validation checks)
 5. **View Details**: See all books associated with a specific author or publisher
-6. **Quick Add**: When creating a book, add new authors/publishers without leaving the page
+6. **Quick Add**: When creating a book, there is a link to add new authors/publishers
 
 ---
 
@@ -279,12 +279,20 @@ The database is seeded with sample data:
 
 - **ASP.NET Core Identity** for user management
 - Password hashing and validation
-- Enhanced password requirements (6+ characters, 4 unique characters)
+- Enhanced password requirements (8+ characters, 4 unique characters)
 - Account lockout after 5 failed login attempts (5-minute duration)
 - CSRF protection
 - Secure cookie authentication
 - User-specific book collections
 - Soft delete for data integrity
+
+  NOTES:
+  1. All enhanced IdentityOptions above are valid for **All Environments exept Development** (All set in appsettings.json file).
+
+  2. Current IdentityOptions are valid for **Development Environment only** (All set in appsettings.Development.json). Security Reqirements are redused to allow easier access during the Development and Testing of the application. In all other cases, the enhaced requirements should be applied. Current Password requirements are:
+
+ - **Current password requirements** (6+ characters, 0 unique characters)
+ - **Account lockout** after 255 failed login attempts (1-minute duration)
 
 ---
 
