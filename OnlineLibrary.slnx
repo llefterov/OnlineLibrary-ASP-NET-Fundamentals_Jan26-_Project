@@ -8,6 +8,7 @@
     <Project Path="OnlineLibrary.Services.Models/OnlineLibrary.Services.Models.csproj" Id="33e75eeb-38c7-44b2-8fa5-7845b15092eb" />
   </Folder>
   <Folder Name="/Web/">
+    <Project Path="OnlineLibrary.Web.Infrastructure/OnlineLibrary.Web.Infrastructure.csproj" Id="8d0498a3-1b5b-45e7-8195-f13eb82ff0a0" />
     <Project Path="OnlineLibrary.Web.ViewModels/OnlineLibrary.Web.ViewModels.csproj" />
     <Project Path="OnlineLibrary/OnlineLibrary.Web.csproj" />
   </Folder>

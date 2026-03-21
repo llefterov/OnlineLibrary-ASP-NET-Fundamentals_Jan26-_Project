@@ -8,6 +8,7 @@ namespace OnlineLibrary
     using OnlineLibrary.Data.Repository.Contracts;
     using OnlineLibrary.Services.Core;
     using OnlineLibrary.Services.Core.Interfaces;
+    using OnlineLibrary.Web.Infrastructure.Extensions;
 
     public class Program
     {
@@ -24,10 +25,14 @@ namespace OnlineLibrary
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             /* Register custom Services and DI*/
-            builder.Services.AddScoped<IBooksService, BooksService>();
-            builder.Services.AddScoped<IAuthorService, AuthorService>();
-            builder.Services.AddScoped<IPublisherService, PublisherService>();
-            builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+            builder.Services.RegisterUserServices(typeof(IAuthorService));
+            builder.Services.RegisterRepositories(typeof(IAuthorRepository));
+
+            //builder.Services.AddScoped<IBooksService, BooksService>();
+            //builder.Services.AddScoped<IAuthorService, AuthorService>();
+            //builder.Services.AddScoped<IPublisherService, PublisherService>();
+            //builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 
             /* Register Identity in DI */
             //builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
