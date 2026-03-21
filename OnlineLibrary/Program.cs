@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
-using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data;
-using OnlineLibrary.Services.Core;
-using OnlineLibrary.Services.Core.Interfaces;
-
 namespace OnlineLibrary
 {
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using OnlineLibrary.Data;
+    using OnlineLibrary.Data.Models;
+    using OnlineLibrary.Services.Core;
+    using OnlineLibrary.Services.Core.Interfaces;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -27,10 +27,26 @@ namespace OnlineLibrary
             builder.Services.AddScoped<IPublisherService, PublisherService>();
 
             /* Register Identity in DI */
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-            ConfigureIdentity(options,builder.Configuration))
-            .AddEntityFrameworkStores<OnlineLibraryDbContext>();
+            //builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+            //ConfigureIdentityOptions(options,builder.Configuration))
+            //.AddEntityFrameworkStores<OnlineLibraryDbContext>();
+
+            builder.Services
+                  .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+                  {
+                      ConfigureIdentityOptions(options, builder.Configuration);
+                  })
+                  .AddUserManager<UserManager<ApplicationUser>>()
+                  .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+                  .AddRoles<IdentityRole<Guid>>()
+                  .AddSignInManager<SignInManager<ApplicationUser>>()
+                  .AddEntityFrameworkStores<OnlineLibraryDbContext>()
+                  .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
             builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
 
             WebApplication app = builder.Build();
 
@@ -47,12 +63,36 @@ namespace OnlineLibrary
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseAuthentication();
+
+
+            app.Use((context, next) =>
+            {
+                if (context.User.Identity?.IsAuthenticated == true && context.Request.Path == "/")
+                {
+                    if (context.User.IsInRole("Admin"))
+                    {
+                        context.Response.Redirect("/Admin/Home/Index");
+                    }
+                }
+                return next();
+            });
+
+
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            app.MapControllerRoute(
+               name: "areas",
+               pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+            app.UseStatusCodePagesWithRedirects("/Home/Error/{0}");
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
@@ -63,7 +103,7 @@ namespace OnlineLibrary
             app.Run();
         }
 
-        private static void ConfigureIdentity(IdentityOptions options, ConfigurationManager configuration)
+        private static void ConfigureIdentityOptions(IdentityOptions options, ConfigurationManager configuration)
         {
             /* Bind the whole IdentityOptions section from configuration in appsettings.json or appsettings.Development.json, which will override the defaults. Default environment is Development, so appsettings.Development.json will be used.*/
             configuration.GetSection("IdentityOptions").Bind(options);

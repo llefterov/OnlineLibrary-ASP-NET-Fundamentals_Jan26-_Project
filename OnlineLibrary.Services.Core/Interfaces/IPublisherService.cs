@@ -10,19 +10,19 @@ namespace OnlineLibrary.Services.Core.Interfaces
     {
 
         Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync();
-        Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(int id);
+        Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id);
 
         PublisherAddViewModel GetEmtyPublisherFormModelAsync();
 
         Task AddPublisherAsync(PublisherAddViewModel model);
 
-        Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(int id);
+        Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id);
 
-        Task UpdatePublisherAsync(int id, PublisherEditViewModel model);
-        Task<bool> ExistsAsync(int id);
+        Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model);
+        Task<bool> ExistsAsync(Guid id);
 
-        Task DeletePublisherAsync(int id);
+        Task DeletePublisherAsync(Guid id);
 
-        Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(int id);
+        Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id);
     }
 }

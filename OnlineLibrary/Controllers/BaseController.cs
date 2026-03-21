@@ -7,9 +7,16 @@ namespace OnlineLibrary.Web.Controllers
     [Authorize]
     public class BaseController : Controller
     {
-        protected string? GetUserId()
+        public Guid GetUserId()
         {
-            return User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Guid.Empty;
+            }
+
+            return Guid.Parse(userId);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace OnlineLibrary.Services.Core
             return authors;
         }
 
-        public async Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(int id)
+        public async Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id)
         {
             var author = await dbContext.Authors
                 .Include(a => a.BooksAuthors)
@@ -68,7 +68,7 @@ namespace OnlineLibrary.Services.Core
             return author;
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(Guid id)
         {
             bool authorExist = await dbContext
                 .Authors
@@ -107,7 +107,7 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(int id)
+        public async Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id)
         {
 
 
@@ -131,7 +131,7 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public async Task UpdateAuthorAsync(int id, AuthorEditViewModel model)
+        public async Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model)
         {
             var author = await dbContext.Authors
                .FirstOrDefaultAsync(a => a.Id == model.Id);
@@ -155,7 +155,7 @@ namespace OnlineLibrary.Services.Core
 
         }
 
-        public async Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id)
+        public async Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id)
         {
             var authorToDelete = await dbContext.Authors
                 .Include(a => a.BooksAuthors)
@@ -176,7 +176,7 @@ namespace OnlineLibrary.Services.Core
 
         }
 
-        public async Task DeleteAuthorAsync(int id)
+        public async Task DeleteAuthorAsync(Guid id)
         {
             var author = await dbContext.Authors
                 .Include(a => a.BooksAuthors)

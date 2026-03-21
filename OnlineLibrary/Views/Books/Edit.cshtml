@@ -6,7 +6,7 @@
     ViewData["Title"] = "Edit Book";
     var routeId = ViewContext.RouteData.Values["id"];
     var authorsSelect = ViewBag.Authors as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
-    var selectedAuthorIds = Model?.AuthorIds ?? new List<int>();
+    var selectedAuthorIds = Model?.AuthorIds ?? new List<Guid>();
 }
 
 <div class="container py-4">

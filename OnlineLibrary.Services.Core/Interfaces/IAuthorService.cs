@@ -8,20 +8,20 @@ namespace OnlineLibrary.Services.Core.Interfaces
     public interface IAuthorService 
     {
         Task<IEnumerable<AuthorAllViewModel>> GetAllAuthorsAsync();
-        Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(int id);
+        Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id);
 
         AuthorAddViewModel GetEmtyAuthorFormModelAsync();
 
 
         Task AddAuthorAsync(AuthorAddViewModel model);
 
-        Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(int id);
+        Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
 
-        Task UpdateAuthorAsync(int id, AuthorEditViewModel model);
-        Task<bool> ExistsAsync(int id);
+        Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model);
+        Task<bool> ExistsAsync(Guid id);
 
-        Task DeleteAuthorAsync(int id);
+        Task DeleteAuthorAsync(Guid id);
 
-        Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id);
+        Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id);
     }
 }

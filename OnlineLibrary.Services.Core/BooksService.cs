@@ -24,7 +24,7 @@ namespace OnlineLibrary.Services.Core
 
 
 
-        public async Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(string? userId)
+        public async Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId)
         {
             var allBooks = await dbContext.Books
                 .Where(b => !b.IsDeleted)
@@ -68,7 +68,7 @@ namespace OnlineLibrary.Services.Core
             return allBooks;
         }
 
-        public async Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(string? userId)
+        public async Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId)
         {
             var allBooks = await dbContext.Books
                .Where(b => !b.IsDeleted)
@@ -104,8 +104,8 @@ namespace OnlineLibrary.Services.Core
                    AddedByUserName = b.AddedByUser.UserName, // null-safe
                    PublisherId = b.PublisherId,
                    PublisherName = b.PublisherName,
-                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id.ToLower() == userId.ToLower(),
-                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId.ToLower() == userId.ToLower() && ub.BookId == b.Id)
+                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
+                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                })
                .Where(b => b.IsAddedByUser == true)
                .ToListAsync();
@@ -177,12 +177,12 @@ namespace OnlineLibrary.Services.Core
             return bookDetails;
         }
 
-        public async Task<bool> IsBookAddedByUserAsync(string? userId, Guid bookId)
+        public async Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId)
         {
             return await dbContext.Books
                  .AnyAsync(b => b.AddedByUserId == userId && b.Id == bookId);
         }
-        public async Task<bool> IsBookAddedToUserCollectionAsync(string? userId, Guid bookId)
+        public async Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId)
         {
             return await dbContext.UsersBooks
                 .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
@@ -197,7 +197,7 @@ namespace OnlineLibrary.Services.Core
             return createModel;
         }
 
-        public async Task CreateBookAsync(BookCreateViewModel inputModel, string userId)
+        public async Task CreateBookAsync(BookCreateViewModel inputModel, Guid userId)
         {
             // Validate publisher exists
             if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
@@ -262,7 +262,7 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(string userId)
+        public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
         {
             var fevBooks = await dbContext.UsersBooks
                 .Where(ub => ub.UserId == userId)
@@ -277,7 +277,7 @@ namespace OnlineLibrary.Services.Core
             return fevBooks;
         }
 
-        public async Task SaveFevBookAsync(Guid id, string userId)
+        public async Task SaveFevBookAsync(Guid id, Guid userId)
         {
             if (await dbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
             {
@@ -294,7 +294,7 @@ namespace OnlineLibrary.Services.Core
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveFevBookAsync(Guid id, string userId)
+        public async Task RemoveFevBookAsync(Guid id, Guid userId)
         {
             var userBook = await dbContext.UsersBooks
                  .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
@@ -308,7 +308,7 @@ namespace OnlineLibrary.Services.Core
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, string userId)
+        public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId)
         {
             // Load the entity with related data first (server-side)
             var bookEntity = await dbContext
@@ -346,7 +346,7 @@ namespace OnlineLibrary.Services.Core
             return (bookDetails);
         }
 
-        public async Task EditBookAsync(BookEditViewModel inputModel, string userId)
+        public async Task EditBookAsync(BookEditViewModel inputModel, Guid userId)
         {
             var bookEntity = dbContext.Books
                 .Where(b => !b.IsDeleted)
@@ -396,7 +396,7 @@ namespace OnlineLibrary.Services.Core
 
             try
             {
-                var newAuthorIds = inputModel.AuthorIds ?? new List<int>();
+                var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
 
                 // Remove unselected authors
                 var toRemove = bookEntity.BooksAuthors
@@ -424,7 +424,7 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, string userId)
+        public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId)
         {
             var book = await dbContext.Books
                 .Where(b => !b.IsDeleted)
@@ -455,7 +455,7 @@ namespace OnlineLibrary.Services.Core
             return deleteModel;
         }
 
-        public async Task DeleteBookAsync(Guid id, string userId)
+        public async Task DeleteBookAsync(Guid id, Guid userId)
         {
             // Load tracked entity with related collections (no AsNoTracking)
             var book = await dbContext.Books

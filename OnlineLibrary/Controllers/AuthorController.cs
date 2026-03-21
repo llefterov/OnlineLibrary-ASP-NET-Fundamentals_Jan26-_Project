@@ -26,7 +26,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute] int id)
+        public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var authorModel = await authorService.GetAuthorByIdAsync(id);
 
@@ -81,9 +81,9 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute] int id)
+        public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -110,9 +110,9 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, AuthorEditViewModel inputModel)
+        public async Task<IActionResult> Edit(Guid id, AuthorEditViewModel inputModel)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -142,7 +142,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var authorToDelete = await authorService.GetAuthorDeleteDetailsAsync(id);
 
@@ -155,9 +155,9 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed([FromRoute] int id)
+        public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }

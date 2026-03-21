@@ -85,8 +85,8 @@ namespace OnlineLibrary.Web.Controllers
                 return View(model);
             }
 
-                string? userId = GetUserId();
-            if (userId == null)
+                Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return View();
             }
@@ -125,8 +125,8 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Favorites()
         {
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -139,8 +139,8 @@ namespace OnlineLibrary.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Save(Guid id)
         {
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -158,8 +158,8 @@ namespace OnlineLibrary.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(Guid id)
         {
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -173,8 +173,8 @@ namespace OnlineLibrary.Web.Controllers
         {
             await AddPublishersAndAuthirsListsAsync();
 
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -203,8 +203,8 @@ namespace OnlineLibrary.Web.Controllers
                 return BadRequest();
             }
 
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -253,8 +253,8 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
         {
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -272,8 +272,8 @@ namespace OnlineLibrary.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
         {
-            string? userId = GetUserId();
-            if (string.IsNullOrEmpty(userId))
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }

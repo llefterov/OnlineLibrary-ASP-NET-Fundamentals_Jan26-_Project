@@ -9,7 +9,7 @@ namespace OnlineLibrary.Web.ViewModels.Publisher
     public class PublisherEditViewModel
     {
         [Required]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [MinLength(PublisherNameMinLength)]

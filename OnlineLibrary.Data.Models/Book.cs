@@ -38,17 +38,17 @@ namespace OnlineLibrary.Data.Models
 
         [Required]
         [MaxLength(AddedByUserIdMaxLength)]
-        public string AddedByUserId { get; set; } = null!;
+        public Guid AddedByUserId { get; set; }
 
         [ForeignKey(nameof(AddedByUserId))]
-        public virtual IdentityUser AddedByUser { get; set; } = null!;
+        public virtual ApplicationUser AddedByUser { get; set; } = null!;
 
 
         [Required]
         public DateTime DateAdded { get; set; }
 
         [Required]
-        public int PublisherId { get; set; }
+        public Guid PublisherId { get; set; }
 
         [Required]
         [ForeignKey(nameof(PublisherId))]

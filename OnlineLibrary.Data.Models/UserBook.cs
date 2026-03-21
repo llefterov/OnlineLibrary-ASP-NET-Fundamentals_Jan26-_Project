@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace OnlineLibrary.Data.Models
@@ -9,10 +10,12 @@ namespace OnlineLibrary.Data.Models
     [PrimaryKey(nameof(UserId), nameof(BookId))]
     public class UserBook
     {
-        public string UserId { get; set; } = null!;
+        [ForeignKey(nameof(User))]
+        public Guid UserId { get; set; }
 
-        public virtual IdentityUser User { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
 
+        [ForeignKey(nameof(Book))]
         public Guid BookId { get; set; }
         public virtual Book Book { get; set; } =  null!;
 

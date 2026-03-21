@@ -31,6 +31,9 @@ namespace OnlineLibrary.Web.ViewModels.Books
         [Range(BookRatingMinValue, BookRatingMaxValue)]
         public int Rating { get; set; }
 
+
+
+        [Url]
         [MinLength(BookCoverUrlMinLength)]
         [MaxLength(BookCoverUrlMaxLength)]
         public string? CoverUrl { get; set; }
@@ -39,10 +42,10 @@ namespace OnlineLibrary.Web.ViewModels.Books
         public DateTime DateAdded { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public int PublisherId { get; set; }
+        public Guid PublisherId { get; set; }
 
-        public string? AddedByUserId { get; set; }
+        public Guid? AddedByUserId { get; set; }
 
-        public List<int> AuthorIds { get; set; } = new();
+        public List<Guid> AuthorIds { get; set; } = new();
     }
 }

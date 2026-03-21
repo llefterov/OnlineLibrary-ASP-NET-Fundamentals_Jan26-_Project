@@ -26,7 +26,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute] int id)
+        public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var publisher = await publisherService.GetPublisherByIdAsync(id);
 
@@ -83,9 +83,9 @@ namespace OnlineLibrary.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute] int id)
+        public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -111,9 +111,9 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, PublisherEditViewModel inputModel)
+        public async Task<IActionResult> Edit(Guid id, PublisherEditViewModel inputModel)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -150,9 +150,9 @@ namespace OnlineLibrary.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -170,21 +170,12 @@ namespace OnlineLibrary.Web.Controllers
 
                 return NotFound();
             }
-
-
-            //if (publisherToDelete == null)
-            //{
-            //    return NotFound();
-            //}
-
-          
-
         }
 
         [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed([FromRoute] int id)
+        public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
         {
-            if (id <= 0)
+            if (id == Guid.Empty)
             {
                 return BadRequest();
             }
@@ -215,9 +206,5 @@ namespace OnlineLibrary.Web.Controllers
                 return View("Delete", await publisherService.GetPublisherDeleteDetailsAsync(id));
             }
         }
-
-
-
-
     }
 }

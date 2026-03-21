@@ -39,7 +39,7 @@ namespace OnlineLibrary.Services.Core
             return publishers;
         }
 
-        public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(int id)
+        public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id)
         {
             var publisher = await dbContext.Publishers
                .Include(p => p.Books)
@@ -103,7 +103,7 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(int id)
+        public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
         {
 
 
@@ -129,7 +129,7 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public Task UpdatePublisherAsync(int id, PublisherEditViewModel model)
+        public Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model)
         {
             var publisher = dbContext.Publishers
                .FirstOrDefault(p => p.Id == model.Id);
@@ -152,7 +152,7 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(Guid id)
         {
             bool publisherExist = await dbContext
                 .Publishers
@@ -161,7 +161,7 @@ namespace OnlineLibrary.Services.Core
             return publisherExist;
         }
 
-        public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(int id)
+        public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id)
         {
             var publisherToDelete = await dbContext.Publishers
                 .Include(b => b.Books)
@@ -181,7 +181,7 @@ namespace OnlineLibrary.Services.Core
             return publisherToDelete;
         }
 
-        public async Task DeletePublisherAsync(int id)
+        public async Task DeletePublisherAsync(Guid id)
         {
             var publisher = await dbContext.Publishers
                 .Include(b => b.Books)

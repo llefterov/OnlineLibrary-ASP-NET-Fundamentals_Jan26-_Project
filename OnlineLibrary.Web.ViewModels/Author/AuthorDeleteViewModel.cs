@@ -7,7 +7,7 @@ namespace OnlineLibrary.Web.ViewModels.Author
 {
     public class AuthorDeleteViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
         public virtual ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
     }
