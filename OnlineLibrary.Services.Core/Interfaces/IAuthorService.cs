@@ -10,10 +10,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync();
         Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id);
 
-        //AuthorAddViewModel GetEmtyAuthorFormModelAsync();
+        AuthorsAllDto GetEmptyAuthorViewModelAsync();
 
-
-        //Task AddAuthorAsync(AuthorAddViewModel model);
+        Task AddNewAuthorAsync(AuthorsAllDto model);
 
         //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
 

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
+using OnlineLibrary.Services.Models.Author;
 using OnlineLibrary.Web.ViewModels.Author;
 
 namespace OnlineLibrary.Web.Controllers
@@ -70,48 +70,50 @@ namespace OnlineLibrary.Web.Controllers
             return View(authorModel);
         }
 
-        //[HttpGet]
-        //public IActionResult Add()
-        //{
-        //    var model = authorService.GetEmtyAuthorFormModelAsync();
-        //    return View(model);
-        //}
+        [HttpGet]
+        public IActionResult Add()
+        {
+            var model = new AuthorAddViewModel();
+            return View(model);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Add(AuthorAddViewModel inputModel)
-        //{
-        //    var model = authorService.GetEmtyAuthorFormModelAsync();
-        //    model = inputModel;
+        [HttpPost]
+        public async Task<IActionResult> Add(AuthorAddViewModel inputModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(inputModel);
-        //    }
+            try
+            {
+                var serviceModel = new AuthorsAllDto
+                {
+                    FullName = inputModel.FullName
+                };
 
-        //    try
-        //    {
-        //        await authorService.AddAuthorAsync(inputModel);
-        //        return RedirectToAction("All", "Author");
-        //    }
-        //    catch (AuthorAlreadyExistsException ex)
-        //    {
-        //        logger.LogWarning(ex, "Attempt to add existing author {FullName}", inputModel.FullName);
-        //        ModelState.AddModelError(nameof(AuthorAddViewModel.FullName), ex.Message);
-        //        return View(inputModel);
-        //    }
-        //    catch (AuthorCreateException ex)
-        //    {
-        //        logger.LogError(ex, "An error occurred while adding a new author.");
-        //        ModelState.AddModelError(string.Empty, "An error occurred while adding the author. Please try again.");
-        //        return View(inputModel);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while adding author.");
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
-        //        return View(inputModel);
-        //    }
-        //}
+                await authorService.AddNewAuthorAsync(serviceModel);
+                return RedirectToAction("All", "Author");
+            }
+            catch (AuthorAlreadyExistsException ex)
+            {
+                logger.LogWarning(ex, "Attempt to add existing author {FullName}", inputModel.FullName);
+                ModelState.AddModelError(nameof(AuthorAddViewModel.FullName), ex.Message);
+                return View(inputModel);
+            }
+            catch (AuthorCreateException ex)
+            {
+                logger.LogError(ex, "An error occurred while adding a new author.");
+                ModelState.AddModelError(string.Empty, "An error occurred while adding the author. Please try again.");
+                return View(inputModel);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while adding author.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+                return View(inputModel);
+            }
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Edit([FromRoute] Guid id)

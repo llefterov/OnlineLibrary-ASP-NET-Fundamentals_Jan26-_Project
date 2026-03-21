@@ -8,10 +8,9 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task<Author?> GetAuthorByIdAsync(Guid id);
 
-        //AuthorAddViewModel GetEmtyAuthorFormModelAsync();
+        Author GetEmptyAuthorFormModelAsync();
 
-
-        //Task AddAuthorAsync(AuthorAddViewModel model);
+        Task AddAuthorAsync(Author model);
 
         //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
 

@@ -37,5 +37,37 @@ namespace OnlineLibrary.Data.Repository
 
             return author;
         }
+
+        public Author GetEmptyAuthorFormModelAsync()
+        {
+            Author emptyAuthorModel = new Author();
+            return emptyAuthorModel;
+        }
+
+        public async Task AddAuthorAsync(Author inputModel)
+        {
+            var author = new Author
+            {
+                FullName = inputModel.FullName
+            };
+
+            if (await DbContext.Authors.AnyAsync(a => a.FullName == author.FullName))
+            {
+                throw new InvalidOperationException($"Author with name '{author.FullName}' already exists.");
+            }
+
+            await DbContext.Authors.AddAsync(author);
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new InvalidOperationException("Unable to save the author to the database.", dbEx);
+            }
+        }
+
+
     }
 }
