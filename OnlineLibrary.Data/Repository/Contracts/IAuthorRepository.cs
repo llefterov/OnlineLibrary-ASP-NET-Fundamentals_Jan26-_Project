@@ -1,13 +1,10 @@
-﻿using OnlineLibrary.Services.Models.Author;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using OnlineLibrary.Data.Models;
 
-namespace OnlineLibrary.Services.Core.Interfaces
+namespace OnlineLibrary.Data.Repository.Contracts
 {
-    public interface IAuthorService 
+    public interface IAuthorRepository
     {
-        Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync();
+        Task<IEnumerable<Author>> GetAllAuthorsAsync();
         //Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id);
 
         //AuthorAddViewModel GetEmtyAuthorFormModelAsync();
@@ -23,5 +20,6 @@ namespace OnlineLibrary.Services.Core.Interfaces
         //Task DeleteAuthorAsync(Guid id);
 
         //Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id);
+
     }
 }

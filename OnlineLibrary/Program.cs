@@ -4,6 +4,8 @@ namespace OnlineLibrary
     using Microsoft.EntityFrameworkCore;
     using OnlineLibrary.Data;
     using OnlineLibrary.Data.Models;
+    using OnlineLibrary.Data.Repository;
+    using OnlineLibrary.Data.Repository.Contracts;
     using OnlineLibrary.Services.Core;
     using OnlineLibrary.Services.Core.Interfaces;
 
@@ -25,6 +27,7 @@ namespace OnlineLibrary
             builder.Services.AddScoped<IBooksService, BooksService>();
             builder.Services.AddScoped<IAuthorService, AuthorService>();
             builder.Services.AddScoped<IPublisherService, PublisherService>();
+            builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 
             /* Register Identity in DI */
             //builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
