@@ -35,7 +35,7 @@ namespace OnlineLibrary.Web.Controllers
         {
             var userId = GetUserId();
 
-            if (userId == null)
+            if (userId == Guid.Empty)
             {
                 return View();
             }

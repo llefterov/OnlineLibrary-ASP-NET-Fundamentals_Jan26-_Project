@@ -5,7 +5,8 @@ namespace OnlineLibrary.Data.Repository.Contracts
     public interface IAuthorRepository
     {
         Task<IEnumerable<Author>> GetAllAuthorsAsync();
-        //Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id);
+
+        Task<Author?> GetAuthorByIdAsync(Guid id);
 
         //AuthorAddViewModel GetEmtyAuthorFormModelAsync();
 
@@ -15,6 +16,7 @@ namespace OnlineLibrary.Data.Repository.Contracts
         //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
 
         //Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model);
+
         //Task<bool> ExistsAsync(Guid id);
 
         //Task DeleteAuthorAsync(Guid id);

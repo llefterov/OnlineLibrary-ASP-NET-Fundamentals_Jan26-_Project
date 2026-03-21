@@ -33,17 +33,42 @@ namespace OnlineLibrary.Web.Controllers
             return View(authorsList);
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Details([FromRoute] Guid id)
-        //{
-        //    var authorModel = await authorService.GetAuthorByIdAsync(id);
+        [HttpGet]
+        public async Task<IActionResult> Details([FromRoute] Guid id)
+        {
+            var authorDetailsDto = await authorService
+                .GetAuthorDetailsByIdAsync(id);
 
-        //    if (authorModel == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(authorModel);
-        //}
+            if (authorDetailsDto == null)
+            {
+                return NotFound();
+            }
+
+            var authorModel = new AuthorDetailsViewModel
+            {
+                Id = authorDetailsDto.Id,
+                FullName = authorDetailsDto.FullName,
+                BooksWithPublisherName = authorDetailsDto.BooksWithPublisherName
+                    .Select(b => new AuthorBookViewModel
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        CoverUrl = b.CoverUrl,
+                        Rating = b.Rating,
+                        DateAdded = b.DateAdded,
+                        GenreName = b.GenreName,
+                        PublisherName = b.PublisherName,
+                        Description = b.Description
+                    })
+                   .ToList()
+            };
+
+            if (authorModel == null)
+            {
+                return NotFound();
+            }
+            return View(authorModel);
+        }
 
         //[HttpGet]
         //public IActionResult Add()

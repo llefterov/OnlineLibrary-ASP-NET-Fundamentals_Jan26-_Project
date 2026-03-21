@@ -24,5 +24,18 @@ namespace OnlineLibrary.Data.Repository
 
             return authors;
         }
+
+        public async Task<Author?> GetAuthorByIdAsync(Guid id)
+        {
+            var author = await DbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .ThenInclude(b => b.Publisher)
+                .AsNoTracking()
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+
+            return author;
+        }
     }
 }

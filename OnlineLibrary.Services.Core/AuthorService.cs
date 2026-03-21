@@ -40,34 +40,114 @@ namespace OnlineLibrary.Services.Core
             return authors;
         }
 
-        //public async Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id)
+        public async Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id)
+        {
+            var authorData = await authorRepository.GetAuthorByIdAsync(id);
+
+            if (authorData == null)
+            {
+                return null;
+            }
+
+            AuthorDetailsDto? authorDto = new AuthorDetailsDto
+            {
+                Id = authorData.Id,
+                FullName = authorData.FullName,
+                BooksWithPublisherName = authorData.BooksAuthors
+                    .OrderBy(ba => ba.Book.Title)
+                    .Select(ba => new AuthorBookDto
+                    {
+                        Id = ba.Book.Id,
+                        Title = ba.Book.Title,
+                        CoverUrl = ba.Book.CoverUrl ?? string.Empty,
+                        Rating = ba.Book.Rating,
+                        DateAdded = ba.Book.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                        GenreName = ba.Book.Genre.ToString(),
+                        PublisherName = ba.Book.Publisher != null ? ba.Book.Publisher.Name : string.Empty,
+                        Description = ba.Book.Description
+                    })
+                    .ToList()
+            };
+
+            return authorDto;
+        }
+
+        //public async Task<bool> ExistsAsync(Guid id)
         //{
-        //    var author = await dbContext.Authors
-        //        .Include(a => a.BooksAuthors)
-        //        .ThenInclude(ba => ba.Book)
-        //        .ThenInclude(b => b.Publisher)
-        //        .AsNoTracking()
-        //        .Where(a => a.Id == id)
-        //        .Select(a => new AuthorDetailsViewModel
-        //        {
-        //            Id = a.Id,
-        //            FullName = a.FullName,
-        //            BooksWithPublisherName = a.BooksAuthors
-        //            .OrderBy(ba => ba.Book.Title)
-        //            .Select(ba => new AuthorBookViewModel
-        //            {
-        //                Id = ba.Book.Id,
-        //                Title = ba.Book.Title,
-        //                CoverUrl = ba.Book.CoverUrl ?? string.Empty,
-        //                Rating = ba.Book.Rating,
-        //                DateAdded = ba.Book.DateAdded.ToString(DateTimeFormat,CultureInfo.InvariantCulture),
-        //                GenreName = ba.Book.Genre.ToString(),
-        //                PublisherName = ba.Book.Publisher != null ? ba.Book.Publisher.Name : string.Empty,
-        //                Description = ba.Book.Description
-        //            })
-        //            .ToList()
-        //        })
-        //        .FirstOrDefaultAsync();
+        //    bool authorExist = await dbContext
+        //        .Authors
+        //        .AnyAsync(a => a.Id == id);
+
+        //    return authorExist;
+        //}
+
+        //public AuthorAddViewModel GetEmtyAuthorFormModelAsync()
+        //{
+        //    AuthorAddViewModel emptyAuthorFormModel = new AuthorAddViewModel();
+        //    return emptyAuthorFormModel;
+        //}
+
+        //public async Task AddAuthorAsync(AuthorAddViewModel inputModel)
+        //{
+        //    var author = new Author
+        //    {
+        //        FullName = inputModel.FullName
+        //    };
+
+        //    if (await dbContext.Authors.AnyAsync(a => a.FullName == author.FullName))
+        //    {
+        //        throw new AuthorAlreadyExistsException(author.FullName);
+        //    }
+
+        //    await dbContext.Authors.AddAsync(author);
+
+        //    try
+        //    {
+        //        await dbContext.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateException dbEx)
+        //    {
+        //        throw new AuthorCreateException("Unable to save the author to the database.", dbEx);
+        //    }
+        //}
+
+        //public async Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id)
+        //{
+
+
+        //    if (!(await ExistsAsync(id)))
+        //    {
+        //        throw new AuthorDoesntExistException("Author not found.");
+        //    }
+
+        //    var author = await dbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
+
+        //    if (author == null)
+        //    {
+            //    .ThenInclude(ba => ba.Book)
+            //    .ThenInclude(b => b.Publisher)
+            //    .AsNoTracking()
+            //    .Where(a => a.Id == id)
+            //    .Select(a => new AuthorDetailsViewModel
+            //    {
+            //        Id = a.Id,
+            //        FullName = a.FullName,
+            //        BooksWithPublisherName = a.BooksAuthors
+            //        .OrderBy(ba => ba.Book.Title)
+            //        .Select(ba => new AuthorBookViewModel
+            //        {
+            //            Id = ba.Book.Id,
+            //            Title = ba.Book.Title,
+            //            CoverUrl = ba.Book.CoverUrl ?? string.Empty,
+            //            Rating = ba.Book.Rating,
+            //            DateAdded = ba.Book.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+            //            GenreName = ba.Book.Genre.ToString(),
+            //            PublisherName = ba.Book.Publisher != null ? ba.Book.Publisher.Name : string.Empty,
+            //            Description = ba.Book.Description
+            //        })
+            //        .ToList()
+            //    })
+            //    .FirstOrDefaultAsync();
 
         //    return author;
         //}

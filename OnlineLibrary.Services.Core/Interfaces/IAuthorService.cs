@@ -8,7 +8,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
     public interface IAuthorService 
     {
         Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync();
-        //Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(Guid id);
+        Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id);
 
         //AuthorAddViewModel GetEmtyAuthorFormModelAsync();
 
