@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
-using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
 

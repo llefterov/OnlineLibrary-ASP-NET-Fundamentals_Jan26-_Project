@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineLibrary.Services.Core.Exceptions.PublisherExceptions
+namespace OnlineLibrary.GCommon.Exceptions.PublisherExceptions
 {
     public class PublisherAlreadyExistsException : Exception
     {

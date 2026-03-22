@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineLibrary.Services.Core.Exceptions.AuthorExceptions
+namespace OnlineLibrary.GCommon.Exceptions.AuthorExceptions
 {
     public class AuthorAlreadyExistsException : Exception
     {

@@ -1,4 +1,5 @@
 ﻿using OnlineLibrary.Services.Models.Author;
+using OnlineLibrary.Web.ViewModels.Author;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,9 +15,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task AddNewAuthorAsync(AuthorsAllDto model);
 
-        //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
+        Task<AuthorsAllDto> GetNewAuthorForEditByIdAsync(Guid id);
 
-        //Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model);
+        Task UpdateNewAuthorAsync(Guid id, AuthorsAllDto model);
         //Task<bool> ExistsAsync(Guid id);
 
         //Task DeleteAuthorAsync(Guid id);

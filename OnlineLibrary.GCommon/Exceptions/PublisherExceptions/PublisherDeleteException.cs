@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OnlineLibrary.Services.Core.Exceptions.PublisherExceptions
+namespace OnlineLibrary.GCommon.Exceptions.PublisherExceptions
 {
     public class PublisherDeleteException : Exception
     {

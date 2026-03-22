@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
-
+using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 namespace OnlineLibrary.Data.Repository
 {
     public class AuthorRepository : BaseRepository, IAuthorRepository
@@ -66,6 +66,52 @@ namespace OnlineLibrary.Data.Repository
             {
                 throw new InvalidOperationException("Unable to save the author to the database.", dbEx);
             }
+        }
+
+        public async Task<Author> GetAuthorForEditByIdAsync(Guid id)
+        {
+            if (!(await ExistsAsync(id)))
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            Author? author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
+
+            return author;
+
+        }
+
+        public async Task<bool> ExistsAsync(Guid id)
+        {
+            bool authorExist = await DbContext
+                .Authors
+                .AnyAsync(a => a.Id == id);
+
+            return authorExist;
+        }
+
+        public async Task UpdateAuthorAsync(Guid id, Author model)
+        {
+            var author = await DbContext.Authors
+               .FirstOrDefaultAsync(a => a.Id == model.Id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            author.FullName = model.FullName;
+
+            try
+            {
+                DbContext.Authors.Update(author);
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new AuthorUpdateExeption("Unable to update the author in the database.");
+            }
+
         }
 
 

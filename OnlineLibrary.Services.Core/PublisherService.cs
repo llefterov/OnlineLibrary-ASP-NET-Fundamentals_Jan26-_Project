@@ -1,16 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Core.Exceptions;
-using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
-using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
-using OnlineLibrary.Web.ViewModels.Author;
 using OnlineLibrary.Web.ViewModels.Publisher;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using static OnlineLibrary.GCommon.ApplicationConstants;
 using System.Globalization;
 
