@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using static OnlineLibrary.GCommon.ValidationConstants;
 using System.ComponentModel.DataAnnotations;
 

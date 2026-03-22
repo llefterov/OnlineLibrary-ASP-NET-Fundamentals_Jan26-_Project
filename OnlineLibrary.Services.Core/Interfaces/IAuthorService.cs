@@ -1,8 +1,6 @@
 ﻿using OnlineLibrary.Services.Models.Author;
-using OnlineLibrary.Web.ViewModels.Author;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {
