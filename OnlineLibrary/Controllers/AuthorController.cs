@@ -192,21 +192,29 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
-
-            if (authorToDeleteDto == null)
+            if (id == Guid.Empty)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var authorToDelete = new AuthorDeleteViewModel
+            try
             {
-                Id = authorToDeleteDto.Id,
-                FullName = authorToDeleteDto.FullName,
-                BooksAuthors = authorToDeleteDto.BooksAuthors
-            };
+                var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
 
-            return View(authorToDelete);
+                var authorToDelete = new AuthorDeleteViewModel
+                {
+                    Id = authorToDeleteDto.Id,
+                    FullName = authorToDeleteDto.FullName,
+                    BooksAuthors = authorToDeleteDto.BooksAuthors
+                };
+
+                return View(authorToDelete);
+            }
+            catch (AuthorDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "Attempt to get delete details for non-existing author with id {AuthorId}", id);
+                return NotFound();
+            }
         }
 
         [HttpPost, ActionName("Delete")]
