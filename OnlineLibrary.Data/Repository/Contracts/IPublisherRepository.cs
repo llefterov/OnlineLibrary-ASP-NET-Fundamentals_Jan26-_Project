@@ -8,9 +8,9 @@ namespace OnlineLibrary.Data.Repository.Contracts
     
             Task<Publisher?> GetPublisherByIdAsync(Guid id);
     
-            //Publisher GetEmptyPublisherFormModelAsync();
+            Publisher GetEmptyPublisherFormModelAsync();
     
-            //Task AddPublisherAsync(Publisher model);
+            Task AddPublisherAsync(Publisher model);
     
             //Task<Publisher> GetPublisherForEditByIdAsync(Guid id);
     

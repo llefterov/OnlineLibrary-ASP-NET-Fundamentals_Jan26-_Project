@@ -76,35 +76,33 @@ namespace OnlineLibrary.Services.Core
         }
 
 
-        //public PublisherAddViewModel GetEmtyPublisherFormModelAsync()
-        //{
-        //    PublisherAddViewModel emptyAuthorFormModel = new PublisherAddViewModel();
-        //    return emptyAuthorFormModel;
-        //}
+        public PublisherAddDto GetEmptyPublisherViewModelAsync()
+        {
+            var emptyAuthorFormModel = new PublisherAddDto();
+            return emptyAuthorFormModel;
+        }
 
-        //public async Task AddPublisherAsync(PublisherAddViewModel inputModel)
-        //{
-        //    var publisher = new Publisher
-        //    {
-        //        Name = inputModel.Name
-        //    };
+        public async Task AddNewPublisherAsync(PublisherAddDto inputModel)
+        {
+            var publisher = new Publisher
+            {
+                Name = inputModel.Name
+            };
 
-        //    if (await dbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
-        //    {
-        //        throw new PublisherAlreadyExistsException(publisher.Name);
-        //    }
+            if ((await publisherRepository.GetAllPublishersAsync()).Any(p => p.Name == publisher.Name))
+            {
+                throw new PublisherAlreadyExistsException(publisher.Name);
+            }
 
-        //    await dbContext.Publishers.AddAsync(publisher);
-
-        //    try
-        //    {
-        //        await dbContext.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateException dbEx)
-        //    {
-        //        throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
-        //    }
-        //}
+            try
+            {
+            await publisherRepository.AddPublisherAsync(publisher);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
+            }
+        }
 
         //public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
         //{

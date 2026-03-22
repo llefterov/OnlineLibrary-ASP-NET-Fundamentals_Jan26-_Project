@@ -12,9 +12,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync();
         Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id);
 
-        //PublisherAddViewModel GetEmtyPublisherFormModelAsync();
+        PublisherAddDto GetEmptyPublisherViewModelAsync();
 
-        //Task AddPublisherAsync(PublisherAddViewModel model);
+        Task AddNewPublisherAsync(PublisherAddDto model);
 
         //Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id);
 

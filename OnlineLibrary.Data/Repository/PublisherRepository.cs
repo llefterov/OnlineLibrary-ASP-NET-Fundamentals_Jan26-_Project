@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 
 namespace OnlineLibrary.Data.Repository
 {
@@ -37,7 +38,35 @@ namespace OnlineLibrary.Data.Repository
             return publisher;
         }
 
+        public Publisher GetEmptyPublisherFormModelAsync()
+        {
+            Publisher emptyAuthorFormModel = new Publisher();
+            return emptyAuthorFormModel;
+        }
 
+        public async Task AddPublisherAsync(Publisher inputModel)
+        {
+            var publisher = new Publisher
+            {
+                Name = inputModel.Name
+            };
+
+            if (await DbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
+            {
+                throw new PublisherAlreadyExistsException(publisher.Name);
+            }
+
+            await DbContext.Publishers.AddAsync(publisher);
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
+            }
+        }
 
     }
 }

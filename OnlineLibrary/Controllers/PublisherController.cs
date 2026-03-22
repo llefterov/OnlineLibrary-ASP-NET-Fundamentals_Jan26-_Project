@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.GCommon;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
+using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Publisher;
 using System.Globalization;
 using System.Runtime.Serialization;
@@ -70,49 +71,54 @@ namespace OnlineLibrary.Web.Controllers
             return View(publisher);
         }
 
-        //[HttpGet]
-        //public IActionResult Add()
-        //{
-        //    var model = publisherService.GetEmtyPublisherFormModelAsync();
-        //    return View(model);
-        //}
+        [HttpGet]
+        public IActionResult Add()
+        {
+            var model = new PublisherAddViewModel();
+            return View(model);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Add(PublisherAddViewModel inputModel)
-        //{
-        //    var model = publisherService.GetEmtyPublisherFormModelAsync();
-        //    model = inputModel;
+        [HttpPost]
+        public async Task<IActionResult> Add(PublisherAddViewModel inputModel)
+        {
+            var modelDto = publisherService.GetEmptyPublisherViewModelAsync();
+            
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(inputModel);
-        //    }
+            modelDto = new PublisherAddDto
+            {
+                Name = inputModel.Name
+            };
+                
 
-        //    try
-        //    {
-        //        await publisherService.AddPublisherAsync(inputModel);
-        //        return RedirectToAction("All", "Publisher");
-        //    }
-        //    catch (PublisherAlreadyExistsException ex)
-        //    {
-        //        logger.LogWarning(ex, "Attempt to add existing publisher {Name}", inputModel.Name);
-        //        // bind error to the FullName field so user sees the specific issue
-        //        ModelState.AddModelError(nameof(PublisherAddViewModel.Name), ex.Message);
-        //        return View(inputModel);
-        //    }
-        //    catch (PublisherCreateException ex)
-        //    {
-        //        logger.LogError(ex, "An error occurred while adding a new publisher.");
-        //        ModelState.AddModelError(string.Empty, "An error occurred while adding the publisher. Please try again.");
-        //        return View(inputModel);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while adding publisher.");
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
-        //        return View(inputModel);
-        //    }
-        //}
+            try
+            {
+                await publisherService.AddNewPublisherAsync(modelDto);
+                return RedirectToAction("All", "Publisher");
+            }
+            catch (PublisherAlreadyExistsException ex)
+            {
+                logger.LogWarning(ex, "Attempt to add existing publisher {Name}", inputModel.Name);
+                // bind error to the FullName field so user sees the specific issue
+                ModelState.AddModelError(nameof(PublisherAddViewModel.Name), ex.Message);
+                return View(inputModel);
+            }
+            catch (PublisherCreateException ex)
+            {
+                logger.LogError(ex, "An error occurred while adding a new publisher.");
+                ModelState.AddModelError(string.Empty, "An error occurred while adding the publisher. Please try again.");
+                return View(inputModel);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while adding publisher.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+                return View(inputModel);
+            }
+        }
 
 
         //[HttpGet]
