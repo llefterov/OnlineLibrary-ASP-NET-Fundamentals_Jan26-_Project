@@ -69,7 +69,7 @@ namespace OnlineLibrary.Services.Core
             return publisherDto;
         }
 
-        public PublisherAddDto GetEmptyPublisherViewModelAsync()
+        public PublisherAddDto GetEmptyPublisherViewModel()
         {
             var emptyAuthorFormModel = new PublisherAddDto();
             return emptyAuthorFormModel;
