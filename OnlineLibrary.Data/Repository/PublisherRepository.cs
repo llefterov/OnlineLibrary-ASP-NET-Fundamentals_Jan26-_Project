@@ -38,10 +38,10 @@ namespace OnlineLibrary.Data.Repository
             return publisher;
         }
 
-        public Publisher GetEmptyPublisherFormModelAsync()
+        public Task<Publisher> GetEmptyPublisherFormModelAsync()
         {
             Publisher emptyAuthorFormModel = new Publisher();
-            return emptyAuthorFormModel;
+            return Task.FromResult(emptyAuthorFormModel);
         }
 
         public async Task AddPublisherAsync(Publisher inputModel)
