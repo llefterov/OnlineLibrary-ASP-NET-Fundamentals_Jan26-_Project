@@ -189,67 +189,74 @@ namespace OnlineLibrary.Web.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Delete([FromRoute] Guid id)
-        //{
-        //    var authorToDelete = await authorService.GetAuthorDeleteDetailsAsync(id);
-
-        //    if (authorToDelete == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(authorToDelete);
-        //}
-
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    try
-        //    {
-        //       await authorService.DeleteAuthorAsync(id);
-        //        return RedirectToAction("All", "Author");
-        //    }
-        //    catch (AuthorDoesntExistException)
-        //    {
-        //        logger.LogWarning("Attempt to delete non-existing author with id {AuthorId}", id);
-        //        ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
-
-        //        return NotFound();
-        //    }
-        //    catch (AuthorDeleteException ex)
-        //    {
-        //        logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
-        //        ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
-        //        return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
-        //        return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
-        //    }
-        //}
-    }
-
-    [Serializable]
-    internal class AuthorAlreadyExistsException : Exception
-    {
-        public AuthorAlreadyExistsException()
+        [HttpGet]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
+            var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
+
+            if (authorToDeleteDto == null)
+            {
+                return NotFound();
+            }
+
+            var authorToDelete = new AuthorDeleteViewModel
+            {
+                Id = authorToDeleteDto.Id,
+                FullName = authorToDeleteDto.FullName,
+                BooksAuthors = authorToDeleteDto.BooksAuthors
+            };
+
+            return View(authorToDelete);
         }
 
-        public AuthorAlreadyExistsException(string? message) : base(message)
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
         {
-        }
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        public AuthorAlreadyExistsException(string? message, Exception? innerException) : base(message, innerException)
-        {
+            try
+            {
+                await authorService.DeleteAuthorByIdAsync(id);
+                return RedirectToAction("All", "Author");
+            }
+            catch (AuthorDoesntExistException)
+            {
+                logger.LogWarning("Attempt to delete non-existing author with id {AuthorId}", id);
+                ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
+
+                return NotFound();
+            }
+            catch (AuthorDeleteException ex)
+            {
+                logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
+                ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
+                return View("Delete", await authorService.GetAuthorNewDeleteDetailsAsync(id));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
+                return View("Delete", await authorService.GetAuthorNewDeleteDetailsAsync(id));
+            }
         }
     }
+
+    //[Serializable]
+    //internal class AuthorAlreadyExistsException : Exception
+    //{
+    //    public AuthorAlreadyExistsException()
+    //    {
+    //    }
+
+    //    public AuthorAlreadyExistsException(string? message) : base(message)
+    //    {
+    //    }
+
+    //    public AuthorAlreadyExistsException(string? message, Exception? innerException) : base(message, innerException)
+    //    {
+    //    }
+    //}
 }

@@ -114,6 +114,53 @@ namespace OnlineLibrary.Data.Repository
 
         }
 
+        public async Task<Author> GetAuthorDeleteDetailsAsync(Guid id)
+        {
+            var authorToDelete = await DbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
+            if (authorToDelete == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+            return authorToDelete;
+        }
+
+        public async Task DeleteAuthorAsync(Guid id)
+        {
+            var author = await DbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            var inputModel = await GetAuthorDeleteDetailsAsync(id);
+
+
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            if (author.BooksAuthors.Any())
+            {
+
+                throw new AuthorDeleteException("Cannot delete author with associated books.");
+            }
+
+
+            DbContext.Authors.Remove(author);
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new AuthorDeleteException("Unable to delete the author from the database.");
+            }
+        }
     }
 }

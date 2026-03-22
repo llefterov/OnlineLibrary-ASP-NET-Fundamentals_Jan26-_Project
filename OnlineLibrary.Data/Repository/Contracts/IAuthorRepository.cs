@@ -18,9 +18,9 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task<bool> ExistsAsync(Guid id);
 
-        //Task DeleteAuthorAsync(Guid id);
+        Task DeleteAuthorAsync(Guid id);
 
-        //Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id);
+        Task<Author> GetAuthorDeleteDetailsAsync(Guid id);
 
     }
 }

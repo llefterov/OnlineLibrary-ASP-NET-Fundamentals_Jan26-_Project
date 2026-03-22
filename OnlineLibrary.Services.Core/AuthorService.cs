@@ -162,62 +162,49 @@ namespace OnlineLibrary.Services.Core
 
         }
 
-        //public async Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id)
-        //{
-        //    var authorToDelete = await dbContext.Authors
-        //        .Include(a => a.BooksAuthors)
-        //        .ThenInclude(ba => ba.Book) 
-        //        .Select(a => new AuthorDeleteViewModel
-        //        {
-        //            Id = a.Id,
-        //            FullName = a.FullName,
-        //            BooksAuthors = a.BooksAuthors
-        //        })
-        //        .FirstOrDefaultAsync(a => a.Id == id);
+        public async Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id)
+        {
+            var authorToDelete = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
-        //    if (authorToDelete == null)
-        //    {
-        //        throw new AuthorDoesntExistException("Author not found.");
-        //    }
-        //    return authorToDelete;
+            if (authorToDelete == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
 
-        //}
+            var authorToDeleteDto = new AuthorDeleteDto
+            {
+                Id = authorToDelete.Id,
+                FullName = authorToDelete.FullName,
+                BooksAuthors = authorToDelete.BooksAuthors
+            };
 
-        //public async Task DeleteAuthorAsync(Guid id)
-        //{
-        //    var author = await dbContext.Authors
-        //        .Include(a => a.BooksAuthors)
-        //        .ThenInclude(ba => ba.Book)
-        //        .FirstOrDefaultAsync(a => a.Id == id);
+            return authorToDeleteDto;
 
-        //    var inputModel = await GetAuthorDeleteDetailsAsync(id);
+        }
 
+        public async Task DeleteAuthorByIdAsync(Guid id)
+        {
+            var author = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
 
-        //    if (author == null)
-        //    {
-        //        throw new AuthorDoesntExistException("Author not found.");
-        //    }
+            if (author.BooksAuthors.Any())
+            {
+                throw new AuthorDeleteException("Cannot delete author with associated books.");
+            }
 
-        //    if (author.BooksAuthors.Any())
-        //    {
-
-        //        throw new AuthorDeleteException("Cannot delete author with associated books.");
-
-        //    }
-
-
-        //    dbContext.Authors.Remove(author);
-
-        //    try
-        //    {
-        //        dbContext.SaveChanges();
-        //    }
-        //    catch (DbUpdateException)
-        //    {
-        //        throw new AuthorDeleteException("Unable to delete the author from the database.");
-        //    }
-        //}
+            try
+            {
+                await authorRepository.DeleteAuthorAsync(id);
+            }
+            catch (DbUpdateException)
+            {
+                throw new AuthorDeleteException("Unable to delete the author from the database.");
+            }
+        }
     }
 }
 
