@@ -12,7 +12,7 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task AddAuthorAsync(Author model);
 
-        Task<Author> GetAuthorForEditByIdAsync(Guid id);
+        Task<Author?> GetAuthorForEditByIdAsync(Guid id);
 
         Task UpdateAuthorAsync(Guid id, Author model);
 
