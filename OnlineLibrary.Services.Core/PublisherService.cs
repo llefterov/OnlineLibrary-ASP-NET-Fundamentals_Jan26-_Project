@@ -1,101 +1,95 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Core.Exceptions;
-using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
-using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
-using OnlineLibrary.Web.ViewModels.Author;
 using OnlineLibrary.Web.ViewModels.Publisher;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using static OnlineLibrary.GCommon.ApplicationConstants;
 using System.Globalization;
+using OnlineLibrary.Services.Models.Publisher;
+using OnlineLibrary.Data.Repository.Contracts;
 
 namespace OnlineLibrary.Services.Core
 {
     public class PublisherService : IPublisherService
     {
-        private readonly OnlineLibraryDbContext dbContext;
+        private readonly IPublisherRepository publisherRepository;
 
-        public PublisherService(OnlineLibraryDbContext dbContext)
+        public PublisherService(IPublisherRepository publisherRepository)
         {
-            this.dbContext = dbContext;
+            this.publisherRepository = publisherRepository;
         }
 
-        public async Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync()
+        public async Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync()
         {
-            var publishers = await dbContext.Publishers
+            var publishers = await publisherRepository.GetAllPublishersAsync();
+
+            var publishersDto = publishers
             .OrderBy(p => p.Name)
-            .Select(p => new PublisherAllViewModel
+            .Select(p => new PublisherAllDto
             {
                 Id = p.Id,
                 Name = p.Name
             })
-         .ToListAsync();
+         .ToList();
 
-            return publishers;
+            return publishersDto;
         }
 
-        public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id)
+        public async Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id)
         {
-            var publisher = await dbContext.Publishers
-               .Include(p => p.Books)
-               .ThenInclude(b => b.BooksAuthors)
-               .ThenInclude(ba => ba.Author)
-               .AsNoTracking()
-               .Where(p => p.Id == id)
-               .Select(p => new PublisherDetailsViewModel
-               {
-                   Id = p.Id,
-                   Name = p.Name,
-                   BooksWithAuthorName = p.Books
-                   .Where(b => !b.IsDeleted)
-                   .OrderBy(b => b.Title)
-                     .Select(b => new PublisherBookViewModel
-                     {
-                         Id = b.Id,
-                         Title = b.Title,
-                         CoverUrl = b.CoverUrl ?? string.Empty,
-                         Rating = b.Rating,
-                         DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-                         GenreName = b.Genre.ToString(),
-                         AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
-                         Description = b.Description
-                     })
-                     .ToList()
-               })
-               .FirstOrDefaultAsync();
+            var publisher = await publisherRepository.GetPublisherByIdAsync(id);
+             
+            if (publisher == null)
+            {
+                throw new PublisherDoesntExistException("Publisher not found.");
+            }
 
-            return publisher;
+            PublisherDetailsDto? publisherDto = new PublisherDetailsDto
+            {
+                Id = publisher.Id,
+                Name = publisher.Name,
+                BooksWithAuthorName = publisher.Books
+                    .Where(b => !b.IsDeleted)
+                    .OrderBy(b => b.Title)
+                    .Select(b => new PublisherBookDto
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        CoverUrl = b.CoverUrl ?? string.Empty,
+                        Rating = b.Rating,
+                        DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                        GenreName = b.Genre.ToString(),
+                        AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
+                        Description = b.Description
+                    })
+                    .ToList()
+            };
+
+            return publisherDto;
         }
 
-
-        public PublisherAddViewModel GetEmtyPublisherFormModelAsync()
+        public PublisherAddDto GetEmptyPublisherViewModel()
         {
-            PublisherAddViewModel emptyAuthorFormModel = new PublisherAddViewModel();
+            var emptyAuthorFormModel = new PublisherAddDto();
             return emptyAuthorFormModel;
         }
 
-        public async Task AddPublisherAsync(PublisherAddViewModel inputModel)
+        public async Task AddNewPublisherAsync(PublisherAddDto inputModel)
         {
             var publisher = new Publisher
             {
                 Name = inputModel.Name
             };
 
-            if (await dbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
+            if ((await publisherRepository.GetAllPublishersAsync()).Any(p => p.Name == publisher.Name))
             {
                 throw new PublisherAlreadyExistsException(publisher.Name);
             }
 
-            await dbContext.Publishers.AddAsync(publisher);
-
             try
             {
-                await dbContext.SaveChangesAsync();
+            await publisherRepository.AddPublisherAsync(publisher);
             }
             catch (DbUpdateException dbEx)
             {
@@ -103,16 +97,10 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
+        public async Task<PublisherAllDto> GetNewPublisherForEditByIdAsync(Guid id)
         {
 
-
-            if (!(await ExistsAsync(id)))
-            {
-                throw new PublisherDoesntExistException("Publisher not found.");
-            }
-
-            var publisher = await dbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
+            var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
 
             if (publisher == null)
             {
@@ -121,7 +109,7 @@ namespace OnlineLibrary.Services.Core
 
             }
 
-            var inputModel = new PublisherEditViewModel
+            var inputModel = new PublisherAllDto
             {
                 Id = publisher.Id,
                 Name = publisher.Name
@@ -129,10 +117,9 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model)
+        public async Task UpdateNewPublisherAsync(Guid id, PublisherAllDto model)
         {
-            var publisher = dbContext.Publishers
-               .FirstOrDefault(p => p.Id == model.Id);
+            var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
 
             if (publisher == null)
             {
@@ -143,8 +130,7 @@ namespace OnlineLibrary.Services.Core
 
             try
             {
-                dbContext.Publishers.Update(publisher);
-                return dbContext.SaveChangesAsync();
+                await publisherRepository.UpdatePublisherAsync(id, publisher);
             }
             catch (DbUpdateException)
             {
@@ -152,26 +138,19 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            bool publisherExist = await dbContext
-                .Publishers
-                .AnyAsync(a => a.Id == id);
 
-            return publisherExist;
-        }
 
-        public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id)
+        public async Task<PublisherDeleteDto> GetPublisherNewDeleteDetailsAsync(Guid id)
         {
-            var publisherToDelete = await dbContext.Publishers
-                .Include(b => b.Books)
-                .Select(b => new PublisherDeleteViewModel
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Books = b.Books
-                })
-                .FirstOrDefaultAsync(b => b.Id == id);
+
+           var publisherService = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
+
+            var publisherToDelete = new PublisherDeleteDto
+            {
+                Id = publisherService.Id,
+                Name = publisherService.Name,
+                Books = publisherService.Books
+            };
 
             if (publisherToDelete == null)
             {
@@ -181,11 +160,10 @@ namespace OnlineLibrary.Services.Core
             return publisherToDelete;
         }
 
-        public async Task DeletePublisherAsync(Guid id)
+        public async Task DeletePublisherByIdAsync(Guid id)
         {
-            var publisher = await dbContext.Publishers
-                .Include(b => b.Books)
-                .FirstOrDefaultAsync(b => b.Id == id);
+
+           var publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);    
 
             if (publisher == null)
             {
@@ -194,16 +172,12 @@ namespace OnlineLibrary.Services.Core
 
             if (publisher.Books.Any())
             {
-
                 throw new PublisherDeleteException("Cannot delete publisher with associated books.");
-
             }
-
-            dbContext.Publishers.Remove(publisher);
 
             try
             {
-                await dbContext.SaveChangesAsync();
+                await publisherRepository.DeletePublisherAsync(id);
             }
             catch (DbUpdateException)
             {

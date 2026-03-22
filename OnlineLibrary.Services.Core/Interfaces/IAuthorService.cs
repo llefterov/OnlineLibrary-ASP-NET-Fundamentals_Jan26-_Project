@@ -1,7 +1,6 @@
 ﻿using OnlineLibrary.Services.Models.Author;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {
@@ -14,13 +13,11 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task AddNewAuthorAsync(AuthorsAllDto model);
 
-        //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
+        Task<AuthorsAllDto> GetNewAuthorForEditByIdAsync(Guid id);
 
-        //Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model);
-        //Task<bool> ExistsAsync(Guid id);
+        Task UpdateNewAuthorAsync(Guid id, AuthorsAllDto model);
 
-        //Task DeleteAuthorAsync(Guid id);
-
-        //Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id);
+        Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id);
+        Task DeleteAuthorByIdAsync(Guid id);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Services.Core.Exceptions.PublisherExceptions
+﻿namespace OnlineLibrary.GCommon.Exceptions.PublisherExceptions
 {
     [Serializable]
     public class PublisherDoesntExistException : Exception

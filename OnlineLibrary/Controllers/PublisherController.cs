@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
+using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using System.Globalization;
+using System.Runtime.Serialization;
+using static OnlineLibrary.GCommon.ApplicationConstants;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -20,15 +25,44 @@ namespace OnlineLibrary.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> All()
         {
-            var model = await publisherService.GetPublisherAllAsync();
+            var model = await publisherService
+                .GetAllPublishersAsync();
+            var publishersList = model
+                .Select(p => new PublisherAllViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                })
+                .ToList();
 
-            return View(model);
+            return View(publishersList);
         }
 
         [HttpGet]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
-            var publisher = await publisherService.GetPublisherByIdAsync(id);
+            var publisherDto = await publisherService.GetPublisherDetailsByIdAsync(id);
+
+
+
+            var publisher = new PublisherDetailsViewModel
+                {
+                    Id = publisherDto.Id,
+                    Name = publisherDto.Name,
+                    BooksWithAuthorName = publisherDto.BooksWithAuthorName
+                        .Select(b => new PublisherBookViewModel
+                        {
+                            Id = b.Id,
+                            Title = b.Title,
+                            CoverUrl = b.CoverUrl ?? string.Empty,
+                            Rating = b.Rating,
+                            DateAdded = b.DateAdded,
+                            GenreName = b.GenreName,
+                            AuthorsName = b.AuthorsName,
+                            Description = b.Description
+                        })
+                        .ToList()
+                };
 
             if (publisher == null)
             {
@@ -40,24 +74,29 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public IActionResult Add()
         {
-            var model = publisherService.GetEmtyPublisherFormModelAsync();
+            var model = new PublisherAddViewModel();
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(PublisherAddViewModel inputModel)
         {
-            var model = publisherService.GetEmtyPublisherFormModelAsync();
-            model = inputModel;
-
+            var modelDto = publisherService.GetEmptyPublisherViewModelAsync();
+            
             if (!ModelState.IsValid)
             {
                 return View(inputModel);
             }
 
+            modelDto = new PublisherAddDto
+            {
+                Name = inputModel.Name
+            };
+                
+
             try
             {
-                await publisherService.AddPublisherAsync(inputModel);
+                await publisherService.AddNewPublisherAsync(modelDto);
                 return RedirectToAction("All", "Publisher");
             }
             catch (PublisherAlreadyExistsException ex)
@@ -93,7 +132,12 @@ namespace OnlineLibrary.Web.Controllers
             var model = new PublisherEditViewModel();
             try
             {
-                model = await publisherService.GetPublisherForEditByIdAsync(id);
+                var modelDto = await publisherService.GetNewPublisherForEditByIdAsync(id);
+                model = new PublisherEditViewModel
+                {
+                    Id = modelDto.Id,
+                    Name = modelDto.Name
+                };
             }
             catch (PublisherDoesntExistException ex)
             {
@@ -125,12 +169,18 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await publisherService.UpdatePublisherAsync(id, inputModel);
+                var serviceModel = new PublisherAllDto
+                {
+                    Id = id,
+                    Name = inputModel.Name
+                };      
+
+                await publisherService.UpdateNewPublisherAsync(id, serviceModel);
                 return RedirectToAction("All", "Publisher");
             }
             catch (PublisherDoesntExistException ex)
             {
-                logger.LogError(ex,"Publisher does not exist");
+                logger.LogError(ex, "Publisher does not exist");
                 ModelState.AddModelError(string.Empty, "Publisher does not exist");
                 return View(inputModel);
             }
@@ -160,7 +210,7 @@ namespace OnlineLibrary.Web.Controllers
             try
             {
 
-            var publisherToDelete = await publisherService.GetPublisherDeleteDetailsAsync(id);
+                var publisherToDelete = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
                 return View(publisherToDelete);
             }
             catch (PublisherDoesntExistException)
@@ -182,7 +232,7 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await publisherService.DeletePublisherAsync(id);
+                await publisherService.DeletePublisherByIdAsync(id);
                 return RedirectToAction("All", "Publisher");
             }
             catch (PublisherDoesntExistException)
@@ -197,13 +247,13 @@ namespace OnlineLibrary.Web.Controllers
             {
                 logger.LogWarning(ex, "Attempt to delete publisher with id {PublisherId} that has associated books.", id);
                 ModelState.AddModelError(string.Empty, "Cannot delete a publisher that has associated books. Please remove the associations first.");
-                return View("Delete", await publisherService.GetPublisherDeleteDetailsAsync(id));
+                return View("Delete", await publisherService.GetPublisherNewDeleteDetailsAsync(id));
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Unexpected error while deleting publisher with id {PublisherId}.", id);
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the publisher. Please contact support.");
-                return View("Delete", await publisherService.GetPublisherDeleteDetailsAsync(id));
+                return View("Delete", await publisherService.GetPublisherNewDeleteDetailsAsync(id));
             }
         }
     }

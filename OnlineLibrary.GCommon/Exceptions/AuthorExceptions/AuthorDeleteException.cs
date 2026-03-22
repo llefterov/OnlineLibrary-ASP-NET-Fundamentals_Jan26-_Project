@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OnlineLibrary.Services.Core.Exceptions.AuthorExceptions
+namespace OnlineLibrary.GCommon.Exceptions.AuthorExceptions
 {
     public class AuthorDeleteException : Exception
     {

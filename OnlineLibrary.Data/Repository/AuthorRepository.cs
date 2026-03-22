@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
+using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 
 namespace OnlineLibrary.Data.Repository
 {
@@ -68,6 +69,96 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
+        public async Task<Author> GetAuthorForEditByIdAsync(Guid id)
+        {
+            if (!(await ExistsAsync(id)))
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
 
+            var author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+            return author;
+        }
+
+        public async Task<bool> ExistsAsync(Guid id)
+        {
+            bool authorExist = await DbContext
+                .Authors
+                .AnyAsync(a => a.Id == id);
+
+            return authorExist;
+        }
+
+        public async Task UpdateAuthorAsync(Guid id, Author model)
+        {
+            var author = await DbContext.Authors
+               .FirstOrDefaultAsync(a => a.Id == model.Id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            author.FullName = model.FullName;
+
+            try
+            {
+                DbContext.Authors.Update(author);
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new AuthorUpdateExeption("Unable to update the author in the database.");
+            }
+        }
+
+        public async Task<Author> GetAuthorDeleteDetailsAsync(Guid id)
+        {
+            var authorToDelete = await DbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (authorToDelete == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+            return authorToDelete;
+        }
+
+        public async Task DeleteAuthorAsync(Guid id)
+        {
+            var author = await DbContext.Authors
+                .Include(a => a.BooksAuthors)
+                .ThenInclude(ba => ba.Book)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
+
+            if (author.BooksAuthors.Any())
+            {
+
+                throw new AuthorDeleteException("Cannot delete author with associated books.");
+            }
+
+            DbContext.Authors.Remove(author);
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new AuthorDeleteException("Unable to delete the author from the database.");
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
-using OnlineLibrary.Services.Core.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
 using System;
@@ -104,8 +104,8 @@ namespace OnlineLibrary.Services.Core
                    AddedByUserName = b.AddedByUser.UserName, // null-safe
                    PublisherId = b.PublisherId,
                    PublisherName = b.PublisherName,
-                   IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
-                   IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
+                   IsAddedByUser = userId != Guid.Empty && b.AddedByUser != null && b.AddedByUser.Id == userId,
+                   IsAddedToUserCollection = userId != Guid.Empty && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                })
                .Where(b => b.IsAddedByUser == true)
                .ToListAsync();

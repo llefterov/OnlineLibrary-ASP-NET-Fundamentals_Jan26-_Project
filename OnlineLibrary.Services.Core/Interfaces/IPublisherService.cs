@@ -1,5 +1,4 @@
-﻿using OnlineLibrary.Web.ViewModels.Author;
-using OnlineLibrary.Web.ViewModels.Publisher;
+﻿using OnlineLibrary.Services.Models.Publisher;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,21 +7,18 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IPublisherService
     {
+        Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync();
+        Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id);
 
-        Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync();
-        Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id);
+        PublisherAddDto GetEmptyPublisherViewModelAsync();
 
-        PublisherAddViewModel GetEmtyPublisherFormModelAsync();
+        Task AddNewPublisherAsync(PublisherAddDto model);
 
-        Task AddPublisherAsync(PublisherAddViewModel model);
+        Task<PublisherAllDto> GetNewPublisherForEditByIdAsync(Guid id);
 
-        Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id);
+        Task UpdateNewPublisherAsync(Guid id, PublisherAllDto model);
 
-        Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model);
-        Task<bool> ExistsAsync(Guid id);
-
-        Task DeletePublisherAsync(Guid id);
-
-        Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id);
+        Task<PublisherDeleteDto> GetPublisherNewDeleteDetailsAsync(Guid id);
+        Task DeletePublisherByIdAsync(Guid id);
     }
 }
