@@ -134,8 +134,6 @@ namespace OnlineLibrary.Data.Repository
                 .ThenInclude(ba => ba.Book)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-            var inputModel = await GetAuthorDeleteDetailsAsync(id);
-
             if (author == null)
             {
                 throw new AuthorDoesntExistException("Author not found.");
