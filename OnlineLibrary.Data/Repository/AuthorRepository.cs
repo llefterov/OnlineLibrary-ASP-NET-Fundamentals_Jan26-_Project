@@ -76,8 +76,12 @@ namespace OnlineLibrary.Data.Repository
                 throw new AuthorDoesntExistException("Author not found.");
             }
 
-            Author? author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
+            var author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
 
+            if (author == null)
+            {
+                throw new AuthorDoesntExistException("Author not found.");
+            }
             return author;
         }
 
