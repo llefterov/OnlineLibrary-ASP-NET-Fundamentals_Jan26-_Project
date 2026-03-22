@@ -36,38 +36,44 @@ namespace OnlineLibrary.Services.Core
             return publishersDto;
         }
 
-        //public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id)
-        //{
-        //    var publisher = await dbContext.Publishers
-        //       .Include(p => p.Books)
-        //       .ThenInclude(b => b.BooksAuthors)
-        //       .ThenInclude(ba => ba.Author)
-        //       .AsNoTracking()
-        //       .Where(p => p.Id == id)
-        //       .Select(p => new PublisherDetailsViewModel
-        //       {
-        //           Id = p.Id,
-        //           Name = p.Name,
-        //           BooksWithAuthorName = p.Books
-        //           .Where(b => !b.IsDeleted)
-        //           .OrderBy(b => b.Title)
-        //             .Select(b => new PublisherBookViewModel
-        //             {
-        //                 Id = b.Id,
-        //                 Title = b.Title,
-        //                 CoverUrl = b.CoverUrl ?? string.Empty,
-        //                 Rating = b.Rating,
-        //                 DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-        //                 GenreName = b.Genre.ToString(),
-        //                 AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
-        //                 Description = b.Description
-        //             })
-        //             .ToList()
-        //       })
-        //       .FirstOrDefaultAsync();
+        public async Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id)
+        {
+            var publisher = await publisherRepository.GetPublisherByIdAsync(id);
+               //.Include(p => p.Books)
+               //.ThenInclude(b => b.BooksAuthors)
+               //.ThenInclude(ba => ba.Author)
+               //.AsNoTracking()
+               //.Where(p => p.Id == id)
+             
+            if (publisher == null)
+            {
+                throw new PublisherDoesntExistException("Publisher not found.");
+            }
 
-        //    return publisher;
-        //}
+
+            PublisherDetailsDto? publisherDto = new PublisherDetailsDto
+            {
+                Id = publisher.Id,
+                Name = publisher.Name,
+                BooksWithAuthorName = publisher.Books
+                    .Where(b => !b.IsDeleted)
+                    .OrderBy(b => b.Title)
+                    .Select(b => new PublisherBookDto
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        CoverUrl = b.CoverUrl ?? string.Empty,
+                        Rating = b.Rating,
+                        DateAdded = b.DateAdded.ToString("dd/MM/yyyy"),
+                        GenreName = b.Genre.ToString(),
+                        AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
+                        Description = b.Description
+                    })
+                    .ToList()
+            };
+
+            return publisherDto;
+        }
 
 
         //public PublisherAddViewModel GetEmtyPublisherFormModelAsync()

@@ -23,5 +23,21 @@ namespace OnlineLibrary.Data.Repository
 
             return publishers;
         }
+
+        public async Task<Publisher?> GetPublisherByIdAsync(Guid id)
+        {
+            var publisher = await DbContext.Publishers
+               .Include(p => p.Books)
+               .ThenInclude(b => b.BooksAuthors)
+               .ThenInclude(ba => ba.Author)
+               .AsNoTracking()
+               .Where(p => p.Id == id)
+               .FirstOrDefaultAsync();
+
+            return publisher;
+        }
+
+
+
     }
 }

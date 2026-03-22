@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineLibrary.GCommon;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using System.Globalization;
+using System.Runtime.Serialization;
+using static OnlineLibrary.GCommon.ApplicationConstants;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -33,17 +37,38 @@ namespace OnlineLibrary.Web.Controllers
             return View(publishersList);
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Details([FromRoute] Guid id)
-        //{
-        //    var publisher = await publisherService.GetPublisherByIdAsync(id);
+        [HttpGet]
+        public async Task<IActionResult> Details([FromRoute] Guid id)
+        {
+            var publisherDto = await publisherService.GetPublisherDetailsByIdAsync(id);
 
-        //    if (publisher == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(publisher);
-        //}
+
+
+            var publisher = new PublisherDetailsViewModel
+                {
+                    Id = publisherDto.Id,
+                    Name = publisherDto.Name,
+                    BooksWithAuthorName = publisherDto.BooksWithAuthorName
+                        .Select(b => new PublisherBookViewModel
+                        {
+                            Id = b.Id,
+                            Title = b.Title,
+                            CoverUrl = b.CoverUrl ?? string.Empty,
+                            Rating = b.Rating,
+                            DateAdded = b.DateAdded,
+                            GenreName = b.GenreName,
+                            AuthorsName = b.AuthorsName,
+                            Description = b.Description
+                        })
+                        .ToList()
+                };
+
+            if (publisher == null)
+            {
+                return NotFound();
+            }
+            return View(publisher);
+        }
 
         //[HttpGet]
         //public IActionResult Add()

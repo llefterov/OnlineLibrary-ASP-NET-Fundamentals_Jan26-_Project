@@ -6,7 +6,7 @@ namespace OnlineLibrary.Data.Repository.Contracts
     {
             Task<IEnumerable<Publisher>> GetAllPublishersAsync();
     
-            //Task<Publisher?> GetPublisherByIdAsync(Guid id);
+            Task<Publisher?> GetPublisherByIdAsync(Guid id);
     
             //Publisher GetEmptyPublisherFormModelAsync();
     
