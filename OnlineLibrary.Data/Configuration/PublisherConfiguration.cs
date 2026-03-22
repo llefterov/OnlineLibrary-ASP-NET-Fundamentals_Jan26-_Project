@@ -19,11 +19,11 @@ namespace OnlineLibrary.Data.Configuration
 
             // Seed data for publishers
             builder.HasData(
-                new Publisher { Id = 1, Name = "Apress" },
-                new Publisher { Id = 2, Name = "Manning Publications" },
-                new Publisher { Id = 3, Name = "O'Reilly Media" },
-                new Publisher { Id = 4, Name = "Packt Publishing" },
-                new Publisher { Id = 5, Name = "Addison-Wesley" }
+                new Publisher { Id = Guid.Parse("7b1cb8a1-cce4-4fe8-b258-a03e3468b761"), Name = "Apress" },
+                new Publisher { Id = Guid.Parse("67ad1f17-8e47-47ce-be56-9d7bc2c09736"), Name = "Manning Publications" },
+                new Publisher { Id = Guid.Parse("2da9d7ca-8f3f-4f0f-ab28-e84fc351338e"), Name = "O'Reilly Media" },
+                new Publisher { Id = Guid.Parse("f2f4bc8f-b080-4624-8ba5-f64f0d006778"), Name = "Packt Publishing" },
+                new Publisher { Id = Guid.Parse("e66f13fa-3f9b-4304-a450-7d0b907f22ec"), Name = "Addison-Wesley" }
             );
         }
     }

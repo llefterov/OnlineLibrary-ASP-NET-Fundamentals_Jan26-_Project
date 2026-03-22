@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Services.Core.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
+using OnlineLibrary.Services.Models.Author;
 using OnlineLibrary.Web.ViewModels.Author;
 
 namespace OnlineLibrary.Web.Controllers
@@ -21,14 +21,47 @@ namespace OnlineLibrary.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> All()
         {
-            var model = await authorService.GetAllAuthorsAsync();
-            return View(model);
+            var model = await authorService.GetAllAuthorsForViewModelAsync();
+
+            var authorsList = model
+                .Select(a => new AuthorAllViewModel
+                {
+                    Id = a.Id,
+                    FullName = a.FullName
+                })
+                .ToList();
+            return View(authorsList);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute] int id)
+        public async Task<IActionResult> Details([FromRoute] Guid id)
         {
-            var authorModel = await authorService.GetAuthorByIdAsync(id);
+            var authorDetailsDto = await authorService
+                .GetAuthorDetailsByIdAsync(id);
+
+            if (authorDetailsDto == null)
+            {
+                return NotFound();
+            }
+
+            var authorModel = new AuthorDetailsViewModel
+            {
+                Id = authorDetailsDto.Id,
+                FullName = authorDetailsDto.FullName,
+                BooksWithPublisherName = authorDetailsDto.BooksWithPublisherName
+                    .Select(b => new AuthorBookViewModel
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        CoverUrl = b.CoverUrl,
+                        Rating = b.Rating,
+                        DateAdded = b.DateAdded,
+                        GenreName = b.GenreName,
+                        PublisherName = b.PublisherName,
+                        Description = b.Description
+                    })
+                   .ToList()
+            };
 
             if (authorModel == null)
             {
@@ -40,16 +73,13 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet]
         public IActionResult Add()
         {
-            var model = authorService.GetEmtyAuthorFormModelAsync();
+            var model = new AuthorAddViewModel();
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(AuthorAddViewModel inputModel)
         {
-            var model = authorService.GetEmtyAuthorFormModelAsync();
-            model = inputModel;
-
             if (!ModelState.IsValid)
             {
                 return View(inputModel);
@@ -57,7 +87,12 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await authorService.AddAuthorAsync(inputModel);
+                var serviceModel = new AuthorsAllDto
+                {
+                    FullName = inputModel.FullName
+                };
+
+                await authorService.AddNewAuthorAsync(serviceModel);
                 return RedirectToAction("All", "Author");
             }
             catch (AuthorAlreadyExistsException ex)
@@ -80,112 +115,112 @@ namespace OnlineLibrary.Web.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute] int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest();
-            }
+        //[HttpGet]
+        //public async Task<IActionResult> Edit([FromRoute] Guid id)
+        //{
+        //    if (id == Guid.Empty)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            var model = new AuthorEditViewModel();
+        //    var model = new AuthorEditViewModel();
 
-            try
-            {
-                model = await authorService.GetAuthorForEditByIdAsync(id);
-            }
-            catch (AuthorDoesntExistException ex)
-            {
-                logger.LogWarning(ex, "Attempt to edit non-existing author with id {AuthorId}", id);
-                ModelState.AddModelError(string.Empty, "The author you are trying to edit does not exist.");
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while loading edit form for author with id {AuthorId}.", id);
-                return StatusCode(500, "An unexpected error occurred. Please contact support.");
-            }
+        //    try
+        //    {
+        //        model = await authorService.GetAuthorForEditByIdAsync(id);
+        //    }
+        //    catch (AuthorDoesntExistException ex)
+        //    {
+        //        logger.LogWarning(ex, "Attempt to edit non-existing author with id {AuthorId}", id);
+        //        ModelState.AddModelError(string.Empty, "The author you are trying to edit does not exist.");
+        //        return NotFound();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(ex, "Unexpected error while loading edit form for author with id {AuthorId}.", id);
+        //        return StatusCode(500, "An unexpected error occurred. Please contact support.");
+        //    }
 
-            return View(model);
-        }
+        //    return View(model);
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, AuthorEditViewModel inputModel)
-        {
-            if (id <= 0)
-            {
-                return BadRequest();
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> Edit(Guid id, AuthorEditViewModel inputModel)
+        //{
+        //    if (id == Guid.Empty)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            if (!ModelState.IsValid)
-            {
-                return View(inputModel);
-            }
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(inputModel);
+        //    }
 
-            try
-            {
-                await authorService.UpdateAuthorAsync(id, inputModel);
-                return RedirectToAction("All", "Author");
-            }
-            catch (AuthorUpdateExeption ex)
-            {
-                logger.LogError(ex, "An error occurred while updating author with id {AuthorId}.", id);
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the author. Please try again.");
-                return View(inputModel);
-            }
-            catch
-            {
-                logger.LogError("Unexpected error while updating author with id {AuthorId}.", id);
-                ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the author. Please contact support.");
-                return View(inputModel);
-            }
-        }
+        //    try
+        //    {
+        //        await authorService.UpdateAuthorAsync(id, inputModel);
+        //        return RedirectToAction("All", "Author");
+        //    }
+        //    catch (AuthorUpdateExeption ex)
+        //    {
+        //        logger.LogError(ex, "An error occurred while updating author with id {AuthorId}.", id);
+        //        ModelState.AddModelError(string.Empty, "An error occurred while updating the author. Please try again.");
+        //        return View(inputModel);
+        //    }
+        //    catch
+        //    {
+        //        logger.LogError("Unexpected error while updating author with id {AuthorId}.", id);
+        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the author. Please contact support.");
+        //        return View(inputModel);
+        //    }
+        //}
 
-        [HttpGet]
-        public async Task<IActionResult> Delete([FromRoute] int id)
-        {
-            var authorToDelete = await authorService.GetAuthorDeleteDetailsAsync(id);
+        //[HttpGet]
+        //public async Task<IActionResult> Delete([FromRoute] Guid id)
+        //{
+        //    var authorToDelete = await authorService.GetAuthorDeleteDetailsAsync(id);
 
-            if (authorToDelete == null)
-            {
-                return NotFound();
-            }
+        //    if (authorToDelete == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(authorToDelete);
-        }
+        //    return View(authorToDelete);
+        //}
 
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed([FromRoute] int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest();
-            }
+        //[HttpPost, ActionName("Delete")]
+        //public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
+        //{
+        //    if (id == Guid.Empty)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            try
-            {
-               await authorService.DeleteAuthorAsync(id);
-                return RedirectToAction("All", "Author");
-            }
-            catch (AuthorDoesntExistException)
-            {
-                logger.LogWarning("Attempt to delete non-existing author with id {AuthorId}", id);
-                ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
+        //    try
+        //    {
+        //       await authorService.DeleteAuthorAsync(id);
+        //        return RedirectToAction("All", "Author");
+        //    }
+        //    catch (AuthorDoesntExistException)
+        //    {
+        //        logger.LogWarning("Attempt to delete non-existing author with id {AuthorId}", id);
+        //        ModelState.AddModelError(string.Empty, "The author you are trying to delete does not exist.");
 
-                return NotFound();
-            }
-            catch (AuthorDeleteException ex)
-            {
-                logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
-                ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
-                return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
-                ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
-                return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
-            }
-        }
+        //        return NotFound();
+        //    }
+        //    catch (AuthorDeleteException ex)
+        //    {
+        //        logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
+        //        ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
+        //        return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
+        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
+        //        return View("Delete", await authorService.GetAuthorDeleteDetailsAsync(id));
+        //    }
+        //}
     }
 }

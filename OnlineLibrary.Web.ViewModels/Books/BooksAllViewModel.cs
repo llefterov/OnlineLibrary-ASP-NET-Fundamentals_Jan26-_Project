@@ -24,7 +24,7 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
        public string? AddedByUserName { get; set; }
 
-        public int PublisherId { get; set; }
+        public Guid PublisherId { get; set; }
 
         public bool IsAddedByUser { get; set; }
 

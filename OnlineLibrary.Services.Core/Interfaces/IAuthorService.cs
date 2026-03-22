@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Web.ViewModels.Author;
+﻿using OnlineLibrary.Services.Models.Author;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,21 +7,20 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IAuthorService 
     {
-        Task<IEnumerable<AuthorAllViewModel>> GetAllAuthorsAsync();
-        Task<AuthorDetailsViewModel?> GetAuthorByIdAsync(int id);
+        Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync();
+        Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id);
 
-        AuthorAddViewModel GetEmtyAuthorFormModelAsync();
+        AuthorsAllDto GetEmptyAuthorViewModelAsync();
 
+        Task AddNewAuthorAsync(AuthorsAllDto model);
 
-        Task AddAuthorAsync(AuthorAddViewModel model);
+        //Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(Guid id);
 
-        Task<AuthorEditViewModel> GetAuthorForEditByIdAsync(int id);
+        //Task UpdateAuthorAsync(Guid id, AuthorEditViewModel model);
+        //Task<bool> ExistsAsync(Guid id);
 
-        Task UpdateAuthorAsync(int id, AuthorEditViewModel model);
-        Task<bool> ExistsAsync(int id);
+        //Task DeleteAuthorAsync(Guid id);
 
-        Task DeleteAuthorAsync(int id);
-
-        Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(int id);
+        //Task<AuthorDeleteViewModel> GetAuthorDeleteDetailsAsync(Guid id);
     }
 }

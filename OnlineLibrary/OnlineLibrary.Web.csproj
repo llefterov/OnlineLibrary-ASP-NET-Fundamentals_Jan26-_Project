@@ -27,6 +27,7 @@
     <ProjectReference Include="..\OnlineLibrary.Data\OnlineLibrary.Data.csproj" />
     <ProjectReference Include="..\OnlineLibrary.GCommon\OnlineLibrary.GCommon.csproj" />
     <ProjectReference Include="..\OnlineLibrary.Services.Core\OnlineLibrary.Services.Core.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Web.Infrastructure\OnlineLibrary.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\OnlineLibrary.Web.ViewModels\OnlineLibrary.Web.ViewModels.csproj" />
   </ItemGroup>
 

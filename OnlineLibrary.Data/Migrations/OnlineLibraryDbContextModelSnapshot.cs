@@ -11,7 +11,7 @@ using OnlineLibrary.Data;
 namespace OnlineLibrary.Data.Migrations
 {
     [DbContext(typeof(OnlineLibraryDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    partial class OnlineLibraryDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -22,10 +22,11 @@ namespace OnlineLibrary.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -49,7 +50,7 @@ namespace OnlineLibrary.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,9 +64,8 @@ namespace OnlineLibrary.Data.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -74,10 +74,90 @@ namespace OnlineLibrary.Data.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("OnlineLibrary.Data.Models.ApplicationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -141,9 +221,9 @@ namespace OnlineLibrary.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b470e7b3-30bb-4b2c-aa33-7194da1a6e2d",
+                            ConcurrencyStamp = "8a242145-60f2-4e35-8e5b-693a7d7bb6f4",
                             Email = "admin@onlinelibrary.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -151,104 +231,17 @@ namespace OnlineLibrary.Data.Migrations
                             NormalizedUserName = "ADMIN@ONLINELIBRARY.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEHIaJlSfhU4K8tmJOH0vNC1Seaj11r0efwD90KrvKI+D5PDGPPUoibcXFsK6Gfh1Yg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "",
+                            SecurityStamp = "3f5e9b60-7f08-4a84-9a2c-ec9d32f1cc7b",
                             TwoFactorEnabled = false,
                             UserName = "admin@onlinelibrary.com"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
             modelBuilder.Entity("OnlineLibrary.Data.Models.Author", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -262,27 +255,27 @@ namespace OnlineLibrary.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = new Guid("abebfdd2-7a9e-4aa7-84b8-454b6ac74f1d"),
                             FullName = "Jane Austen"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = new Guid("9a17ee9f-f2c6-44f4-9247-ec5fcbec4f92"),
                             FullName = "George Orwell"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = new Guid("2c5f78aa-7fca-46f7-a112-4db9d4c0d093"),
                             FullName = "Isaac Asimov"
                         },
                         new
                         {
-                            Id = 4,
+                            Id = new Guid("fb1ac6db-3c36-4f35-bdce-8dcd4a61156e"),
                             FullName = "R.R. Tolkien"
                         },
                         new
                         {
-                            Id = 5,
+                            Id = new Guid("f625bc9b-1b34-44fd-b88b-cbec15d529c6"),
                             FullName = "Agatha Christie"
                         });
                 });
@@ -293,9 +286,9 @@ namespace OnlineLibrary.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AddedByUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("AddedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CoverUrl")
                         .HasMaxLength(2083)
@@ -322,8 +315,8 @@ namespace OnlineLibrary.Data.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PublisherId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PublisherId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -344,8 +337,8 @@ namespace OnlineLibrary.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f0c604df-a030-437f-9028-0ada33e35b85"),
-                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("e6f42e6f-6c1b-4b8f-bb2f-e87eb4fd8ecf"),
+                            AddedByUserId = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             CoverUrl = "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg",
                             DateAdded = new DateTime(2020, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2020, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -353,14 +346,14 @@ namespace OnlineLibrary.Data.Migrations
                             Genre = 0,
                             IsDeleted = false,
                             IsRead = true,
-                            PublisherId = 1,
+                            PublisherId = new Guid("7b1cb8a1-cce4-4fe8-b258-a03e3468b761"),
                             Rating = 5,
                             Title = "Pride and Prejudice"
                         },
                         new
                         {
-                            Id = new Guid("2dc0a369-6c0d-44a7-a7b0-41959009d322"),
-                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("0eea95e2-33be-4bf1-a851-84a040d4432a"),
+                            AddedByUserId = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             CoverUrl = "https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg",
                             DateAdded = new DateTime(2019, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2019, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -368,28 +361,28 @@ namespace OnlineLibrary.Data.Migrations
                             Genre = 4,
                             IsDeleted = false,
                             IsRead = true,
-                            PublisherId = 2,
+                            PublisherId = new Guid("67ad1f17-8e47-47ce-be56-9d7bc2c09736"),
                             Rating = 5,
                             Title = "1984"
                         },
                         new
                         {
-                            Id = new Guid("c697d648-8fc0-41cb-9fb1-105792262850"),
-                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("9f5ce95b-c0cd-4f1f-bff3-c3571d003319"),
+                            AddedByUserId = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             CoverUrl = "https://cdn.mos.cms.futurecdn.net/oFCCtndaa9gxNqmJDY6Rp8.jpg",
                             DateAdded = new DateTime(2021, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Epic science fiction series about the fall and rise of galactic empires.",
                             Genre = 4,
                             IsDeleted = false,
                             IsRead = false,
-                            PublisherId = 3,
+                            PublisherId = new Guid("2da9d7ca-8f3f-4f0f-ab28-e84fc351338e"),
                             Rating = 0,
                             Title = "Foundation"
                         },
                         new
                         {
-                            Id = new Guid("23c5dbca-dba7-46ff-ae96-7b233a8ca88c"),
-                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("6e916262-b412-4232-8e4d-5f822f9da185"),
+                            AddedByUserId = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             CoverUrl = "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9458059_p_v10_ac.jpg",
                             DateAdded = new DateTime(2018, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateRead = new DateTime(2018, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -397,21 +390,21 @@ namespace OnlineLibrary.Data.Migrations
                             Genre = 3,
                             IsDeleted = false,
                             IsRead = true,
-                            PublisherId = 4,
+                            PublisherId = new Guid("f2f4bc8f-b080-4624-8ba5-f64f0d006778"),
                             Rating = 5,
                             Title = "The Hobbit"
                         },
                         new
                         {
-                            Id = new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"),
-                            AddedByUserId = "c8cb7abb-9a55-43ca-922c-2eac92b1e651",
+                            Id = new Guid("3a1508af-90c6-4eb0-bec6-f7b5ea096d2d"),
+                            AddedByUserId = new Guid("d6f5de2f-4be6-4f7a-a3b5-c7c0d72ac8f1"),
                             CoverUrl = "https://www.blackcat-cideb.com/uploads/2020/02/COVER_Murder_on_the_orient_express_Agatha-Christie_f2a379ae1e65e577f341258edaba4148.jpg",
                             DateAdded = new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Classic mystery featuring detective Hercule Poirot.",
                             Genre = 2,
                             IsDeleted = false,
                             IsRead = false,
-                            PublisherId = 5,
+                            PublisherId = new Guid("e66f13fa-3f9b-4304-a450-7d0b907f22ec"),
                             Rating = 0,
                             Title = "Murder on the Orient Express"
                         });
@@ -422,8 +415,8 @@ namespace OnlineLibrary.Data.Migrations
                     b.Property<Guid>("BookId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("BookId", "AuthorId");
 
@@ -434,38 +427,36 @@ namespace OnlineLibrary.Data.Migrations
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("f0c604df-a030-437f-9028-0ada33e35b85"),
-                            AuthorId = 1
+                            BookId = new Guid("e6f42e6f-6c1b-4b8f-bb2f-e87eb4fd8ecf"),
+                            AuthorId = new Guid("abebfdd2-7a9e-4aa7-84b8-454b6ac74f1d")
                         },
                         new
                         {
-                            BookId = new Guid("2dc0a369-6c0d-44a7-a7b0-41959009d322"),
-                            AuthorId = 2
+                            BookId = new Guid("0eea95e2-33be-4bf1-a851-84a040d4432a"),
+                            AuthorId = new Guid("9a17ee9f-f2c6-44f4-9247-ec5fcbec4f92")
                         },
                         new
                         {
-                            BookId = new Guid("c697d648-8fc0-41cb-9fb1-105792262850"),
-                            AuthorId = 3
+                            BookId = new Guid("9f5ce95b-c0cd-4f1f-bff3-c3571d003319"),
+                            AuthorId = new Guid("2c5f78aa-7fca-46f7-a112-4db9d4c0d093")
                         },
                         new
                         {
-                            BookId = new Guid("23c5dbca-dba7-46ff-ae96-7b233a8ca88c"),
-                            AuthorId = 4
+                            BookId = new Guid("6e916262-b412-4232-8e4d-5f822f9da185"),
+                            AuthorId = new Guid("fb1ac6db-3c36-4f35-bdce-8dcd4a61156e")
                         },
                         new
                         {
-                            BookId = new Guid("1411eab8-b839-441d-a72d-2bb3cf7aa218"),
-                            AuthorId = 5
+                            BookId = new Guid("3a1508af-90c6-4eb0-bec6-f7b5ea096d2d"),
+                            AuthorId = new Guid("f625bc9b-1b34-44fd-b88b-cbec15d529c6")
                         });
                 });
 
             modelBuilder.Entity("OnlineLibrary.Data.Models.Publisher", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -479,35 +470,35 @@ namespace OnlineLibrary.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = new Guid("7b1cb8a1-cce4-4fe8-b258-a03e3468b761"),
                             Name = "Apress"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = new Guid("67ad1f17-8e47-47ce-be56-9d7bc2c09736"),
                             Name = "Manning Publications"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = new Guid("2da9d7ca-8f3f-4f0f-ab28-e84fc351338e"),
                             Name = "O'Reilly Media"
                         },
                         new
                         {
-                            Id = 4,
+                            Id = new Guid("f2f4bc8f-b080-4624-8ba5-f64f0d006778"),
                             Name = "Packt Publishing"
                         },
                         new
                         {
-                            Id = 5,
+                            Id = new Guid("e66f13fa-3f9b-4304-a450-7d0b907f22ec"),
                             Name = "Addison-Wesley"
                         });
                 });
 
             modelBuilder.Entity("OnlineLibrary.Data.Models.UserBook", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BookId")
                         .HasColumnType("uniqueidentifier");
@@ -519,51 +510,51 @@ namespace OnlineLibrary.Data.Migrations
                     b.ToTable("UsersBooks");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -572,7 +563,7 @@ namespace OnlineLibrary.Data.Migrations
 
             modelBuilder.Entity("OnlineLibrary.Data.Models.Book", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AddedByUser")
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", "AddedByUser")
                         .WithMany()
                         .HasForeignKey("AddedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -616,7 +607,7 @@ namespace OnlineLibrary.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                    b.HasOne("OnlineLibrary.Data.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

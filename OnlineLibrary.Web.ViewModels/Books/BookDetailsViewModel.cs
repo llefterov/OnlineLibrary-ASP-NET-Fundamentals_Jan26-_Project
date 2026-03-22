@@ -26,7 +26,7 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public string DateAdded { get; set; } = null!;
 
-        public int PublisherId { get; set; }
+        public Guid PublisherId { get; set; }
 
         // Extra friendly fields for the view
         public string PublisherName { get; set; } = null!;

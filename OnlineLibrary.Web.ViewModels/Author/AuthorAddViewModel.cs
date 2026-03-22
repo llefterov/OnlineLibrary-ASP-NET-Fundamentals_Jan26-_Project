@@ -8,7 +8,7 @@ namespace OnlineLibrary.Web.ViewModels.Author
 {
     public class AuthorAddViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [MinLength(AuthorFullNameMinLength)]

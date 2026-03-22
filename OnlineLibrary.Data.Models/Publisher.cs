@@ -9,7 +9,7 @@ namespace OnlineLibrary.Data.Models
     public class Publisher
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [MaxLength(PublisherNameMaxLength)]
