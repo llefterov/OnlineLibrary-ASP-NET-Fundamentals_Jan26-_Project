@@ -105,8 +105,14 @@ namespace OnlineLibrary.Data.Repository
 
         public Task UpdatePublisherAsync(Guid id, Publisher model)
         {
+            // Ensure that the route id and the model id (if provided) are consistent
+            if (model.Id != Guid.Empty && model.Id != id)
+            {
+                throw new PublisherUpdateExeption("Publisher ID mismatch between route and payload.");
+            }
+
             var publisher = DbContext.Publishers
-               .FirstOrDefault(p => p.Id == model.Id);
+               .FirstOrDefault(p => p.Id == id);
 
             if (publisher == null)
             {
