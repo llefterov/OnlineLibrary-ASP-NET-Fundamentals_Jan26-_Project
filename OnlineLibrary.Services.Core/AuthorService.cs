@@ -143,7 +143,7 @@ namespace OnlineLibrary.Services.Core
 
         public async Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id)
         {
-            var authorToDelete = await authorRepository.GetAuthorDeleteDetailsAsync(id);
+            Author? authorToDelete = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
             if (authorToDelete == null)
             {
@@ -162,7 +162,7 @@ namespace OnlineLibrary.Services.Core
 
         public async Task DeleteAuthorByIdAsync(Guid id)
         {
-            var author = await authorRepository.GetAuthorDeleteDetailsAsync(id);
+            Author? author = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
             if (author == null)
             {

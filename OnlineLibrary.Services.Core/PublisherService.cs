@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
-using OnlineLibrary.Web.ViewModels.Publisher;
-using static OnlineLibrary.GCommon.ApplicationConstants;
-using System.Globalization;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Data.Repository.Contracts;
 
@@ -82,7 +78,12 @@ namespace OnlineLibrary.Services.Core
                 Name = inputModel.Name
             };
 
-            if ((await publisherRepository.GetAllPublishersAsync()).Any(p => p.Name == publisher.Name))
+            var publishers = await publisherRepository
+                .GetAllPublishersAsync();
+                
+
+
+            if ((publishers.Any(p => p.Name == publisher.Name)))
             {
                 throw new PublisherAlreadyExistsException(publisher.Name);
             }
@@ -145,6 +146,11 @@ namespace OnlineLibrary.Services.Core
 
            var publisherService = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
 
+            if (publisherService == null)
+            {
+                throw new PublisherDoesntExistException("Publisher does not exist");
+            }
+
             var publisherToDelete = new PublisherDeleteDto
             {
                 Id = publisherService.Id,
@@ -152,18 +158,13 @@ namespace OnlineLibrary.Services.Core
                 Books = publisherService.Books
             };
 
-            if (publisherToDelete == null)
-            {
-                throw new PublisherDoesntExistException("Publisher does not exist");
-            }
-
-            return publisherToDelete;
+           return publisherToDelete;
         }
 
         public async Task DeletePublisherByIdAsync(Guid id)
         {
 
-           var publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);    
+           Publisher? publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);    
 
             if (publisher == null)
             {

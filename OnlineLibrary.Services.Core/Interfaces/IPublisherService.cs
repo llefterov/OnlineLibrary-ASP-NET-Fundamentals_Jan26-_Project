@@ -1,7 +1,4 @@
 ﻿using OnlineLibrary.Services.Models.Publisher;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {

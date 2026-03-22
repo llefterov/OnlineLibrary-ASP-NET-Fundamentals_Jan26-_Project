@@ -1,12 +1,19 @@
-﻿
+using OnlineLibrary.Data.Models;
+using static OnlineLibrary.GCommon.ValidationConstants;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace OnlineLibrary.Services.Models.Publisher
 {
     public class PublisherAddDto
     {
-        // TODO: Define properties required for adding a publisher.
-        // These should mirror the data needed by the services layer,
-        // and mapping to/from PublisherAddViewModel should be done
-       // in the Web layer (e.g., in controllers), not via inheritance.
-   }
+        public Guid Id { get; set; }
+
+        [Required]
+        [MinLength(PublisherNameMinLength)]
+        [MaxLength(PublisherNameMaxLength)]
+        public string Name { get; set; } = null!;
+
+        public virtual ICollection<Book> Books { get; set; } = new List<Book>();
+    }
 }

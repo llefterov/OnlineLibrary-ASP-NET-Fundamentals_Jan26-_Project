@@ -1,7 +1,9 @@
 ﻿namespace OnlineLibrary.Services.Models.Author
 {
-    using OnlineLibrary.Web.ViewModels.Author;
-    public class AuthorsAllDto : AuthorAllViewModel
+    public class AuthorsAllDto
     {
+        public Guid Id { get; set; }
+
+        public string FullName { get; set; } = null!;
     }
 }
