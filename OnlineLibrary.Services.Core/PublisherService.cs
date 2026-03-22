@@ -58,7 +58,7 @@ namespace OnlineLibrary.Services.Core
                         Title = b.Title,
                         CoverUrl = b.CoverUrl ?? string.Empty,
                         Rating = b.Rating,
-                        DateAdded = b.DateAdded.ToString("dd/MM/yyyy"),
+                        DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
                         GenreName = b.Genre.ToString(),
                         AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
                         Description = b.Description
