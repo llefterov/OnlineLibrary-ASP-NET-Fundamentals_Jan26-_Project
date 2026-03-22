@@ -139,7 +139,6 @@ namespace OnlineLibrary.Services.Core
             {
                 throw new AuthorUpdateExeption("Unable to update the author in the database.");
             }
-
         }
 
         public async Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id)
@@ -159,7 +158,6 @@ namespace OnlineLibrary.Services.Core
             };
 
             return authorToDeleteDto;
-
         }
 
         public async Task DeleteAuthorByIdAsync(Guid id)

@@ -79,7 +79,6 @@ namespace OnlineLibrary.Data.Repository
             Author? author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
 
             return author;
-
         }
 
         public async Task<bool> ExistsAsync(Guid id)
@@ -112,7 +111,6 @@ namespace OnlineLibrary.Data.Repository
             {
                 throw new AuthorUpdateExeption("Unable to update the author in the database.");
             }
-
         }
 
         public async Task<Author> GetAuthorDeleteDetailsAsync(Guid id)
@@ -138,7 +136,6 @@ namespace OnlineLibrary.Data.Repository
 
             var inputModel = await GetAuthorDeleteDetailsAsync(id);
 
-
             if (author == null)
             {
                 throw new AuthorDoesntExistException("Author not found.");
@@ -149,7 +146,6 @@ namespace OnlineLibrary.Data.Repository
 
                 throw new AuthorDeleteException("Cannot delete author with associated books.");
             }
-
 
             DbContext.Authors.Remove(author);
 

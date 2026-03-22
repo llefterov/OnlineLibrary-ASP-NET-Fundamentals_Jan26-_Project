@@ -12,14 +12,14 @@ namespace OnlineLibrary.Data.Repository.Contracts
     
             Task AddPublisherAsync(Publisher model);
     
-            //Task<Publisher> GetPublisherForEditByIdAsync(Guid id);
+            Task<Publisher> GetPublisherForEditByIdAsync(Guid id);
     
-            //Task UpdatePublisherAsync(Guid id, Publisher model);
+            Task UpdatePublisherAsync(Guid id, Publisher model);
     
-            //Task<bool> ExistsAsync(Guid id);
+            Task<bool> ExistsAsync(Guid id);
     
-            //Task DeletePublisherAsync(Guid id);
-    
-            //Task<Publisher> GetPublisherDeleteDetailsAsync(Guid id);
+            Task<Publisher> GetPublisherDeleteDetailsAsync(Guid id);
+
+            Task DeletePublisherAsync(Guid id);
     }
 }

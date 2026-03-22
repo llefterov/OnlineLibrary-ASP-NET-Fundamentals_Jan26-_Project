@@ -39,17 +39,11 @@ namespace OnlineLibrary.Services.Core
         public async Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id)
         {
             var publisher = await publisherRepository.GetPublisherByIdAsync(id);
-               //.Include(p => p.Books)
-               //.ThenInclude(b => b.BooksAuthors)
-               //.ThenInclude(ba => ba.Author)
-               //.AsNoTracking()
-               //.Where(p => p.Id == id)
              
             if (publisher == null)
             {
                 throw new PublisherDoesntExistException("Publisher not found.");
             }
-
 
             PublisherDetailsDto? publisherDto = new PublisherDetailsDto
             {
@@ -74,7 +68,6 @@ namespace OnlineLibrary.Services.Core
 
             return publisherDto;
         }
-
 
         public PublisherAddDto GetEmptyPublisherViewModelAsync()
         {
@@ -104,112 +97,92 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        //public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
-        //{
+        public async Task<PublisherAllDto> GetNewPublisherForEditByIdAsync(Guid id)
+        {
+
+            var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
+
+            if (publisher == null)
+            {
+
+                throw new PublisherDoesntExistException("Publisher does not exist");
+
+            }
+
+            var inputModel = new PublisherAllDto
+            {
+                Id = publisher.Id,
+                Name = publisher.Name
+            };
+            return inputModel;
+        }
+
+        public async Task UpdateNewPublisherAsync(Guid id, PublisherAllDto model)
+        {
+            var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
+
+            if (publisher == null)
+            {
+                throw new PublisherDoesntExistException("Publisher does not exist");
+            }
+
+            publisher.Name = model.Name;
+
+            try
+            {
+                await publisherRepository.UpdatePublisherAsync(id, publisher);
+            }
+            catch (DbUpdateException)
+            {
+                throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
+            }
+        }
 
 
-        //    if (!(await ExistsAsync(id)))
-        //    {
-        //        throw new PublisherDoesntExistException("Publisher not found.");
-        //    }
 
-        //    var publisher = await dbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
+        public async Task<PublisherDeleteDto> GetPublisherNewDeleteDetailsAsync(Guid id)
+        {
 
-        //    if (publisher == null)
-        //    {
+           var publisherService = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
 
-        //        throw new PublisherDoesntExistException("Publisher does not exist");
+            var publisherToDelete = new PublisherDeleteDto
+            {
+                Id = publisherService.Id,
+                Name = publisherService.Name,
+                Books = publisherService.Books
+            };
 
-        //    }
+            if (publisherToDelete == null)
+            {
+                throw new PublisherDoesntExistException("Publisher does not exist");
+            }
 
-        //    var inputModel = new PublisherEditViewModel
-        //    {
-        //        Id = publisher.Id,
-        //        Name = publisher.Name
-        //    };
-        //    return inputModel;
-        //}
+            return publisherToDelete;
+        }
 
-        //public Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model)
-        //{
-        //    var publisher = dbContext.Publishers
-        //       .FirstOrDefault(p => p.Id == model.Id);
+        public async Task DeletePublisherByIdAsync(Guid id)
+        {
 
-        //    if (publisher == null)
-        //    {
-        //        throw new PublisherDoesntExistException("Publisher does not exist");
-        //    }
+           var publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);    
 
-        //    publisher.Name = model.Name;
+            if (publisher == null)
+            {
+                throw new PublisherDoesntExistException("Publisher not found.");
+            }
 
-        //    try
-        //    {
-        //        dbContext.Publishers.Update(publisher);
-        //        return dbContext.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateException)
-        //    {
-        //        throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
-        //    }
-        //}
+            if (publisher.Books.Any())
+            {
+                throw new PublisherDeleteException("Cannot delete publisher with associated books.");
+            }
 
-        //public async Task<bool> ExistsAsync(Guid id)
-        //{
-        //    bool publisherExist = await dbContext
-        //        .Publishers
-        //        .AnyAsync(a => a.Id == id);
-
-        //    return publisherExist;
-        //}
-
-        //public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id)
-        //{
-        //    var publisherToDelete = await dbContext.Publishers
-        //        .Include(b => b.Books)
-        //        .Select(b => new PublisherDeleteViewModel
-        //        {
-        //            Id = b.Id,
-        //            Name = b.Name,
-        //            Books = b.Books
-        //        })
-        //        .FirstOrDefaultAsync(b => b.Id == id);
-
-        //    if (publisherToDelete == null)
-        //    {
-        //        throw new PublisherDoesntExistException("Publisher does not exist");
-        //    }
-
-        //    return publisherToDelete;
-        //}
-
-        //public async Task DeletePublisherAsync(Guid id)
-        //{
-        //    var publisher = await dbContext.Publishers
-        //        .Include(b => b.Books)
-        //        .FirstOrDefaultAsync(b => b.Id == id);
-
-        //    if (publisher == null)
-        //    {
-        //        throw new PublisherDoesntExistException("Publisher not found.");
-        //    }
-
-        //    if (publisher.Books.Any())
-        //    {
-
-        //        throw new PublisherDeleteException("Cannot delete publisher with associated books.");
-
-        //    }
-
-        //    dbContext.Publishers.Remove(publisher);
-
-        //    try
-        //    {
-        //        await dbContext.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateException)
-        //    {
-        //        throw new PublisherDeleteException("Unable to delete the publisher from the database.");
-        //    }
-        //}
+            try
+            {
+                await publisherRepository.DeletePublisherAsync(id);
+            }
+            catch (DbUpdateException)
+            {
+                throw new PublisherDeleteException("Unable to delete the publisher from the database.");
+            }
+        }
     }
 }

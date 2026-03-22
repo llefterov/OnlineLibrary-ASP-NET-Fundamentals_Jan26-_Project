@@ -7,6 +7,6 @@ namespace OnlineLibrary.Web.ViewModels.Publisher
     public class PublisherAllViewModel
     {
         public Guid Id { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

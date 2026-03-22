@@ -121,129 +121,140 @@ namespace OnlineLibrary.Web.Controllers
         }
 
 
-        //[HttpGet]
-        //public async Task<IActionResult> Edit([FromRoute] Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpGet]
+        public async Task<IActionResult> Edit([FromRoute] Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    var model = new PublisherEditViewModel();
-        //    try
-        //    {
-        //        model = await publisherService.GetPublisherForEditByIdAsync(id);
-        //    }
-        //    catch (PublisherDoesntExistException ex)
-        //    {
-        //        logger.LogWarning(ex, "Attempt to edit non-existing publisher with id {PublisherId}", id);
-        //        ModelState.AddModelError(string.Empty, "The publisher you are trying to edit does not exist.");
-        //        return NotFound();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while loading edit form for publisher with id {PublisherId}.", id);
-        //        return StatusCode(500, "An unexpected error occurred. Please contact support.");
-        //    }
+            var model = new PublisherEditViewModel();
+            try
+            {
+                var modelDto = await publisherService.GetNewPublisherForEditByIdAsync(id);
+                model = new PublisherEditViewModel
+                {
+                    Id = modelDto.Id,
+                    Name = modelDto.Name
+                };
+            }
+            catch (PublisherDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "Attempt to edit non-existing publisher with id {PublisherId}", id);
+                ModelState.AddModelError(string.Empty, "The publisher you are trying to edit does not exist.");
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while loading edit form for publisher with id {PublisherId}.", id);
+                return StatusCode(500, "An unexpected error occurred. Please contact support.");
+            }
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Edit(Guid id, PublisherEditViewModel inputModel)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> Edit(Guid id, PublisherEditViewModel inputModel)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(inputModel);
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
 
-        //    try
-        //    {
-        //        await publisherService.UpdatePublisherAsync(id, inputModel);
-        //        return RedirectToAction("All", "Publisher");
-        //    }
-        //    catch (PublisherDoesntExistException ex)
-        //    {
-        //        logger.LogError(ex,"Publisher does not exist");
-        //        ModelState.AddModelError(string.Empty, "Publisher does not exist");
-        //        return View(inputModel);
-        //    }
-        //    catch (PublisherUpdateExeption ex)
-        //    {
-        //        logger.LogError(ex, "An error occurred while updating publisher with id {PublisherId}.", id);
-        //        ModelState.AddModelError(string.Empty, "An error occurred while updating the publisher. Please try again.");
-        //        return View(inputModel);
-        //    }
-        //    catch
-        //    {
-        //        logger.LogError("Unexpected error while updating publisher with id {PublisherId}.", id);
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the publisher. Please contact support.");
-        //        return View(inputModel);
-        //    }
-        //}
+            try
+            {
+                var serviceModel = new PublisherAllDto
+                {
+                    Id = id,
+                    Name = inputModel.Name
+                };      
+
+                await publisherService.UpdateNewPublisherAsync(id, serviceModel);
+                return RedirectToAction("All", "Publisher");
+            }
+            catch (PublisherDoesntExistException ex)
+            {
+                logger.LogError(ex, "Publisher does not exist");
+                ModelState.AddModelError(string.Empty, "Publisher does not exist");
+                return View(inputModel);
+            }
+            catch (PublisherUpdateExeption ex)
+            {
+                logger.LogError(ex, "An error occurred while updating publisher with id {PublisherId}.", id);
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the publisher. Please try again.");
+                return View(inputModel);
+            }
+            catch
+            {
+                logger.LogError("Unexpected error while updating publisher with id {PublisherId}.", id);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the publisher. Please contact support.");
+                return View(inputModel);
+            }
+        }
 
 
-        //[HttpGet]
-        //public async Task<IActionResult> Delete([FromRoute] Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpGet]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    try
-        //    {
+            try
+            {
 
-        //    var publisherToDelete = await publisherService.GetPublisherDeleteDetailsAsync(id);
-        //        return View(publisherToDelete);
-        //    }
-        //    catch (PublisherDoesntExistException)
-        //    {
-        //        logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
-        //        ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
+                var publisherToDelete = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
+                return View(publisherToDelete);
+            }
+            catch (PublisherDoesntExistException)
+            {
+                logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
+                ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
 
-        //        return NotFound();
-        //    }
-        //}
+                return NotFound();
+            }
+        }
 
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    try
-        //    {
-        //        await publisherService.DeletePublisherAsync(id);
-        //        return RedirectToAction("All", "Publisher");
-        //    }
-        //    catch (PublisherDoesntExistException)
-        //    {
-        //        logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
-        //        ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
+            try
+            {
+                await publisherService.DeletePublisherByIdAsync(id);
+                return RedirectToAction("All", "Publisher");
+            }
+            catch (PublisherDoesntExistException)
+            {
+                logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
+                ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
 
-        //        return NotFound();
+                return NotFound();
 
-        //    }
-        //    catch (PublisherDeleteException ex)
-        //    {
-        //        logger.LogWarning(ex, "Attempt to delete publisher with id {PublisherId} that has associated books.", id);
-        //        ModelState.AddModelError(string.Empty, "Cannot delete a publisher that has associated books. Please remove the associations first.");
-        //        return View("Delete", await publisherService.GetPublisherDeleteDetailsAsync(id));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while deleting publisher with id {PublisherId}.", id);
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the publisher. Please contact support.");
-        //        return View("Delete", await publisherService.GetPublisherDeleteDetailsAsync(id));
-        //    }
-        //}
+            }
+            catch (PublisherDeleteException ex)
+            {
+                logger.LogWarning(ex, "Attempt to delete publisher with id {PublisherId} that has associated books.", id);
+                ModelState.AddModelError(string.Empty, "Cannot delete a publisher that has associated books. Please remove the associations first.");
+                return View("Delete", await publisherService.GetPublisherNewDeleteDetailsAsync(id));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while deleting publisher with id {PublisherId}.", id);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the publisher. Please contact support.");
+                return View("Delete", await publisherService.GetPublisherNewDeleteDetailsAsync(id));
+            }
+        }
     }
 }

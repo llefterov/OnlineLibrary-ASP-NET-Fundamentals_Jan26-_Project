@@ -19,8 +19,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task UpdateNewAuthorAsync(Guid id, AuthorsAllDto model);
 
-        Task DeleteAuthorByIdAsync(Guid id);
-
         Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id);
+        Task DeleteAuthorByIdAsync(Guid id);
     }
 }
