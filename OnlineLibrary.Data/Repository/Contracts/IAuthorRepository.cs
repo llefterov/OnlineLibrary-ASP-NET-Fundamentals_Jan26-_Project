@@ -21,6 +21,5 @@ namespace OnlineLibrary.Data.Repository.Contracts
         Task DeleteAuthorAsync(Guid id);
 
         Task<Author> GetAuthorDeleteDetailsAsync(Guid id);
-
     }
 }

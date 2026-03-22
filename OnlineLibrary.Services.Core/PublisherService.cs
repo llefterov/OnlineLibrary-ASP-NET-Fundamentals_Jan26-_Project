@@ -6,202 +6,206 @@ using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Publisher;
 using static OnlineLibrary.GCommon.ApplicationConstants;
 using System.Globalization;
+using OnlineLibrary.Services.Models.Publisher;
+using OnlineLibrary.Data.Repository.Contracts;
 
 namespace OnlineLibrary.Services.Core
 {
     public class PublisherService : IPublisherService
     {
-        private readonly OnlineLibraryDbContext dbContext;
+        private readonly IPublisherRepository publisherRepository;
 
-        public PublisherService(OnlineLibraryDbContext dbContext)
+        public PublisherService(IPublisherRepository publisherRepository)
         {
-            this.dbContext = dbContext;
+            this.publisherRepository = publisherRepository;
         }
 
-        public async Task<IEnumerable<PublisherAllViewModel>> GetPublisherAllAsync()
+        public async Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync()
         {
-            var publishers = await dbContext.Publishers
+            var publishers = await publisherRepository.GetAllPublishersAsync();
+
+            var publishersDto = publishers
             .OrderBy(p => p.Name)
-            .Select(p => new PublisherAllViewModel
+            .Select(p => new PublisherAllDto
             {
                 Id = p.Id,
                 Name = p.Name
             })
-         .ToListAsync();
+         .ToList();
 
-            return publishers;
+            return publishersDto;
         }
 
-        public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id)
-        {
-            var publisher = await dbContext.Publishers
-               .Include(p => p.Books)
-               .ThenInclude(b => b.BooksAuthors)
-               .ThenInclude(ba => ba.Author)
-               .AsNoTracking()
-               .Where(p => p.Id == id)
-               .Select(p => new PublisherDetailsViewModel
-               {
-                   Id = p.Id,
-                   Name = p.Name,
-                   BooksWithAuthorName = p.Books
-                   .Where(b => !b.IsDeleted)
-                   .OrderBy(b => b.Title)
-                     .Select(b => new PublisherBookViewModel
-                     {
-                         Id = b.Id,
-                         Title = b.Title,
-                         CoverUrl = b.CoverUrl ?? string.Empty,
-                         Rating = b.Rating,
-                         DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-                         GenreName = b.Genre.ToString(),
-                         AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
-                         Description = b.Description
-                     })
-                     .ToList()
-               })
-               .FirstOrDefaultAsync();
+        //public async Task<PublisherDetailsViewModel?> GetPublisherByIdAsync(Guid id)
+        //{
+        //    var publisher = await dbContext.Publishers
+        //       .Include(p => p.Books)
+        //       .ThenInclude(b => b.BooksAuthors)
+        //       .ThenInclude(ba => ba.Author)
+        //       .AsNoTracking()
+        //       .Where(p => p.Id == id)
+        //       .Select(p => new PublisherDetailsViewModel
+        //       {
+        //           Id = p.Id,
+        //           Name = p.Name,
+        //           BooksWithAuthorName = p.Books
+        //           .Where(b => !b.IsDeleted)
+        //           .OrderBy(b => b.Title)
+        //             .Select(b => new PublisherBookViewModel
+        //             {
+        //                 Id = b.Id,
+        //                 Title = b.Title,
+        //                 CoverUrl = b.CoverUrl ?? string.Empty,
+        //                 Rating = b.Rating,
+        //                 DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+        //                 GenreName = b.Genre.ToString(),
+        //                 AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
+        //                 Description = b.Description
+        //             })
+        //             .ToList()
+        //       })
+        //       .FirstOrDefaultAsync();
 
-            return publisher;
-        }
-
-
-        public PublisherAddViewModel GetEmtyPublisherFormModelAsync()
-        {
-            PublisherAddViewModel emptyAuthorFormModel = new PublisherAddViewModel();
-            return emptyAuthorFormModel;
-        }
-
-        public async Task AddPublisherAsync(PublisherAddViewModel inputModel)
-        {
-            var publisher = new Publisher
-            {
-                Name = inputModel.Name
-            };
-
-            if (await dbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
-            {
-                throw new PublisherAlreadyExistsException(publisher.Name);
-            }
-
-            await dbContext.Publishers.AddAsync(publisher);
-
-            try
-            {
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
-            }
-        }
-
-        public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
-        {
+        //    return publisher;
+        //}
 
 
-            if (!(await ExistsAsync(id)))
-            {
-                throw new PublisherDoesntExistException("Publisher not found.");
-            }
+        //public PublisherAddViewModel GetEmtyPublisherFormModelAsync()
+        //{
+        //    PublisherAddViewModel emptyAuthorFormModel = new PublisherAddViewModel();
+        //    return emptyAuthorFormModel;
+        //}
 
-            var publisher = await dbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
+        //public async Task AddPublisherAsync(PublisherAddViewModel inputModel)
+        //{
+        //    var publisher = new Publisher
+        //    {
+        //        Name = inputModel.Name
+        //    };
 
-            if (publisher == null)
-            {
+        //    if (await dbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
+        //    {
+        //        throw new PublisherAlreadyExistsException(publisher.Name);
+        //    }
 
-                throw new PublisherDoesntExistException("Publisher does not exist");
+        //    await dbContext.Publishers.AddAsync(publisher);
 
-            }
+        //    try
+        //    {
+        //        await dbContext.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateException dbEx)
+        //    {
+        //        throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
+        //    }
+        //}
 
-            var inputModel = new PublisherEditViewModel
-            {
-                Id = publisher.Id,
-                Name = publisher.Name
-            };
-            return inputModel;
-        }
+        //public async Task<PublisherEditViewModel> GetPublisherForEditByIdAsync(Guid id)
+        //{
 
-        public Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model)
-        {
-            var publisher = dbContext.Publishers
-               .FirstOrDefault(p => p.Id == model.Id);
 
-            if (publisher == null)
-            {
-                throw new PublisherDoesntExistException("Publisher does not exist");
-            }
+        //    if (!(await ExistsAsync(id)))
+        //    {
+        //        throw new PublisherDoesntExistException("Publisher not found.");
+        //    }
 
-            publisher.Name = model.Name;
+        //    var publisher = await dbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
 
-            try
-            {
-                dbContext.Publishers.Update(publisher);
-                return dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
-            }
-        }
+        //    if (publisher == null)
+        //    {
 
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            bool publisherExist = await dbContext
-                .Publishers
-                .AnyAsync(a => a.Id == id);
+        //        throw new PublisherDoesntExistException("Publisher does not exist");
 
-            return publisherExist;
-        }
+        //    }
 
-        public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id)
-        {
-            var publisherToDelete = await dbContext.Publishers
-                .Include(b => b.Books)
-                .Select(b => new PublisherDeleteViewModel
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Books = b.Books
-                })
-                .FirstOrDefaultAsync(b => b.Id == id);
+        //    var inputModel = new PublisherEditViewModel
+        //    {
+        //        Id = publisher.Id,
+        //        Name = publisher.Name
+        //    };
+        //    return inputModel;
+        //}
 
-            if (publisherToDelete == null)
-            {
-                throw new PublisherDoesntExistException("Publisher does not exist");
-            }
+        //public Task UpdatePublisherAsync(Guid id, PublisherEditViewModel model)
+        //{
+        //    var publisher = dbContext.Publishers
+        //       .FirstOrDefault(p => p.Id == model.Id);
 
-            return publisherToDelete;
-        }
+        //    if (publisher == null)
+        //    {
+        //        throw new PublisherDoesntExistException("Publisher does not exist");
+        //    }
 
-        public async Task DeletePublisherAsync(Guid id)
-        {
-            var publisher = await dbContext.Publishers
-                .Include(b => b.Books)
-                .FirstOrDefaultAsync(b => b.Id == id);
+        //    publisher.Name = model.Name;
 
-            if (publisher == null)
-            {
-                throw new PublisherDoesntExistException("Publisher not found.");
-            }
+        //    try
+        //    {
+        //        dbContext.Publishers.Update(publisher);
+        //        return dbContext.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateException)
+        //    {
+        //        throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
+        //    }
+        //}
 
-            if (publisher.Books.Any())
-            {
+        //public async Task<bool> ExistsAsync(Guid id)
+        //{
+        //    bool publisherExist = await dbContext
+        //        .Publishers
+        //        .AnyAsync(a => a.Id == id);
 
-                throw new PublisherDeleteException("Cannot delete publisher with associated books.");
+        //    return publisherExist;
+        //}
 
-            }
+        //public async Task<PublisherDeleteViewModel> GetPublisherDeleteDetailsAsync(Guid id)
+        //{
+        //    var publisherToDelete = await dbContext.Publishers
+        //        .Include(b => b.Books)
+        //        .Select(b => new PublisherDeleteViewModel
+        //        {
+        //            Id = b.Id,
+        //            Name = b.Name,
+        //            Books = b.Books
+        //        })
+        //        .FirstOrDefaultAsync(b => b.Id == id);
 
-            dbContext.Publishers.Remove(publisher);
+        //    if (publisherToDelete == null)
+        //    {
+        //        throw new PublisherDoesntExistException("Publisher does not exist");
+        //    }
 
-            try
-            {
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                throw new PublisherDeleteException("Unable to delete the publisher from the database.");
-            }
-        }
+        //    return publisherToDelete;
+        //}
+
+        //public async Task DeletePublisherAsync(Guid id)
+        //{
+        //    var publisher = await dbContext.Publishers
+        //        .Include(b => b.Books)
+        //        .FirstOrDefaultAsync(b => b.Id == id);
+
+        //    if (publisher == null)
+        //    {
+        //        throw new PublisherDoesntExistException("Publisher not found.");
+        //    }
+
+        //    if (publisher.Books.Any())
+        //    {
+
+        //        throw new PublisherDeleteException("Cannot delete publisher with associated books.");
+
+        //    }
+
+        //    dbContext.Publishers.Remove(publisher);
+
+        //    try
+        //    {
+        //        await dbContext.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateException)
+        //    {
+        //        throw new PublisherDeleteException("Unable to delete the publisher from the database.");
+        //    }
+        //}
     }
 }

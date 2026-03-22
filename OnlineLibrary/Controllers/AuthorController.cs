@@ -243,20 +243,4 @@ namespace OnlineLibrary.Web.Controllers
             }
         }
     }
-
-    //[Serializable]
-    //internal class AuthorAlreadyExistsException : Exception
-    //{
-    //    public AuthorAlreadyExistsException()
-    //    {
-    //    }
-
-    //    public AuthorAlreadyExistsException(string? message) : base(message)
-    //    {
-    //    }
-
-    //    public AuthorAlreadyExistsException(string? message, Exception? innerException) : base(message, innerException)
-    //    {
-    //    }
-    //}
 }

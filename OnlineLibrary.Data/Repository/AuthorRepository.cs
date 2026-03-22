@@ -138,7 +138,6 @@ namespace OnlineLibrary.Data.Repository
             var inputModel = await GetAuthorDeleteDetailsAsync(id);
 
 
-
             if (author == null)
             {
                 throw new AuthorDoesntExistException("Author not found.");

@@ -64,15 +64,6 @@ namespace OnlineLibrary.Services.Core
             return authorDto;
         }
 
-        //public async Task<bool> ExistsAsync(Guid id)
-        //{
-        //    bool authorExist = await dbContext
-        //        .Authors
-        //        .AnyAsync(a => a.Id == id);
-
-        //    return authorExist;
-        //}
-
         public AuthorsAllDto GetEmptyAuthorViewModelAsync()
         {
             AuthorsAllDto emptyAuthorViewModel = new AuthorsAllDto();
@@ -103,17 +94,6 @@ namespace OnlineLibrary.Services.Core
                 throw new AuthorCreateException("Unable to save the author to the database.", dbEx);
             }
         }
-
-
-
-        //public async Task<bool> ExistsAsync(Guid id)
-        //{
-        //    bool authorExist = await dbContext
-        //        .Authors
-        //        .AnyAsync(a => a.Id == id);
-
-        //    return authorExist;
-        //}
 
 
         public async Task<AuthorsAllDto> GetNewAuthorForEditByIdAsync(Guid id)
