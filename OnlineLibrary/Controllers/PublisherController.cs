@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineLibrary.GCommon;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Publisher;
-using System.Globalization;
-using System.Runtime.Serialization;
-using static OnlineLibrary.GCommon.ApplicationConstants;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -43,7 +39,11 @@ namespace OnlineLibrary.Web.Controllers
         {
             var publisherDto = await publisherService.GetPublisherDetailsByIdAsync(id);
 
-
+            if (publisherDto == null)
+            {
+                logger.LogWarning("Publisher with id {PublisherId} not found.", id);
+                return NotFound();
+            }
 
             var publisher = new PublisherDetailsViewModel
                 {

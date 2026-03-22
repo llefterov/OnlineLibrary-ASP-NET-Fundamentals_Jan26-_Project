@@ -152,7 +152,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, AuthorEditViewModel inputModel)
+        public async Task<IActionResult> Edit([FromRoute]Guid id, AuthorEditViewModel inputModel)
         {
             if (id == Guid.Empty)
             {
@@ -162,6 +162,11 @@ namespace OnlineLibrary.Web.Controllers
             if (!ModelState.IsValid)
             {
                 return View(inputModel);
+            }
+
+            if (id != inputModel.Id)
+            {
+                return BadRequest();
             }
 
             try
