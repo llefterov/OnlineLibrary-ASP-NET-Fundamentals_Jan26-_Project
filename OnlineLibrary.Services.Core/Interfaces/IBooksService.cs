@@ -31,8 +31,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId);
         Task EditBookDtoAsync(BookEditDto model, Guid userId);
 
-        //Task<BookDeleteViewModel>GetBookDeleteDetailsAsync(Guid id, Guid userId);
+        Task<BookDeleteDto>GetBookDeleteDetailsDtoAsync(Guid id, Guid userId);
 
-        //Task DeleteBookAsync(Guid id, Guid userId);
+        Task DeleteBookDtoAsync(Guid id, Guid userId);
     }
 }

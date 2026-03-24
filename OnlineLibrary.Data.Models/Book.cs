@@ -64,6 +64,10 @@ namespace OnlineLibrary.Data.Models
         // This property is not mapped to the database and is used to hold the list of AuthorIds when creating or editing a book.
         [NotMapped]
         public List<Guid>? AuthorIds { get; set; }
+
+        // This property is not mapped to the database and is used to display the username of the user who added the book.
+        [NotMapped]
+        public string? AddedByUserName { get; set; }
     }
 
     public enum BookGenre

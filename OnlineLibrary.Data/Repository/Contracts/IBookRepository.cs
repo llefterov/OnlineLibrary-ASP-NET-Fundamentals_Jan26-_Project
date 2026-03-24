@@ -28,9 +28,9 @@ namespace OnlineLibrary.Data.Repository.Contracts
         Task<Book> GetBookForEditAsync(Guid id, Guid userId);
         Task EditBookAsync(Book model, Guid userId);
 
-        //Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId);
+        Task<Book> GetBookDeleteDetailsAsync(Guid id, Guid userId);
 
-        //Task DeleteBookAsync(Guid id, Guid userId);
+        Task DeleteBookAsync(Guid id, Guid userId);
 
 
     }

@@ -118,7 +118,7 @@ namespace OnlineLibrary.Services.Core
         public async Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id)
         {
             // Load the entity with related data first (server-side)
-         var bookEntity = await bookRepository.GetBookDetailsByIdAsync(id);
+            var bookEntity = await bookRepository.GetBookDetailsByIdAsync(id);
 
             // Map to view model in-memory (safe for string.Join and enum ToString)
             var bookDetailsDto = new BookDetailsDto
@@ -189,14 +189,14 @@ namespace OnlineLibrary.Services.Core
 
         public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId)
         {
-        var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
+            var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
             var favBooksDto = favBooks.Select(MapBookToBookFavoritesDto).ToList();
             return favBooksDto;
         }
 
         public async Task SaveFevBookDtoAsync(Guid id, Guid userId)
         {
-           await bookRepository.SaveFevBookAsync(id, userId);
+            await bookRepository.SaveFevBookAsync(id, userId);
         }
 
         public async Task RemoveFevBookDtoAsync(Guid id, Guid userId)
@@ -207,7 +207,7 @@ namespace OnlineLibrary.Services.Core
         public async Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId)
         {
             // Load the entity with related data first (server-side)
-           var bookEntity = await bookRepository.GetBookForEditAsync(id, userId);
+            var bookEntity = await bookRepository.GetBookForEditAsync(id, userId);
 
             if (bookEntity == null)
             {
@@ -225,70 +225,19 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.EditBookAsync(book, userId);
         }
 
-        //public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId)
-        //{
-        //    var book = await dbContext.Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.AddedByUser)
-        //        .Include(ba => ba.BooksAuthors)
-        //            .ThenInclude(ba => ba.Author)
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(b => b.Id == id);
+        public async Task<BookDeleteDto> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId)
+        {
+            var book = await bookRepository.GetBookDeleteDetailsAsync(id, userId);
 
-        //    if (book == null)
-        //    {
-        //        throw new ArgumentException("Book not found");
-        //    }
+            var bookDeleteDto = MapBookToBookDeleteDto(book);
 
-        //    if (book.AddedByUserId != userId)
-        //    {
-        //        throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-        //    }
+            return bookDeleteDto;
+        }
 
-        //    var deleteModel = new BookDeleteViewModel
-        //    {
-        //        Id = book.Id,
-        //        Title = book.Title,
-        //        AddedByUserName = book.AddedByUser?.UserName, // null-safe access
-        //        CoverUrl = book.CoverUrl
-        //    };
-
-        //    return deleteModel;
-        //}
-
-        //public async Task DeleteBookAsync(Guid id, Guid userId)
-        //{
-        //    // Load tracked entity with related collections (no AsNoTracking)
-        //    var book = await dbContext.Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.AddedByUser)
-        //        .FirstOrDefaultAsync(b => b.Id == id);
-
-        //    if (book == null)
-        //    {
-        //        throw new ArgumentException("Book not found.");
-        //    }
-
-        //    if (book.AddedByUserId != userId)
-        //    {
-        //        throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-        //    }
-
-        //    // Remove dependent BookAuthor entries
-        //    var bookAuthorEntries = dbContext.BooksAuthors
-        //        .Where(ba => ba.BookId == id);
-        //    dbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
-
-        //    // Remove dependent UserBook entries (user collections)
-        //    var userBookEntries = dbContext.UsersBooks
-        //        .Where(ub => ub.BookId == id);
-        //    dbContext.UsersBooks.RemoveRange(userBookEntries);
-
-        //    // Soft-delete the book
-        //    book.IsDeleted = true;
-
-        //    await dbContext.SaveChangesAsync();
-        //}
+        public async Task DeleteBookDtoAsync(Guid id, Guid userId)
+        {
+            await bookRepository.DeleteBookAsync(id, userId);
+        }
 
         private static BookFavoritesDto MapBookToBookFavoritesDto(Book book)
         {
@@ -334,6 +283,17 @@ namespace OnlineLibrary.Services.Core
                 PublisherId = book.PublisherId,
                 AuthorIds = book.BooksAuthors.Select(ba => ba.AuthorId).ToList()
             };
+        }
+
+        private static BookDeleteDto MapBookToBookDeleteDto(Book book)
+        {
+            return new BookDeleteDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                AddedByUserName = book.AddedByUser?.UserName ?? string.Empty, // safe access
+            };
+
         }
     }
 }

@@ -276,71 +276,73 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("Details", new { id = model.Id });
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
-        //{
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    var book = await booksService.GetBookDeleteDetailsAsync(id, userId);
+            var bookDeleteDto = await booksService.GetBookDeleteDetailsDtoAsync(id, userId);
 
-        //    // Preserve the returnUrl so the POST can redirect back to the previous page
-        //    var referer = Request.Headers["Referer"].ToString();
-        //    ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
+            // Preserve the returnUrl so the POST can redirect back to the previous page
+            var referer = Request.Headers["Referer"].ToString();
+            ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
 
-        //    return View(book);
-        //}
+            var bookViewModel = MapBookDeleteDtoToBookDeleteViewModel(bookDeleteDto);
 
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
-        //{
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+            return View(bookViewModel);
+        }
 
-        //    try
-        //    {
-        //        await booksService.DeleteBookAsync(id, userId);
-        //    }
-        //    catch (UnauthorizedAccessException)
-        //    {
-        //        return Unauthorized();
-        //    }
-        //    catch (ArgumentException)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    // Prefer an explicit returnUrl, otherwise fall back to the Referer header if provided.
-        //    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        //    {
-        //        // Avoid redirecting back to a details page for a deleted book
-        //        if (returnUrl.Contains("/Details", StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            return RedirectToAction("All");
-        //        }
+            try
+            {
+                await booksService.DeleteBookDtoAsync(id, userId);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (ArgumentException)
+            {
+                return NotFound();
+            }
 
-        //        return Redirect(returnUrl);
-        //    }
+            // Prefer an explicit returnUrl, otherwise fall back to the Referer header if provided.
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                // Avoid redirecting back to a details page for a deleted book
+                if (returnUrl.Contains("/Details", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("All");
+                }
 
-        //    var referer = Request.Headers["Referer"].ToString();
-        //    if (!string.IsNullOrEmpty(referer) && Url.IsLocalUrl(referer))
-        //    {
-        //        if (referer.Contains("/Details", StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            return RedirectToAction("All");
-        //        }
+                return Redirect(returnUrl);
+            }
 
-        //        return Redirect(referer);
-        //    }
-        //    return RedirectToAction("MyBooks");
-        //}
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer) && Url.IsLocalUrl(referer))
+            {
+                if (referer.Contains("/Details", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("All");
+                }
+
+                return Redirect(referer);
+            }
+            return RedirectToAction("MyBooks");
+        }
 
         private async Task AddPublishersAndAuthirsListsAsync()
         {
@@ -464,14 +466,14 @@ namespace OnlineLibrary.Web.Controllers
             };
         }
 
-     
+
 
         private static BookEditDto MapBookEditViewModelToBookEditDto(BookEditViewModel bookEditViewModel)
         {
             return new BookEditDto
             {
                 Id = bookEditViewModel.Id,
-                Title = bookEditViewModel   .Title,
+                Title = bookEditViewModel.Title,
                 Description = bookEditViewModel.Description,
                 Genre = bookEditViewModel.Genre,
                 IsRead = bookEditViewModel.IsRead,
@@ -481,6 +483,17 @@ namespace OnlineLibrary.Web.Controllers
                 DateAdded = bookEditViewModel.DateAdded,
                 PublisherId = bookEditViewModel.PublisherId,
                 AuthorIds = bookEditViewModel.AuthorIds
+            };
+        }
+
+        private static BookDeleteViewModel MapBookDeleteDtoToBookDeleteViewModel(BookDeleteDto bookDeleteDto)
+        {
+            return new BookDeleteViewModel
+            {
+                Id = bookDeleteDto.Id,
+                Title = bookDeleteDto.Title,
+                CoverUrl = bookDeleteDto.CoverUrl ?? string.Empty,
+                AddedByUserName = bookDeleteDto.AddedByUserName
             };
         }
     }

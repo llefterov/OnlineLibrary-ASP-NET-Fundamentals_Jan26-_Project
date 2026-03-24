@@ -302,70 +302,70 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        //public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId)
-        //{
-        //    var book = await dbContext.Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.AddedByUser)
-        //        .Include(ba => ba.BooksAuthors)
-        //            .ThenInclude(ba => ba.Author)
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(b => b.Id == id);
+        public async Task<Book> GetBookDeleteDetailsAsync(Guid id, Guid userId)
+        {
+            var book = await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.AddedByUser)
+                .Include(ba => ba.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
 
-        //    if (book == null)
-        //    {
-        //        throw new ArgumentException("Book not found");
-        //    }
+            if (book == null)
+            {
+                throw new ArgumentException("Book not found");
+            }
 
-        //    if (book.AddedByUserId != userId)
-        //    {
-        //        throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-        //    }
+            if (book.AddedByUserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
+            }
 
-        //    var deleteModel = new BookDeleteViewModel
-        //    {
-        //        Id = book.Id,
-        //        Title = book.Title,
-        //        AddedByUserName = book.AddedByUser?.UserName, // null-safe access
-        //        CoverUrl = book.CoverUrl
-        //    };
+            var bookToDelete = new Book
+            {
+                Id = book.Id,
+                Title = book.Title,
+                AddedByUserName = book.AddedByUser?.UserName, // null-safe access
+                CoverUrl = book.CoverUrl
+            };
 
-        //    return deleteModel;
-        //}
+            return bookToDelete;
+        }
 
-        //public async Task DeleteBookAsync(Guid id, Guid userId)
-        //{
-        //    // Load tracked entity with related collections (no AsNoTracking)
-        //    var book = await dbContext.Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.AddedByUser)
-        //        .FirstOrDefaultAsync(b => b.Id == id);
+        public async Task DeleteBookAsync(Guid id, Guid userId)
+        {
+            // Load tracked entity with related collections (no AsNoTracking)
+            var book = await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.AddedByUser)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
-        //    if (book == null)
-        //    {
-        //        throw new ArgumentException("Book not found.");
-        //    }
+            if (book == null)
+            {
+                throw new ArgumentException("Book not found.");
+            }
 
-        //    if (book.AddedByUserId != userId)
-        //    {
-        //        throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-        //    }
+            if (book.AddedByUserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
+            }
 
-        //    // Remove dependent BookAuthor entries
-        //    var bookAuthorEntries = dbContext.BooksAuthors
-        //        .Where(ba => ba.BookId == id);
-        //    dbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
+            // Remove dependent BookAuthor entries
+            var bookAuthorEntries = DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id);
+            DbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
 
-        //    // Remove dependent UserBook entries (user collections)
-        //    var userBookEntries = dbContext.UsersBooks
-        //        .Where(ub => ub.BookId == id);
-        //    dbContext.UsersBooks.RemoveRange(userBookEntries);
+            // Remove dependent UserBook entries (user collections)
+            var userBookEntries = DbContext.UsersBooks
+                .Where(ub => ub.BookId == id);
+            DbContext.UsersBooks.RemoveRange(userBookEntries);
 
-        //    // Soft-delete the book
-        //    book.IsDeleted = true;
+            // Soft-delete the book
+            book.IsDeleted = true;
 
-        //    await dbContext.SaveChangesAsync();
-        //}
+            await DbContext.SaveChangesAsync();
+        }
 
 
 
