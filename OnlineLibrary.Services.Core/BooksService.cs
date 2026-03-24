@@ -7,6 +7,7 @@ using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Services.Models.Book;
 using OnlineLibrary.Web.ViewModels.Books;
+using static OnlineLibrary.Services.CustomMappers.BookMappers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -247,53 +248,6 @@ namespace OnlineLibrary.Services.Core
                 Title = book.Title,
                 CoverUrl = book.CoverUrl ?? string.Empty
             };
-        }
-
-        private static Book MapBookEditDtoToBook(BookEditDto bookEditDto)
-        {
-            return new Book
-            {
-                Id = bookEditDto.Id,
-                Title = bookEditDto.Title,
-                Description = bookEditDto.Description,
-                Genre = bookEditDto.Genre,
-                IsRead = bookEditDto.IsRead,
-                DateRead = bookEditDto.DateRead,
-                Rating = bookEditDto.Rating,
-                CoverUrl = bookEditDto.CoverUrl,
-                DateAdded = bookEditDto.DateAdded,
-                PublisherId = bookEditDto.PublisherId,
-                AuthorIds = bookEditDto.AuthorIds
-            };
-        }
-
-        private static BookEditDto MapBookToBookEditDto(Book book)
-        {
-            return new BookEditDto
-            {
-                Id = book.Id,
-                Title = book.Title,
-                Description = book.Description,
-                Genre = book.Genre,
-                IsRead = book.IsRead,
-                DateRead = book.DateRead,
-                Rating = book.Rating,
-                CoverUrl = book.CoverUrl,
-                DateAdded = book.DateAdded,
-                PublisherId = book.PublisherId,
-                AuthorIds = book.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-            };
-        }
-
-        private static BookDeleteDto MapBookToBookDeleteDto(Book book)
-        {
-            return new BookDeleteDto
-            {
-                Id = book.Id,
-                Title = book.Title,
-                AddedByUserName = book.AddedByUser?.UserName ?? string.Empty, // safe access
-            };
-
         }
     }
 }

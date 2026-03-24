@@ -11,6 +11,7 @@ using OnlineLibrary.Services.Models.Book;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Books;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using static OnlineLibrary.Services.CustomMappers.BookMappers;
 using System.Globalization;
 using System.Runtime.Serialization;
 
@@ -33,7 +34,7 @@ namespace OnlineLibrary.Web.Controllers
             var userId = GetUserId();
 
             var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId);
-            var allBooksViewModel = allBooksDto.Select(MapBookAllViewModel);
+            var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             return View(allBooksViewModel);
         }
@@ -49,7 +50,7 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
-            var myBooksViewModel = myBooksDto.Select(MapBookAllViewModel);
+            var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             return View(myBooksViewModel);
         }
@@ -72,7 +73,7 @@ namespace OnlineLibrary.Web.Controllers
             bookDetailsDto.IsAddedByUser = isAddedByUser;
             bookDetailsDto.IsAddedToUserCollection = isAddedToUserCollection;
 
-            var bookDetails = MapBookDetailsViewModel(bookDetailsDto);
+            var bookDetails = MapBookDetailsDtoToBookDetailsViewModel(bookDetailsDto);
 
             return View(bookDetails);
         }
@@ -82,7 +83,7 @@ namespace OnlineLibrary.Web.Controllers
         {
             await AddPublishersAndAuthirsListsAsync();
             var modelDto = await booksService.GetBookDtoCreateViewModelAsync();
-            var model = MapBookCreateViewModel(modelDto);
+            var model = MapBookCreateDtoToBookCreateViewModel(modelDto);
 
             return View(model);
         }
@@ -103,7 +104,7 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            var modelDto = MapBookCreateDto(model);
+            var modelDto = MapBookCreateViewModelToBookCreateDto(model);
 
             try
             {
@@ -148,7 +149,7 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId);
-            var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToViewModel);
+            var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToBookFavoritesViewModel);
 
             return View(bookFavoritesViewModels);
         }
@@ -349,152 +350,6 @@ namespace OnlineLibrary.Web.Controllers
             var (publishers, authors) = await booksService.GetAllAuthorsAndPublishersAsync();
             ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
             ViewBag.Authors = new SelectList(authors, "Id", "FullName");
-        }
-
-        private static BooksAllViewModel MapBookAllViewModel(BookAllDto booksAllDto)
-        {
-            return new BooksAllViewModel
-            {
-                Id = booksAllDto.Id,
-                Title = booksAllDto.Title,
-                Genre = booksAllDto.Genre,
-                GenreName = booksAllDto.Genre.ToString(),
-                Rating = booksAllDto.Rating,
-                CoverUrl = booksAllDto.CoverUrl ?? string.Empty,
-                AddedByUserName = booksAllDto.AddedByUserName, // null-safe
-                PublisherId = booksAllDto.PublisherId,
-                PublisherName = booksAllDto.PublisherName,
-                IsAddedByUser = booksAllDto.IsAddedByUser, // Assuming this is already set correctly in the DTO
-                IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection // Assuming this is already set correctly in the DTO
-            };
-
-        }
-
-        private static BookDetailsViewModel MapBookDetailsViewModel(BookDetailsDto bookDetailsDto)
-        {
-            var booksDetailsViewModel = new BookDetailsViewModel
-            {
-                Id = bookDetailsDto.Id,
-                Title = bookDetailsDto.Title,
-                Description = bookDetailsDto.Description,
-                Genre = bookDetailsDto.Genre,
-                GenreName = bookDetailsDto.GenreName,
-                IsRead = bookDetailsDto.IsRead,
-                DateRead = bookDetailsDto.DateRead,
-                Rating = bookDetailsDto.Rating,
-                CoverUrl = bookDetailsDto.CoverUrl ?? string.Empty,
-                DateAdded = bookDetailsDto.DateAdded,
-                PublisherId = bookDetailsDto.PublisherId,
-                PublisherName = bookDetailsDto.PublisherName,
-                AuthorsName = bookDetailsDto.AuthorsName,
-                AddedByUserName = bookDetailsDto.AddedByUserName, // safe access
-                IsAddedByUser = bookDetailsDto.IsAddedByUser,
-                IsAddedToUserCollection = bookDetailsDto.IsAddedToUserCollection
-            };
-
-            if (bookDetailsDto.IsRead == false)
-            {
-                bookDetailsDto.DateRead = null;
-            }
-
-            return booksDetailsViewModel;
-        }
-
-        private static BookCreateViewModel MapBookCreateViewModel(BookCreateDto bookCreateDto)
-        {
-            return new BookCreateViewModel
-            {
-                Title = bookCreateDto.Title,
-                Description = bookCreateDto.Description,
-                Genre = bookCreateDto.Genre,
-                IsRead = bookCreateDto.IsRead,
-                DateRead = bookCreateDto.DateRead,
-                Rating = bookCreateDto.Rating,
-                CoverUrl = bookCreateDto.CoverUrl,
-                DateAdded = bookCreateDto.DateAdded,
-                PublisherId = bookCreateDto.PublisherId,
-                AddedByUserId = bookCreateDto.AddedByUserId,
-                AuthorIds = bookCreateDto.AuthorIds
-            };
-        }
-
-
-
-        private static BookCreateDto MapBookCreateDto(BookCreateViewModel bookCreateViewModel)
-        {
-            return new BookCreateDto
-            {
-                Title = bookCreateViewModel.Title,
-                Description = bookCreateViewModel.Description,
-                Genre = bookCreateViewModel.Genre,
-                IsRead = bookCreateViewModel.IsRead,
-                DateRead = bookCreateViewModel.DateRead,
-                Rating = bookCreateViewModel.Rating,
-                CoverUrl = bookCreateViewModel.CoverUrl,
-                DateAdded = bookCreateViewModel.DateAdded,
-                PublisherId = bookCreateViewModel.PublisherId,
-                AddedByUserId = bookCreateViewModel.AddedByUserId,
-                AuthorIds = bookCreateViewModel.AuthorIds
-            };
-        }
-
-        private static BookFavoritesViewModel MapBookFavoritesDtoToViewModel(BookFavoritesDto favBookDto)
-        {
-            return new BookFavoritesViewModel
-            {
-                Id = favBookDto.Id,
-                Title = favBookDto.Title,
-                CoverUrl = favBookDto.CoverUrl ?? string.Empty
-            };
-        }
-
-        private static BookEditViewModel MapBookEditDtoToBookEditViewModel(BookEditDto bookEditDto)
-        {
-            return new BookEditViewModel
-            {
-                Id = bookEditDto.Id,
-                Title = bookEditDto.Title,
-                Description = bookEditDto.Description,
-                Genre = bookEditDto.Genre,
-                IsRead = bookEditDto.IsRead,
-                DateRead = bookEditDto.DateRead,
-                Rating = bookEditDto.Rating,
-                CoverUrl = bookEditDto.CoverUrl,
-                DateAdded = bookEditDto.DateAdded,
-                PublisherId = bookEditDto.PublisherId,
-                AuthorIds = bookEditDto.AuthorIds
-            };
-        }
-
-
-
-        private static BookEditDto MapBookEditViewModelToBookEditDto(BookEditViewModel bookEditViewModel)
-        {
-            return new BookEditDto
-            {
-                Id = bookEditViewModel.Id,
-                Title = bookEditViewModel.Title,
-                Description = bookEditViewModel.Description,
-                Genre = bookEditViewModel.Genre,
-                IsRead = bookEditViewModel.IsRead,
-                DateRead = bookEditViewModel.DateRead,
-                Rating = bookEditViewModel.Rating,
-                CoverUrl = bookEditViewModel.CoverUrl,
-                DateAdded = bookEditViewModel.DateAdded,
-                PublisherId = bookEditViewModel.PublisherId,
-                AuthorIds = bookEditViewModel.AuthorIds
-            };
-        }
-
-        private static BookDeleteViewModel MapBookDeleteDtoToBookDeleteViewModel(BookDeleteDto bookDeleteDto)
-        {
-            return new BookDeleteViewModel
-            {
-                Id = bookDeleteDto.Id,
-                Title = bookDeleteDto.Title,
-                CoverUrl = bookDeleteDto.CoverUrl ?? string.Empty,
-                AddedByUserName = bookDeleteDto.AddedByUserName
-            };
         }
     }
 }

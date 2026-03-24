@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineLibrary.Data.Models\OnlineLibrary.Data.Models.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Services.Models\OnlineLibrary.Services.Models.csproj" />
+  </ItemGroup>
+
+</Project>
