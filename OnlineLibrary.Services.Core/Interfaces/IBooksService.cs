@@ -28,8 +28,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);
 
-        //Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId);
-        //Task EditBookAsync(BookEditViewModel model, Guid userId);
+        Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId);
+        Task EditBookDtoAsync(BookEditDto model, Guid userId);
 
         //Task<BookDeleteViewModel>GetBookDeleteDetailsAsync(Guid id, Guid userId);
 

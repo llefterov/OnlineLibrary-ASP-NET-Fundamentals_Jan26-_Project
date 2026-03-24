@@ -185,87 +185,96 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("Favorites");
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Edit(Guid id)
-        //{
-        //    await AddPublishersAndAuthirsListsAsync();
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            await AddPublishersAndAuthirsListsAsync();
 
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    try
-        //    {
-        //        var model = await booksService.GetBookForEditAsync(id, userId);
+            try
+            {
+                var modelDto = await booksService.GetBookForEditDtoAsync(id, userId);
+                var model = MapBookEditDtoToBookEditViewModel(modelDto);
 
-        //        return View(model);
-        //    }
-        //    catch (UnauthorizedAccessException)
-        //    {
-        //        return Unauthorized();
-        //    }
-        //    catch (ArgumentException)
-        //    {
-        //        return NotFound();
-        //    }
-        //}
+                if (model == null)
+                {
+                    return NotFound();
+                }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Edit([FromRoute] Guid id, BookEditViewModel model)
-        //{
-        //    if (id != model.Id || id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+                return View(model);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (ArgumentException)
+            {
+                return NotFound();
+            }
+        }
 
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromRoute] Guid id, BookEditViewModel model)
+        {
+            if (id != model.Id || id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    await AddPublishersAndAuthirsListsAsync();
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
+            await AddPublishersAndAuthirsListsAsync();
 
-        //    try
-        //    {
-        //        await booksService.EditBookAsync(model, userId);
-        //    }
-        //    catch (PublisherDoesntExistException ex)
-        //    {
-        //        logger.LogWarning(ex, "Selected publisher does not exist.");
-        //        ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
-        //        return View(model);
-        //    }
-        //    catch (AuthorDoesntExistException ex)
-        //    {
-        //        logger.LogWarning(ex, "One or more selected authors are invalid.");
-        //        ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
-        //        return View(model);
-        //    }
-        //    catch (UnauthorizedAccessException ex)
-        //    {
-        //        logger.LogError(ex, "Unauthorized access while editing book.");
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-        //        return View(model);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Unexpected error while adding book.");
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+            var modelDto = MapBookEditViewModelToBookEditDto(model);
 
-        //        return View(model);
-        //    }
+            try
+            {
 
-        //    return RedirectToAction("Details", new { id = model.Id });
-        //}
+                await booksService.EditBookDtoAsync(modelDto, userId);
+            }
+            catch (PublisherDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "Selected publisher does not exist.");
+                ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
+                return View(model);
+            }
+            catch (AuthorDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "One or more selected authors are invalid.");
+                ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
+                return View(model);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                logger.LogError(ex, "Unauthorized access while editing book.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while adding book.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please contact support.");
+
+                return View(model);
+            }
+
+            return RedirectToAction("Details", new { id = model.Id });
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
@@ -434,6 +443,44 @@ namespace OnlineLibrary.Web.Controllers
                 Id = favBookDto.Id,
                 Title = favBookDto.Title,
                 CoverUrl = favBookDto.CoverUrl ?? string.Empty
+            };
+        }
+
+        private static BookEditViewModel MapBookEditDtoToBookEditViewModel(BookEditDto bookEditDto)
+        {
+            return new BookEditViewModel
+            {
+                Id = bookEditDto.Id,
+                Title = bookEditDto.Title,
+                Description = bookEditDto.Description,
+                Genre = bookEditDto.Genre,
+                IsRead = bookEditDto.IsRead,
+                DateRead = bookEditDto.DateRead,
+                Rating = bookEditDto.Rating,
+                CoverUrl = bookEditDto.CoverUrl,
+                DateAdded = bookEditDto.DateAdded,
+                PublisherId = bookEditDto.PublisherId,
+                AuthorIds = bookEditDto.AuthorIds
+            };
+        }
+
+     
+
+        private static BookEditDto MapBookEditViewModelToBookEditDto(BookEditViewModel bookEditViewModel)
+        {
+            return new BookEditDto
+            {
+                Id = bookEditViewModel.Id,
+                Title = bookEditViewModel   .Title,
+                Description = bookEditViewModel.Description,
+                Genre = bookEditViewModel.Genre,
+                IsRead = bookEditViewModel.IsRead,
+                DateRead = bookEditViewModel.DateRead,
+                Rating = bookEditViewModel.Rating,
+                CoverUrl = bookEditViewModel.CoverUrl,
+                DateAdded = bookEditViewModel.DateAdded,
+                PublisherId = bookEditViewModel.PublisherId,
+                AuthorIds = bookEditViewModel.AuthorIds
             };
         }
     }

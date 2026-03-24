@@ -204,121 +204,26 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.RemoveFevBookAsync(id, userId);
         }
 
-        //public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId)
-        //{
-        //    // Load the entity with related data first (server-side)
-        //    var bookEntity = await dbContext
-        //        .Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.Publisher)
-        //        .Include(b => b.UsersBooks)
-        //        .Include(b => b.BooksAuthors)
-        //            .ThenInclude(ba => ba.Author)
-        //        .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(b => b.Id == id);
+        public async Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId)
+        {
+            // Load the entity with related data first (server-side)
+           var bookEntity = await bookRepository.GetBookForEditAsync(id, userId);
 
-        //    if (bookEntity == null)
-        //    {
-        //        throw new InvalidOperationException("Destination not found");
-        //    }
+            if (bookEntity == null)
+            {
+                throw new InvalidOperationException("Destination not found");
+            }
 
-        //    // Map to view model in-memory (safe for string.Join and enum ToString)
-        //    var bookDetails = new BookEditViewModel
-        //    {
-        //        Id = bookEntity.Id,
-        //        Title = bookEntity.Title,
-        //        Description = bookEntity.Description,
-        //        Genre = bookEntity.Genre,
-        //        IsRead = bookEntity.IsRead,
-        //        DateRead = bookEntity.DateRead,
-        //        Rating = bookEntity.Rating,
-        //        CoverUrl = bookEntity.CoverUrl,
-        //        DateAdded = bookEntity.DateAdded,
-        //        PublisherId = bookEntity.PublisherId,
-        //        AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-        //    };
+            var bookDetails = MapBookToBookEditDto(bookEntity);
 
-        //    return (bookDetails);
-        //}
+            return (bookDetails);
+        }
 
-        //public async Task EditBookAsync(BookEditViewModel inputModel, Guid userId)
-        //{
-        //    var bookEntity = dbContext.Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.BooksAuthors)
-        //        .FirstOrDefault(b => b.Id == inputModel.Id);
-
-        //    if (bookEntity == null)
-        //    {
-        //        throw new InvalidOperationException("Book not found");
-        //    }
-
-        //    // Update book properties
-        //    bookEntity.Title = inputModel.Title;
-        //    bookEntity.Description = inputModel.Description;
-        //    bookEntity.Genre = inputModel.Genre;
-        //    bookEntity.IsRead = inputModel.IsRead;
-        //    bookEntity.DateRead = inputModel.DateRead;
-        //    bookEntity.Rating = inputModel.Rating;
-        //    bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
-        //    bookEntity.DateAdded = inputModel.DateAdded;
-        //    bookEntity.PublisherId = inputModel.PublisherId;
-        //    // Update BookAuthor relationships
-        //    var existingAuthorIds = bookEntity.BooksAuthors
-        //        .Select(ba => ba.AuthorId)
-        //        .ToList();
-
-        //    // Validate publisher exists
-        //    if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
-        //    {
-        //        throw new PublisherDoesntExistException("Selected publisher does not exist.");
-        //    }
-
-        //    // Validate provided author ids (if any) before creating the book to avoid FK errors
-        //    if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-        //    {
-        //        var validAuthorIds = await dbContext.Authors
-        //            .Where(a => inputModel.AuthorIds.Contains(a.Id))
-        //            .Select(a => a.Id)
-        //            .ToListAsync();
-
-        //        var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
-        //        if (invalidIds.Any())
-        //        {
-        //            throw new AuthorDoesntExistException("One or more selected authors are invalid.");
-        //        }
-        //    }
-
-        //    try
-        //    {
-        //        var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
-
-        //        // Remove unselected authors
-        //        var toRemove = bookEntity.BooksAuthors
-        //            .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
-        //            .ToList();
-
-        //        dbContext.BooksAuthors.RemoveRange(toRemove);
-
-        //        // Add newly selected authors
-        //        var toAdd = newAuthorIds
-        //            .Except(existingAuthorIds)
-        //            .Select(authorId => new BookAuthor
-        //            {
-        //                BookId = bookEntity.Id,
-        //                AuthorId = authorId
-        //            });
-
-        //        await dbContext.BooksAuthors.AddRangeAsync(toAdd);
-        //        await dbContext.SaveChangesAsync();
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
-        //    }
-        //}
+        public async Task EditBookDtoAsync(BookEditDto inputModel, Guid userId)
+        {
+            var book = MapBookEditDtoToBook(inputModel);
+            await bookRepository.EditBookAsync(book, userId);
+        }
 
         //public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId)
         //{
@@ -392,6 +297,42 @@ namespace OnlineLibrary.Services.Core
                 Id = book.Id,
                 Title = book.Title,
                 CoverUrl = book.CoverUrl ?? string.Empty
+            };
+        }
+
+        private static Book MapBookEditDtoToBook(BookEditDto bookEditDto)
+        {
+            return new Book
+            {
+                Id = bookEditDto.Id,
+                Title = bookEditDto.Title,
+                Description = bookEditDto.Description,
+                Genre = bookEditDto.Genre,
+                IsRead = bookEditDto.IsRead,
+                DateRead = bookEditDto.DateRead,
+                Rating = bookEditDto.Rating,
+                CoverUrl = bookEditDto.CoverUrl,
+                DateAdded = bookEditDto.DateAdded,
+                PublisherId = bookEditDto.PublisherId,
+                AuthorIds = bookEditDto.AuthorIds
+            };
+        }
+
+        private static BookEditDto MapBookToBookEditDto(Book book)
+        {
+            return new BookEditDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Description = book.Description,
+                Genre = book.Genre,
+                IsRead = book.IsRead,
+                DateRead = book.DateRead,
+                Rating = book.Rating,
+                CoverUrl = book.CoverUrl,
+                DateAdded = book.DateAdded,
+                PublisherId = book.PublisherId,
+                AuthorIds = book.BooksAuthors.Select(ba => ba.AuthorId).ToList()
             };
         }
     }
