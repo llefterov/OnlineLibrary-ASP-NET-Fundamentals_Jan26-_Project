@@ -7,7 +7,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync();
         Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id);
 
-        PublisherAddDto GetEmptyPublisherViewModelAsync();
+        PublisherAddDto GetEmptyPublisherViewModel();
 
         Task AddNewPublisherAsync(PublisherAddDto model);
 

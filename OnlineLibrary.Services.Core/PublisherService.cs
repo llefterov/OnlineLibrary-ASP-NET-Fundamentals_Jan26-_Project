@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
+using static OnlineLibrary.GCommon.ApplicationConstants;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Data.Repository.Contracts;
@@ -54,7 +55,7 @@ namespace OnlineLibrary.Services.Core
                         Title = b.Title,
                         CoverUrl = b.CoverUrl ?? string.Empty,
                         Rating = b.Rating,
-                        DateAdded = b.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                        DateAdded = b.DateAdded.ToString(DateTimeFormat),
                         GenreName = b.Genre.ToString(),
                         AuthorsName = string.Join(", ", b.BooksAuthors.Select(ba => ba.Author.FullName)),
                         Description = b.Description

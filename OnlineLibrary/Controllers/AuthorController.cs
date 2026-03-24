@@ -205,13 +205,7 @@ namespace OnlineLibrary.Web.Controllers
             try
             {
                 var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
-
-                var authorToDelete = new AuthorDeleteViewModel
-                {
-                    Id = authorToDeleteDto.Id,
-                    FullName = authorToDeleteDto.FullName,
-                    BooksAuthors = authorToDeleteDto.BooksAuthors
-                };
+                var authorToDelete = MapAuthorDeleteViewModel(authorToDeleteDto);
 
                 return View(authorToDelete);
             }
@@ -246,14 +240,32 @@ namespace OnlineLibrary.Web.Controllers
             {
                 logger.LogWarning(ex, "Attempt to delete author with id {AuthorId} that has associated books.", id);
                 ModelState.AddModelError(string.Empty, "Cannot delete an author that has associated books. Please remove the associations first.");
-                return View("Delete", await authorService.GetAuthorNewDeleteDetailsAsync(id));
+
+                var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
+                var authorToDelete = MapAuthorDeleteViewModel(authorToDeleteDto);
+
+                return View("Delete", authorToDelete);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Unexpected error while deleting author with id {AuthorId}.", id);
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the author. Please contact support.");
-                return View("Delete", await authorService.GetAuthorNewDeleteDetailsAsync(id));
+
+                var authorToDeleteDto = await authorService.GetAuthorNewDeleteDetailsAsync(id);
+                var authorToDelete = MapAuthorDeleteViewModel(authorToDeleteDto);
+
+                return View("Delete", authorToDelete);
             }
+        }
+
+        private static AuthorDeleteViewModel MapAuthorDeleteViewModel(AuthorDeleteDto authorToDeleteDto)
+        {
+            return new AuthorDeleteViewModel
+            {
+                Id = authorToDeleteDto.Id,
+                FullName = authorToDeleteDto.FullName,
+                BooksAuthors = authorToDeleteDto.BooksAuthors
+            };
         }
     }
 }
