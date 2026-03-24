@@ -1,15 +1,10 @@
 ﻿using OnlineLibrary.Data.Models;
-using OnlineLibrary.Services.Models.Book;
-using OnlineLibrary.Web.ViewModels.Books;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace OnlineLibrary.Services.Core.Interfaces
+namespace OnlineLibrary.Data.Repository.Contracts
 {
-    public interface IBooksService
+    public interface IBookRepository
     {
-        Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId);
-        Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
+        Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId);
 
         //Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
 
@@ -31,8 +26,10 @@ namespace OnlineLibrary.Services.Core.Interfaces
         //Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId);
         //Task EditBookAsync(BookEditViewModel model, Guid userId);
 
-        //Task<BookDeleteViewModel>GetBookDeleteDetailsAsync(Guid id, Guid userId);
+        //Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId);
 
         //Task DeleteBookAsync(Guid id, Guid userId);
+
+
     }
 }

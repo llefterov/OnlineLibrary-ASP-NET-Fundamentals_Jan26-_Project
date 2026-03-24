@@ -1,7 +1,7 @@
 using OnlineLibrary.Data.Models;
 using static OnlineLibrary.GCommon.ValidationConstants;
 using System.ComponentModel.DataAnnotations;
-
+using Book = OnlineLibrary.Data.Models.Book;
 
 namespace OnlineLibrary.Services.Models.Publisher
 {
@@ -14,6 +14,6 @@ namespace OnlineLibrary.Services.Models.Publisher
         [MaxLength(PublisherNameMaxLength)]
         public string Name { get; set; } = null!;
 
-        public virtual ICollection<Book> Books { get; set; } = new List<Book>();
+        public virtual ICollection<OnlineLibrary.Data.Models.Book> Books { get; set; } = new List<OnlineLibrary.Data.Models.Book>();
     }
 }

@@ -6,6 +6,7 @@ using OnlineLibrary.Services.Models.Author;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Author;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using Book = OnlineLibrary.Data.Models.Book;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -283,6 +284,15 @@ namespace OnlineLibrary.Web.Controllers
 
     }
 }
+
+
+
+
+
+
+
+
+
 
 
 
