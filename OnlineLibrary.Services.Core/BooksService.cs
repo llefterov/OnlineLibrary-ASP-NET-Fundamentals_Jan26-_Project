@@ -187,51 +187,22 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.CreateBookAsync(bookInputModel, userId);
         }
 
-        //public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
-        //{
-        //    var fevBooks = await dbContext.UsersBooks
-        //        .Where(ub => ub.UserId == userId)
-        //        .Include(ub => ub.Book)
-        //        .Select(ub => new BookFavoritesViewModel
-        //        {
-        //            Id = ub.Book.Id,
-        //            Title = ub.Book.Title,
-        //            CoverUrl = ub.Book.CoverUrl ?? string.Empty
-        //        })
-        //        .ToListAsync();
-        //    return fevBooks;
-        //}
+        public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId)
+        {
+        var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
+            var favBooksDto = favBooks.Select(MapBookToBookFavoritesDto).ToList();
+            return favBooksDto;
+        }
 
-        //public async Task SaveFevBookAsync(Guid id, Guid userId)
-        //{
-        //    if (await dbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
-        //    {
-        //        return;
-        //    }
+        public async Task SaveFevBookDtoAsync(Guid id, Guid userId)
+        {
+           await bookRepository.SaveFevBookAsync(id, userId);
+        }
 
-        //    var userBook = new UserBook
-        //    {
-        //        BookId = id,
-        //        UserId = userId
-        //    };
-
-        //    await dbContext.UsersBooks.AddAsync(userBook);
-        //    await dbContext.SaveChangesAsync();
-        //}
-
-        //public async Task RemoveFevBookAsync(Guid id, Guid userId)
-        //{
-        //    var userBook = await dbContext.UsersBooks
-        //         .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
-
-        //    if (userBook == null)
-        //    {
-        //        return;
-        //    }
-
-        //    dbContext.UsersBooks.Remove(userBook);
-        //    await dbContext.SaveChangesAsync();
-        //}
+        public async Task RemoveFevBookDtoAsync(Guid id, Guid userId)
+        {
+            await bookRepository.RemoveFevBookAsync(id, userId);
+        }
 
         //public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId)
         //{
@@ -413,6 +384,15 @@ namespace OnlineLibrary.Services.Core
 
         //    await dbContext.SaveChangesAsync();
         //}
+
+        private static BookFavoritesDto MapBookToBookFavoritesDto(Book book)
+        {
+            return new BookFavoritesDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                CoverUrl = book.CoverUrl ?? string.Empty
+            };
+        }
     }
 }
-

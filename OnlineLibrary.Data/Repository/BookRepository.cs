@@ -140,51 +140,51 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        //public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
-        //{
-        //    var fevBooks = await dbContext.UsersBooks
-        //        .Where(ub => ub.UserId == userId)
-        //        .Include(ub => ub.Book)
-        //        .Select(ub => new BookFavoritesViewModel
-        //        {
-        //            Id = ub.Book.Id,
-        //            Title = ub.Book.Title,
-        //            CoverUrl = ub.Book.CoverUrl ?? string.Empty
-        //        })
-        //        .ToListAsync();
-        //    return fevBooks;
-        //}
+        public async Task<IEnumerable<Book>> GetFavoriteBooksAsync(Guid userId)
+        {
+            var favBooks = await DbContext.UsersBooks
+                .Where(ub => ub.UserId == userId)
+                .Include(ub => ub.Book)
+                .Select(ub => new Book
+                {
+                    Id = ub.Book.Id,
+                    Title = ub.Book.Title,
+                    CoverUrl = ub.Book.CoverUrl ?? string.Empty
+                })
+                .ToListAsync();
+            return favBooks;
+        }
 
-        //public async Task SaveFevBookAsync(Guid id, Guid userId)
-        //{
-        //    if (await dbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
-        //    {
-        //        return;
-        //    }
+        public async Task SaveFevBookAsync(Guid id, Guid userId)
+        {
+            if (await DbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
+            {
+                return;
+            }
 
-        //    var userBook = new UserBook
-        //    {
-        //        BookId = id,
-        //        UserId = userId
-        //    };
+            var userBook = new UserBook
+            {
+                BookId = id,
+                UserId = userId
+            };
 
-        //    await dbContext.UsersBooks.AddAsync(userBook);
-        //    await dbContext.SaveChangesAsync();
-        //}
+            await DbContext.UsersBooks.AddAsync(userBook);
+            await DbContext.SaveChangesAsync();
+        }
 
-        //public async Task RemoveFevBookAsync(Guid id, Guid userId)
-        //{
-        //    var userBook = await dbContext.UsersBooks
-        //         .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
+        public async Task RemoveFevBookAsync(Guid id, Guid userId)
+        {
+            var userBook = await DbContext.UsersBooks
+                 .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
 
-        //    if (userBook == null)
-        //    {
-        //        return;
-        //    }
+            if (userBook == null)
+            {
+                return;
+            }
 
-        //    dbContext.UsersBooks.Remove(userBook);
-        //    await dbContext.SaveChangesAsync();
-        //}
+            DbContext.UsersBooks.Remove(userBook);
+            await DbContext.SaveChangesAsync();
+        }
 
         //public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId)
         //{

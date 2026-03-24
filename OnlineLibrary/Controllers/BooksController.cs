@@ -103,8 +103,6 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            //await AddPublishersAndAuthirsListsAsync();
-            //var modelDto = await booksService.GetBookDtoCreateViewModelAsync();
             var modelDto = MapBookCreateDto(model);
 
             try
@@ -140,51 +138,52 @@ namespace OnlineLibrary.Web.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Favorites()
-        //{
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+        [HttpGet]
+        public async Task<IActionResult> Favorites()
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    IEnumerable<BookFavoritesViewModel> models = await booksService.GetFavoriteBooksAsync(userId);
+            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId);
+            var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToViewModel);
 
-        //    return View(models);
-        //}
+            return View(bookFavoritesViewModels);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Save(Guid id)
-        //{
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> Save(Guid id)
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    await booksService.SaveFevBookAsync(id, userId);
+            await booksService.SaveFevBookDtoAsync(id, userId);
 
-        //    var referer = Request.Headers["Referer"].ToString();
-        //    if (!string.IsNullOrEmpty(referer))
-        //    {
-        //        return Redirect(referer);
-        //    }
-        //    return RedirectToAction("Index");
-        //}
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer))
+            {
+                return Redirect(referer);
+            }
+            return RedirectToAction("Index");
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Remove(Guid id)
-        //{
-        //    Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return RedirectToAction("Login", "Account");
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> Remove(Guid id)
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        //    await booksService.RemoveFevBookAsync(id, userId);
-        //    return RedirectToAction("Favorites");
-        //}
+            await booksService.RemoveFevBookDtoAsync(id, userId);
+            return RedirectToAction("Favorites");
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Edit(Guid id)
@@ -425,6 +424,16 @@ namespace OnlineLibrary.Web.Controllers
                 PublisherId = bookCreateViewModel.PublisherId,
                 AddedByUserId = bookCreateViewModel.AddedByUserId,
                 AuthorIds = bookCreateViewModel.AuthorIds
+            };
+        }
+
+        private static BookFavoritesViewModel MapBookFavoritesDtoToViewModel(BookFavoritesDto favBookDto)
+        {
+            return new BookFavoritesViewModel
+            {
+                Id = favBookDto.Id,
+                Title = favBookDto.Title,
+                CoverUrl = favBookDto.CoverUrl ?? string.Empty
             };
         }
     }

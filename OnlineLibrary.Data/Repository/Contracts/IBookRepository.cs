@@ -19,10 +19,11 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task CreateBookAsync(Book model, Guid userId);
 
-        //Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId);
-        //Task SaveFevBookAsync(Guid id, Guid userId);
+        Task<IEnumerable<Book>> GetFavoriteBooksAsync(Guid userId);
 
-        //Task RemoveFevBookAsync(Guid id, Guid userId);
+        Task SaveFevBookAsync(Guid id, Guid userId);
+
+        Task RemoveFevBookAsync(Guid id, Guid userId);
 
         //Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId);
         //Task EditBookAsync(BookEditViewModel model, Guid userId);

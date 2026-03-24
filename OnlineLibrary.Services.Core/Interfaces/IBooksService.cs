@@ -23,10 +23,10 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookCreateDto> GetBookDtoCreateViewModelAsync();
 
         Task CreateDtoBookAsync(BookCreateDto model, Guid userId);
-        //Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId);
-        //Task SaveFevBookAsync(Guid id, Guid userId);
+        Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId);
+        Task SaveFevBookDtoAsync(Guid id, Guid userId);
 
-        //Task RemoveFevBookAsync(Guid id, Guid userId);
+        Task RemoveFevBookDtoAsync(Guid id, Guid userId);
 
         //Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId);
         //Task EditBookAsync(BookEditViewModel model, Guid userId);
