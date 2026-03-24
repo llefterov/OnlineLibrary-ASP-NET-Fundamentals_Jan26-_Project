@@ -6,14 +6,14 @@ namespace OnlineLibrary.Data.Repository.Contracts
     {
         Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId);
 
-        //Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
+        Task<Book> GetBookDetailsByIdAsync(Guid id);
 
-        //// Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
-        //Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync();
+        // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
+        Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync();
 
-        //Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId);
+        Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId);
 
-        //Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId);
+        Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId);
 
         //Task<BookCreateViewModel> GetBookCreateViewModelAsync();
 

@@ -106,80 +106,58 @@ namespace OnlineLibrary.Services.Core
             return allBooksDto;
         }
 
-        //// Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.
-        //public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync()
-        //{
-        //    var publishers = await dbContext.Publishers
-        //        .OrderBy(p => p.Name)
-        //        .ToListAsync();
+        // Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.
+        public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAllAuthorsAndPublishersAsync()
+        {
+            var (publishers, authors) = await bookRepository.GetAuthorsAndPublishersAsync();
 
-        //    var authors = await dbContext.Authors
-        //        .OrderBy(a => a.FullName)
-        //        .ToListAsync();
-
-        //    return (publishers, authors);
-        //}
+            return (publishers, authors);
+        }
 
 
-        //public async Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id)
-        //{
-        //    // Load the entity with related data first (server-side)
-        //    var bookEntity = await dbContext
-        //        .Books
-        //        .Where(b => !b.IsDeleted)
-        //        .Include(b => b.Publisher)
-        //        .Include(b => b.UsersBooks)
-        //        .Include(b => b.BooksAuthors)
-        //            .ThenInclude(ba => ba.Author)
-        //        .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(b => b.Id == id);
+        public async Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id)
+        {
+            // Load the entity with related data first (server-side)
+         var bookEntity = await bookRepository.GetBookDetailsByIdAsync(id);
 
-        //    if (bookEntity == null)
-        //    {
-        //        throw new InvalidOperationException("Destination not found");
-        //    }
+            // Map to view model in-memory (safe for string.Join and enum ToString)
+            var bookDetailsDto = new BookDetailsDto
+            {
+                Id = bookEntity.Id,
+                Title = bookEntity.Title,
+                Description = bookEntity.Description,
+                Genre = bookEntity.Genre,
+                GenreName = bookEntity.Genre.ToString(),
+                IsRead = bookEntity.IsRead,
+                DateRead = bookEntity.DateRead?.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                Rating = bookEntity.Rating,
+                CoverUrl = bookEntity.CoverUrl ?? string.Empty,
+                DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                PublisherId = bookEntity.PublisherId,
+                PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
+                AuthorsName = string.Join(", ", bookEntity.BooksAuthors
+                    .Select(ba => ba.Author.FullName)),
+                AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
+                IsAddedByUser = false,
+                IsAddedToUserCollection = false
+            };
 
-        //    // Map to view model in-memory (safe for string.Join and enum ToString)
-        //    var bookDetails = new BookDetailsViewModel
-        //    {
-        //        Id = bookEntity.Id,
-        //        Title = bookEntity.Title,
-        //        Description = bookEntity.Description,
-        //        Genre = bookEntity.Genre,
-        //        GenreName = bookEntity.Genre.ToString(),
-        //        IsRead = bookEntity.IsRead,
-        //        DateRead = bookEntity.DateRead?.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-        //        Rating = bookEntity.Rating,
-        //        CoverUrl = bookEntity.CoverUrl ?? string.Empty,
-        //        DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-        //        PublisherId = bookEntity.PublisherId,
-        //        PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
-        //        AuthorsName = string.Join(", ", bookEntity.BooksAuthors
-        //            .Select(ba => ba.Author.FullName)),
-        //        AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
-        //        IsAddedByUser = false,
-        //        IsAddedToUserCollection = false
-        //    };
+            if (bookDetailsDto.IsRead == false)
+            {
+                bookDetailsDto.DateRead = null;
+            }
 
-        //    if (bookDetails.IsRead == false)
-        //    {
-        //        bookDetails.DateRead = null;
-        //    }
+            return bookDetailsDto;
+        }
 
-        //    return bookDetails;
-        //}
-
-        //public async Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId)
-        //{
-        //    return await dbContext.Books
-        //         .AnyAsync(b => b.AddedByUserId == userId && b.Id == bookId);
-        //}
-        //public async Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId)
-        //{
-        //    return await dbContext.UsersBooks
-        //        .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
-        //}
+        public async Task<bool> IsBookDtoAddedByUserAsync(Guid? userId, Guid bookId)
+        {
+            return await bookRepository.IsBookAddedByUserAsync(userId, bookId);
+        }
+        public async Task<bool> IsBookDtoAddedToUserCollectionAsync(Guid? userId, Guid bookId)
+        {
+            return await bookRepository.IsBookAddedToUserCollectionAsync(userId, bookId);
+        }
 
         //public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
         //{

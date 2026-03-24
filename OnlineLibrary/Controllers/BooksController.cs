@@ -11,6 +11,8 @@ using OnlineLibrary.Services.Models.Book;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Books;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -52,26 +54,28 @@ namespace OnlineLibrary.Web.Controllers
             return View(myBooksViewModel);
         }
 
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> Details(Guid id)
-        //{
-        //    var bookDetails = await booksService.GetBookDetailsByIdAsync(id);
-        //    if (bookDetails == null)
-        //    {
-        //        logger.LogWarning("Book with ID {BookId} not found.", id);
-        //        return RedirectToAction("All");
-        //    }
-        //    var userId = GetUserId();
-        //    var isAddedByUser = await booksService.IsBookAddedByUserAsync(userId, id);
-        //    var isAddedToUserCollection = await booksService.IsBookAddedToUserCollectionAsync(userId, id);
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var bookDetailsDto = await booksService.GetBookDtoDetailsByIdAsync(id);
+            if (bookDetailsDto == null)
+            {
+                logger.LogWarning("Book with ID {BookId} not found.", id);
+                return RedirectToAction("All");
+            }
+            var userId = GetUserId();
+            var isAddedByUser = await booksService.IsBookDtoAddedByUserAsync(userId, id);
+            var isAddedToUserCollection = await booksService.IsBookDtoAddedToUserCollectionAsync(userId, id);
 
-        //    // Assuming bookDetails has only one item since it's by ID
-        //    bookDetails.IsAddedByUser = isAddedByUser;
-        //    bookDetails.IsAddedToUserCollection = isAddedToUserCollection;
+            // Assuming bookDetails has only one item since it's by ID
+            bookDetailsDto.IsAddedByUser = isAddedByUser;
+            bookDetailsDto.IsAddedToUserCollection = isAddedToUserCollection;
 
-        //    return View(bookDetails);
-        //}
+            var bookDetails = MapBookDetailsViewModel(bookDetailsDto);
+
+            return View(bookDetails);
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Create()
@@ -347,6 +351,36 @@ namespace OnlineLibrary.Web.Controllers
                 IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection // Assuming this is already set correctly in the DTO
             };
 
+        }
+
+        private static BookDetailsViewModel MapBookDetailsViewModel(BookDetailsDto bookDetailsDto)
+        {
+            var booksDetailsViewModel = new BookDetailsViewModel
+            {
+                Id = bookDetailsDto.Id,
+                Title = bookDetailsDto.Title,
+                Description = bookDetailsDto.Description,
+                Genre = bookDetailsDto.Genre,
+                GenreName = bookDetailsDto.GenreName,
+                IsRead = bookDetailsDto.IsRead,
+                DateRead = bookDetailsDto.DateRead,
+                Rating = bookDetailsDto.Rating,
+                CoverUrl = bookDetailsDto.CoverUrl ?? string.Empty,
+                DateAdded = bookDetailsDto.DateAdded,
+                PublisherId = bookDetailsDto.PublisherId,
+                PublisherName = bookDetailsDto.PublisherName,
+                AuthorsName = bookDetailsDto.AuthorsName,
+                AddedByUserName = bookDetailsDto.AddedByUserName, // safe access
+                IsAddedByUser = bookDetailsDto.IsAddedByUser,
+                IsAddedToUserCollection = bookDetailsDto.IsAddedToUserCollection
+            };
+
+            if (bookDetailsDto.IsRead == false)
+            {
+                bookDetailsDto.DateRead = null;
+            }
+
+            return booksDetailsViewModel;
         }
 
 

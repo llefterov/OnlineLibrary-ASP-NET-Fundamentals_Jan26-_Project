@@ -11,14 +11,14 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId);
         Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
 
-        //Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id);
+        Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id);
 
-        //// Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
-        //Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync();
+        // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
+        Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAllAuthorsAndPublishersAsync();
 
-        //Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId);
+        Task<bool> IsBookDtoAddedByUserAsync(Guid? userId, Guid bookId);
 
-        //Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId);
+        Task<bool> IsBookDtoAddedToUserCollectionAsync(Guid? userId, Guid bookId);
 
         //Task<BookCreateViewModel> GetBookCreateViewModelAsync();
 
