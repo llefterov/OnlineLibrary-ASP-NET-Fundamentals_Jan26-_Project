@@ -77,61 +77,68 @@ namespace OnlineLibrary.Web.Controllers
             return View(bookDetails);
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Create()
-        //{
-        //    await AddPublishersAndAuthirsListsAsync();
-        //    var model = await booksService.GetBookCreateViewModelAsync();
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            await AddPublishersAndAuthirsListsAsync();
+            var modelDto = await booksService.GetBookDtoCreateViewModelAsync();
+            var model = MapBookCreateViewModel(modelDto);
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create(BookCreateViewModel model)
-        //{
-        //    await AddPublishersAndAuthirsListsAsync();
+        [HttpPost]
+        public async Task<IActionResult> Create(BookCreateViewModel model)
+        {
+            await AddPublishersAndAuthirsListsAsync();
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-        //        Guid userId = GetUserId();
-        //    if (userId == Guid.Empty)
-        //    {
-        //        return View();
-        //    }
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return View();
+            }
 
-        //    try
-        //    {
-        //        await booksService.CreateBookAsync(model, userId);
-        //        return RedirectToAction("All");
-        //    }
-        //    catch (PublisherDoesntExistException ex)
-        //    {
-        //        logger.LogWarning(ex, "Selected publisher does not exist.");
-        //        ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
-        //        return View(model);
-        //    }
-        //    catch (AuthorDoesntExistException ex)
-        //    {
-        //        logger.LogWarning(ex, "One or more selected authors are invalid.");
-        //        ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
-        //        return View(model);
-        //    }
-        //    catch (InvalidOperationException ex) // expected/validation errors from service
-        //    {
-        //        logger.LogWarning(ex, "Validation while creating book");
-        //        ModelState.AddModelError(string.Empty, ex.Message);
-        //        return View(model);
-        //    }
-        //    catch (Exception ex) // unexpected
-        //    {
-        //        logger.LogError(ex, "Unexpected error while creating book");
-        //        ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
-        //        return View(model);
-        //    }
-        //}
+            //await AddPublishersAndAuthirsListsAsync();
+            //var modelDto = await booksService.GetBookDtoCreateViewModelAsync();
+            var modelDto = MapBookCreateDto(model);
+
+            try
+            {
+                await AddPublishersAndAuthirsListsAsync();
+
+                await booksService.CreateDtoBookAsync(modelDto, userId);
+                return RedirectToAction("All");
+            }
+            catch (PublisherDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "Selected publisher does not exist.");
+                ModelState.AddModelError(nameof(model.PublisherId), "Selected publisher does not exist.");
+                return View(model);
+            }
+            catch (AuthorDoesntExistException ex)
+            {
+                logger.LogWarning(ex, "One or more selected authors are invalid.");
+                ModelState.AddModelError(nameof(model.AuthorIds), "One or more selected authors are invalid.");
+                return View(model);
+            }
+            catch (InvalidOperationException ex) // expected/validation errors from service
+            {
+                logger.LogWarning(ex, "Validation while creating book");
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+            catch (Exception ex) // unexpected
+            {
+                logger.LogError(ex, "Unexpected error while creating book");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+                return View(model);
+            }
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Favorites()
@@ -327,12 +334,12 @@ namespace OnlineLibrary.Web.Controllers
         //    return RedirectToAction("MyBooks");
         //}
 
-        //private async Task AddPublishersAndAuthirsListsAsync()
-        //{
-        //    var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
-        //    ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
-        //    ViewBag.Authors = new SelectList(authors, "Id", "FullName");
-        //}
+        private async Task AddPublishersAndAuthirsListsAsync()
+        {
+            var (publishers, authors) = await booksService.GetAllAuthorsAndPublishersAsync();
+            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
+            ViewBag.Authors = new SelectList(authors, "Id", "FullName");
+        }
 
         private static BooksAllViewModel MapBookAllViewModel(BookAllDto booksAllDto)
         {
@@ -383,6 +390,42 @@ namespace OnlineLibrary.Web.Controllers
             return booksDetailsViewModel;
         }
 
+        private static BookCreateViewModel MapBookCreateViewModel(BookCreateDto bookCreateDto)
+        {
+            return new BookCreateViewModel
+            {
+                Title = bookCreateDto.Title,
+                Description = bookCreateDto.Description,
+                Genre = bookCreateDto.Genre,
+                IsRead = bookCreateDto.IsRead,
+                DateRead = bookCreateDto.DateRead,
+                Rating = bookCreateDto.Rating,
+                CoverUrl = bookCreateDto.CoverUrl,
+                DateAdded = bookCreateDto.DateAdded,
+                PublisherId = bookCreateDto.PublisherId,
+                AddedByUserId = bookCreateDto.AddedByUserId,
+                AuthorIds = bookCreateDto.AuthorIds
+            };
+        }
 
+
+
+        private static BookCreateDto MapBookCreateDto(BookCreateViewModel bookCreateViewModel)
+        {
+            return new BookCreateDto
+            {
+                Title = bookCreateViewModel.Title,
+                Description = bookCreateViewModel.Description,
+                Genre = bookCreateViewModel.Genre,
+                IsRead = bookCreateViewModel.IsRead,
+                DateRead = bookCreateViewModel.DateRead,
+                Rating = bookCreateViewModel.Rating,
+                CoverUrl = bookCreateViewModel.CoverUrl,
+                DateAdded = bookCreateViewModel.DateAdded,
+                PublisherId = bookCreateViewModel.PublisherId,
+                AddedByUserId = bookCreateViewModel.AddedByUserId,
+                AuthorIds = bookCreateViewModel.AuthorIds
+            };
+        }
     }
 }

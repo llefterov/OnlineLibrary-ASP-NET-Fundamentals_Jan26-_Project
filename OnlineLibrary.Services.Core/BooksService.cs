@@ -159,79 +159,33 @@ namespace OnlineLibrary.Services.Core
             return await bookRepository.IsBookAddedToUserCollectionAsync(userId, bookId);
         }
 
-        //public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
-        //{
-        //    await GetAuthorsAndPublishersAsync();
+        public async Task<BookCreateDto> GetBookDtoCreateViewModelAsync()
+        {
+            await GetAllAuthorsAndPublishersAsync();
 
-        //    BookCreateViewModel createModel = new BookCreateViewModel();
+            BookCreateDto createModel = new BookCreateDto();
+            return createModel;
+        }
 
-        //    return createModel;
-        //}
+        public async Task CreateDtoBookAsync(BookCreateDto inputModel, Guid userId)
+        {
+            var bookInputModel = new Book
+            {
+                Title = inputModel.Title,
+                Description = inputModel.Description,
+                Genre = inputModel.Genre,
+                IsRead = inputModel.IsRead,
+                DateRead = inputModel.DateRead,
+                Rating = inputModel.Rating,
+                CoverUrl = inputModel.CoverUrl ?? string.Empty,
+                DateAdded = inputModel.DateAdded,
+                PublisherId = inputModel.PublisherId,
+                AddedByUserId = userId,
+                IsDeleted = false
+            };
 
-        //public async Task CreateBookAsync(BookCreateViewModel inputModel, Guid userId)
-        //{
-        //    // Validate publisher exists
-        //    if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
-        //    {
-        //        throw new PublisherDoesntExistException("Selected publisher does not exist.");
-        //    }
-
-        //    // Validate provided author ids (if any) before creating the book to avoid FK errors
-        //    if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-        //    {
-        //        var validAuthorIds = await dbContext.Authors
-        //            .Where(a => inputModel.AuthorIds.Contains(a.Id))
-        //            .Select(a => a.Id)
-        //            .ToListAsync();
-
-        //        var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
-        //        if (invalidIds.Any())
-        //        {
-        //            throw new AuthorDoesntExistException("One or more selected authors are invalid.");
-        //        }
-        //    }
-
-        //    var book = new Book
-        //    {
-        //        Title = inputModel.Title,
-        //        Description = inputModel.Description,
-        //        Genre = inputModel.Genre,
-        //        IsRead = inputModel.IsRead,
-        //        DateRead = inputModel.DateRead,
-        //        Rating = inputModel.Rating,
-        //        CoverUrl = inputModel.CoverUrl ?? string.Empty,
-        //        DateAdded = inputModel.DateAdded,
-        //        PublisherId = inputModel.PublisherId,
-        //        AddedByUserId = userId,
-        //        IsDeleted = false
-        //    };
-
-        //    try
-        //    {
-        //        // Save book first so the DB generates Id
-        //        await dbContext.Books.AddAsync(book);
-        //        await dbContext.SaveChangesAsync(); // book.Id populated
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
-        //    }
-
-        //    // Create BookAuthor records linking saved book to selected authors
-        //    if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-        //    {
-        //        var bookAuthors = inputModel.AuthorIds
-        //               .Select(autorId => new BookAuthor
-        //               {
-        //                   AuthorId = autorId,
-        //                   BookId = book.Id
-        //               })
-        //               .ToList();
-
-        //        await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
-        //        await dbContext.SaveChangesAsync();
-        //    }
-        //}
+            await bookRepository.CreateBookAsync(bookInputModel, userId);
+        }
 
         //public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
         //{

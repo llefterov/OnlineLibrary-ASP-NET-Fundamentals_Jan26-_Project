@@ -15,9 +15,10 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId);
 
-        //Task<BookCreateViewModel> GetBookCreateViewModelAsync();
+        Task<Book> GetBookCreateViewModelAsync();
 
-        //Task CreateBookAsync(BookCreateViewModel model, Guid userId);
+        Task CreateBookAsync(Book model, Guid userId);
+
         //Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId);
         //Task SaveFevBookAsync(Guid id, Guid userId);
 

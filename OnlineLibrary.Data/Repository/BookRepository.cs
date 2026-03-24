@@ -1,6 +1,8 @@
 ﻿using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using Microsoft.EntityFrameworkCore;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
+using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 
 namespace OnlineLibrary.Data.Repository
 {
@@ -62,34 +64,7 @@ namespace OnlineLibrary.Data.Repository
             {
                 throw new InvalidOperationException("Book not found");
             }
-
-            //// Map to view model in-memory (safe for string.Join and enum ToString)
-            //var bookDetails = new BookDetailsViewModel
-            //{
-            //    Id = bookEntity.Id,
-            //    Title = bookEntity.Title,
-            //    Description = bookEntity.Description,
-            //    Genre = bookEntity.Genre,
-            //    GenreName = bookEntity.Genre.ToString(),
-            //    IsRead = bookEntity.IsRead,
-            //    DateRead = bookEntity.DateRead?.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-            //    Rating = bookEntity.Rating,
-            //    CoverUrl = bookEntity.CoverUrl ?? string.Empty,
-            //    DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
-            //    PublisherId = bookEntity.PublisherId,
-            //    PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
-            //    AuthorsName = string.Join(", ", bookEntity.BooksAuthors
-            //        .Select(ba => ba.Author.FullName)),
-            //    AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
-            //    IsAddedByUser = false,
-            //    IsAddedToUserCollection = false
-            //};
-
-            //if (bookDetails.IsRead == false)
-            //{
-            //    bookDetails.DateRead = null;
-            //}
-
+        
             return bookEntity;
         }
 
@@ -104,79 +79,66 @@ namespace OnlineLibrary.Data.Repository
                 .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
         }
 
-        //public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
-        //{
-        //    await GetAuthorsAndPublishersAsync();
+        public async Task<Book> GetBookCreateViewModelAsync()
+        {
+            await GetAuthorsAndPublishersAsync();
 
-        //    BookCreateViewModel createModel = new BookCreateViewModel();
+            Book newBook = new Book();
 
-        //    return createModel;
-        //}
+            return newBook;
+            ;
+        }
 
-        //public async Task CreateBookAsync(BookCreateViewModel inputModel, Guid userId)
-        //{
-        //    // Validate publisher exists
-        //    if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
-        //    {
-        //        throw new PublisherDoesntExistException("Selected publisher does not exist.");
-        //    }
+        public async Task CreateBookAsync(Book inputModel, Guid userId)
+        {
+            // Validate publisher exists
+            if (!await DbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
+            {
+                throw new PublisherDoesntExistException("Selected publisher does not exist.");
+            }
 
-        //    // Validate provided author ids (if any) before creating the book to avoid FK errors
-        //    if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-        //    {
-        //        var validAuthorIds = await dbContext.Authors
-        //            .Where(a => inputModel.AuthorIds.Contains(a.Id))
-        //            .Select(a => a.Id)
-        //            .ToListAsync();
+            // Validate provided author ids (if any) before creating the book to avoid FK errors
+            if (inputModel.BooksAuthors?.Any() == true)
+            {
+                var authorIds = inputModel.BooksAuthors.Select(ba => ba.AuthorId).ToList();
+                var validAuthorIds = await DbContext.Authors
+                    .Where(a => authorIds.Contains(a.Id))
+                    .Select(a => a.Id)
+                    .ToListAsync();
 
-        //        var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
-        //        if (invalidIds.Any())
-        //        {
-        //            throw new AuthorDoesntExistException("One or more selected authors are invalid.");
-        //        }
-        //    }
+                var invalidIds = authorIds.Except(validAuthorIds).ToList();
+                if (invalidIds.Any())
+                {
+                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
+                }
+            }
 
-        //    var book = new Book
-        //    {
-        //        Title = inputModel.Title,
-        //        Description = inputModel.Description,
-        //        Genre = inputModel.Genre,
-        //        IsRead = inputModel.IsRead,
-        //        DateRead = inputModel.DateRead,
-        //        Rating = inputModel.Rating,
-        //        CoverUrl = inputModel.CoverUrl ?? string.Empty,
-        //        DateAdded = inputModel.DateAdded,
-        //        PublisherId = inputModel.PublisherId,
-        //        AddedByUserId = userId,
-        //        IsDeleted = false
-        //    };
+            try
+            {
+                // Save book first so the DB generates Id
+                await DbContext.Books.AddAsync(inputModel);
+                await DbContext.SaveChangesAsync(); // inputModel.Id populated
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
+            }
 
-        //    try
-        //    {
-        //        // Save book first so the DB generates Id
-        //        await dbContext.Books.AddAsync(book);
-        //        await dbContext.SaveChangesAsync(); // book.Id populated
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
-        //    }
+            // Create BookAuthor records linking saved book to selected authors
+            if (inputModel.BooksAuthors?.Any() == true)
+            {
+                var bookAuthors = inputModel.BooksAuthors
+                       .Select(ba => new BookAuthor
+                       {
+                           AuthorId = ba.AuthorId,
+                           BookId = inputModel.Id
+                       })
+                       .ToList();
 
-        //    // Create BookAuthor records linking saved book to selected authors
-        //    if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-        //    {
-        //        var bookAuthors = inputModel.AuthorIds
-        //               .Select(autorId => new BookAuthor
-        //               {
-        //                   AuthorId = autorId,
-        //                   BookId = book.Id
-        //               })
-        //               .ToList();
-
-        //        await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
-        //        await dbContext.SaveChangesAsync();
-        //    }
-        //}
+                await DbContext.BooksAuthors.AddRangeAsync(bookAuthors);
+                await DbContext.SaveChangesAsync();
+            }
+        }
 
         //public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
         //{

@@ -20,9 +20,9 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task<bool> IsBookDtoAddedToUserCollectionAsync(Guid? userId, Guid bookId);
 
-        //Task<BookCreateViewModel> GetBookCreateViewModelAsync();
+        Task<BookCreateDto> GetBookDtoCreateViewModelAsync();
 
-        //Task CreateBookAsync(BookCreateViewModel model, Guid userId);
+        Task CreateDtoBookAsync(BookCreateDto model, Guid userId);
         //Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId);
         //Task SaveFevBookAsync(Guid id, Guid userId);
 
