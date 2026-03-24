@@ -1,8 +1,8 @@
-﻿using OnlineLibrary.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
-using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
+using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 
 namespace OnlineLibrary.Data.Repository
 {
@@ -11,7 +11,7 @@ namespace OnlineLibrary.Data.Repository
 
         public BookRepository(OnlineLibraryDbContext dbContext) : base(dbContext)
         {
-            
+
         }
 
         public async Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId)
@@ -26,7 +26,7 @@ namespace OnlineLibrary.Data.Repository
                 .Include(b => b.AddedByUser) // ensure username is loaded
                 .AsNoTracking()
                 .ToListAsync();
-           
+
             return allBooks;
         }
 
@@ -64,7 +64,7 @@ namespace OnlineLibrary.Data.Repository
             {
                 throw new InvalidOperationException("Book not found");
             }
-        
+
             return bookEntity;
         }
 

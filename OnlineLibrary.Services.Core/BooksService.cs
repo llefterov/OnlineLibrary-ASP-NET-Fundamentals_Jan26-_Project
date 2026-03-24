@@ -1,19 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data;
-using OnlineLibrary.Data.Models;
+﻿using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
-using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
-using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Services.Models.Book;
-using OnlineLibrary.Web.ViewModels.Books;
-using static OnlineLibrary.Services.CustomMappers.BookMappers;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using static OnlineLibrary.GCommon.ApplicationConstants;
+using static OnlineLibrary.Services.CustomMappers.BookMappers;
 
 namespace OnlineLibrary.Services.Core
 {

@@ -1,8 +1,5 @@
 ﻿using OnlineLibrary.Data.Models;
 using OnlineLibrary.Services.Models.Book;
-using OnlineLibrary.Web.ViewModels.Books;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {
@@ -31,7 +28,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId);
         Task EditBookDtoAsync(BookEditDto model, Guid userId);
 
-        Task<BookDeleteDto>GetBookDeleteDetailsDtoAsync(Guid id, Guid userId);
+        Task<BookDeleteDto> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId);
 
         Task DeleteBookDtoAsync(Guid id, Guid userId);
     }

@@ -1,19 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data.Models;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
-using OnlineLibrary.Services.Models.Book;
-using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Books;
-using OnlineLibrary.Web.ViewModels.Publisher;
 using static OnlineLibrary.Services.CustomMappers.BookMappers;
-using System.Globalization;
-using System.Runtime.Serialization;
 
 namespace OnlineLibrary.Web.Controllers
 {
