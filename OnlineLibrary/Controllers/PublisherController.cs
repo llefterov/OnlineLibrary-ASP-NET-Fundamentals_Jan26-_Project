@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
+using static OnlineLibrary.Services.CustomMappers.PublisherMappers;
 using OnlineLibrary.Services.Models.Author;
 using OnlineLibrary.Services.Models.Publisher;
 using OnlineLibrary.Web.ViewModels.Author;
 using OnlineLibrary.Web.ViewModels.Publisher;
+using Book = OnlineLibrary.Data.Models.Book;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -213,7 +215,7 @@ namespace OnlineLibrary.Web.Controllers
             {
 
                 var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
-                var publisherToDelete = MapPublisherDeleteViewModel(publisherDTo);
+                var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
                 return View(publisherToDelete);
             }
             catch (PublisherDoesntExistException)
@@ -252,7 +254,7 @@ namespace OnlineLibrary.Web.Controllers
                 ModelState.AddModelError(string.Empty, "Cannot delete a publisher that has associated books. Please remove the associations first.");
 
                 var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
-                var publisherToDelete = MapPublisherDeleteViewModel(publisherDTo);
+                var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
 
                 return View("Delete", publisherToDelete);
             }
@@ -261,29 +263,11 @@ namespace OnlineLibrary.Web.Controllers
                 logger.LogError(ex, "Unexpected error while deleting publisher with id {PublisherId}.", id);
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the publisher. Please contact support.");
                 var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
-                var publisherToDelete = MapPublisherDeleteViewModel(publisherDTo);
+                var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
 
                 return View("Delete", publisherToDelete);
             }
-           
          }
-
-        private static PublisherDeleteViewModel MapPublisherDeleteViewModel(PublisherDeleteDto publisherToDeleteDto)
-        {
-            return new PublisherDeleteViewModel
-            {
-                Id = publisherToDeleteDto.Id,
-                Name = publisherToDeleteDto.Name,
-                Books = publisherToDeleteDto.Books
-            };
-        }
-
-
-
-
     }
 }
-
-
-
 

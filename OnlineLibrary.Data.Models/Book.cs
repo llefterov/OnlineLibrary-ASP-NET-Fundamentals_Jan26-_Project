@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using static OnlineLibrary.GCommon.ValidationConstants;
 
@@ -59,6 +60,14 @@ namespace OnlineLibrary.Data.Models
         public virtual ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
 
         public virtual ICollection<UserBook> UsersBooks { get; set; } = new HashSet<UserBook>();
+
+        // This property is not mapped to the database and is used to hold the list of AuthorIds when creating or editing a book.
+        [NotMapped]
+        public List<Guid>? AuthorIds { get; set; }
+
+        // This property is not mapped to the database and is used to display the username of the user who added the book.
+        [NotMapped]
+        public string? AddedByUserName { get; set; }
     }
 
     public enum BookGenre

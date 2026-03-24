@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Web.ViewModels.Books;
+using static OnlineLibrary.Services.CustomMappers.BookMappers;
 
 namespace OnlineLibrary.Web.Controllers
 {
@@ -25,9 +25,10 @@ namespace OnlineLibrary.Web.Controllers
         {
             var userId = GetUserId();
 
-            var allBooks = await booksService.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId);
+            var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
-            return View(allBooks);
+            return View(allBooksViewModel);
         }
 
         [HttpGet]
@@ -40,28 +41,31 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            var myBooks = await booksService.GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+            var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
-            return View(myBooks);
+            return View(myBooksViewModel);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
-            var bookDetails = await booksService.GetBookDetailsByIdAsync(id);
-            if (bookDetails == null)
+            var bookDetailsDto = await booksService.GetBookDtoDetailsByIdAsync(id);
+            if (bookDetailsDto == null)
             {
                 logger.LogWarning("Book with ID {BookId} not found.", id);
                 return RedirectToAction("All");
             }
             var userId = GetUserId();
-            var isAddedByUser = await booksService.IsBookAddedByUserAsync(userId, id);
-            var isAddedToUserCollection = await booksService.IsBookAddedToUserCollectionAsync(userId, id);
+            var isAddedByUser = await booksService.IsBookDtoAddedByUserAsync(userId, id);
+            var isAddedToUserCollection = await booksService.IsBookDtoAddedToUserCollectionAsync(userId, id);
 
             // Assuming bookDetails has only one item since it's by ID
-            bookDetails.IsAddedByUser = isAddedByUser;
-            bookDetails.IsAddedToUserCollection = isAddedToUserCollection;
+            bookDetailsDto.IsAddedByUser = isAddedByUser;
+            bookDetailsDto.IsAddedToUserCollection = isAddedToUserCollection;
+
+            var bookDetails = MapBookDetailsDtoToBookDetailsViewModel(bookDetailsDto);
 
             return View(bookDetails);
         }
@@ -70,7 +74,8 @@ namespace OnlineLibrary.Web.Controllers
         public async Task<IActionResult> Create()
         {
             await AddPublishersAndAuthirsListsAsync();
-            var model = await booksService.GetBookCreateViewModelAsync();
+            var modelDto = await booksService.GetBookDtoCreateViewModelAsync();
+            var model = MapBookCreateDtoToBookCreateViewModel(modelDto);
 
             return View(model);
         }
@@ -85,15 +90,19 @@ namespace OnlineLibrary.Web.Controllers
                 return View(model);
             }
 
-                Guid userId = GetUserId();
+            Guid userId = GetUserId();
             if (userId == Guid.Empty)
             {
                 return View();
             }
 
+            var modelDto = MapBookCreateViewModelToBookCreateDto(model);
+
             try
             {
-                await booksService.CreateBookAsync(model, userId);
+                await AddPublishersAndAuthirsListsAsync();
+
+                await booksService.CreateDtoBookAsync(modelDto, userId);
                 return RedirectToAction("All");
             }
             catch (PublisherDoesntExistException ex)
@@ -131,9 +140,10 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            IEnumerable<BookFavoritesViewModel> models = await booksService.GetFavoriteBooksAsync(userId);
+            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId);
+            var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToBookFavoritesViewModel);
 
-            return View(models);
+            return View(bookFavoritesViewModels);
         }
 
         [HttpPost]
@@ -145,7 +155,7 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            await booksService.SaveFevBookAsync(id, userId);
+            await booksService.SaveFevBookDtoAsync(id, userId);
 
             var referer = Request.Headers["Referer"].ToString();
             if (!string.IsNullOrEmpty(referer))
@@ -164,7 +174,7 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            await booksService.RemoveFevBookAsync(id, userId);
+            await booksService.RemoveFevBookDtoAsync(id, userId);
             return RedirectToAction("Favorites");
         }
 
@@ -181,7 +191,13 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                var model = await booksService.GetBookForEditAsync(id, userId);
+                var modelDto = await booksService.GetBookForEditDtoAsync(id, userId);
+                var model = MapBookEditDtoToBookEditViewModel(modelDto);
+
+                if (model == null)
+                {
+                    return NotFound();
+                }
 
                 return View(model);
             }
@@ -216,9 +232,12 @@ namespace OnlineLibrary.Web.Controllers
                 return View(model);
             }
 
+            var modelDto = MapBookEditViewModelToBookEditDto(model);
+
             try
             {
-                await booksService.EditBookAsync(model, userId);
+
+                await booksService.EditBookDtoAsync(modelDto, userId);
             }
             catch (PublisherDoesntExistException ex)
             {
@@ -259,13 +278,15 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var book = await booksService.GetBookDeleteDetailsAsync(id, userId);
+            var bookDeleteDto = await booksService.GetBookDeleteDetailsDtoAsync(id, userId);
 
             // Preserve the returnUrl so the POST can redirect back to the previous page
             var referer = Request.Headers["Referer"].ToString();
             ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
 
-            return View(book);
+            var bookViewModel = MapBookDeleteDtoToBookDeleteViewModel(bookDeleteDto);
+
+            return View(bookViewModel);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -280,7 +301,7 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await booksService.DeleteBookAsync(id, userId);
+                await booksService.DeleteBookDtoAsync(id, userId);
             }
             catch (UnauthorizedAccessException)
             {
@@ -318,7 +339,7 @@ namespace OnlineLibrary.Web.Controllers
 
         private async Task AddPublishersAndAuthirsListsAsync()
         {
-            var (publishers, authors) = await booksService.GetAuthorsAndPublishersAsync();
+            var (publishers, authors) = await booksService.GetAllAuthorsAndPublishersAsync();
             ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
             ViewBag.Authors = new SelectList(authors, "Id", "FullName");
         }

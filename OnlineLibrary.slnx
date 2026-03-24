@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/Services/">
     <Project Path="OnlineLibrary.Services.Core/OnlineLibrary.Services.Core.csproj" />
+    <Project Path="OnlineLibrary.Services.CustomMappers/OnlineLibrary.Services.CustomMappers.csproj" Id="994cb7fc-6479-4451-b9b3-82de2d223e87" />
     <Project Path="OnlineLibrary.Services.Models/OnlineLibrary.Services.Models.csproj" Id="33e75eeb-38c7-44b2-8fa5-7845b15092eb" />
   </Folder>
   <Folder Name="/Web/">

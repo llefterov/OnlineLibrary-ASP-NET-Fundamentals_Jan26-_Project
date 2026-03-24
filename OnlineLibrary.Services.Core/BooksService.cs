@@ -1,39 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Data;
-using OnlineLibrary.Data.Models;
-using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
-using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
+﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.Services.Core.Interfaces;
-using OnlineLibrary.Web.ViewModels.Books;
-using System;
-using System.Collections.Generic;
+using OnlineLibrary.Services.Models.Book;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using static OnlineLibrary.GCommon.ApplicationConstants;
+using static OnlineLibrary.Services.CustomMappers.BookMappers;
 
 namespace OnlineLibrary.Services.Core
 {
     public class BooksService : IBooksService
     {
-        private readonly OnlineLibraryDbContext dbContext;
-        public BooksService(OnlineLibraryDbContext dbContext)
+        private readonly IBookRepository bookRepository;
+        public BooksService(IBookRepository bookRepository)
         {
-            this.dbContext = dbContext;
+            this.bookRepository = bookRepository;
         }
 
 
 
-        public async Task<IEnumerable<BooksAllViewModel>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId)
+        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId)
         {
-            var allBooks = await dbContext.Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.UsersBooks)
-                .Include(b => b.Publisher)
-                .Include(b => b.BooksAuthors)
-                    .ThenInclude(ba => ba.Author)
-                .Include(b => b.AddedByUser) // ensure username is loaded
-                .AsNoTracking()
+            var allBooks = await bookRepository.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+
+            var allBooksDto = allBooks
                 .Select(b => new
                 {
                     b.Id,
@@ -49,7 +38,7 @@ namespace OnlineLibrary.Services.Core
                 })
                 .OrderBy(b => b.Title)
                 .ThenBy(b => b.Genre)
-                .Select(b => new BooksAllViewModel
+                .Select(b => new BookAllDto
                 {
                     Id = b.Id,
                     Title = b.Title,
@@ -63,21 +52,17 @@ namespace OnlineLibrary.Services.Core
                     IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
                     IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                 })
-                .ToListAsync();
+                .ToList();
 
-            return allBooks;
+            return allBooksDto;
         }
 
-        public async Task<IEnumerable<BooksAllViewModel>> GetBooksCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId)
+        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId)
         {
-            var allBooks = await dbContext.Books
-               .Where(b => !b.IsDeleted)
-               .Include(b => b.UsersBooks)
-               .Include(b => b.Publisher)
-               .Include(b => b.BooksAuthors)
-                   .ThenInclude(ba => ba.Author)
-               .Include(b => b.AddedByUser) // ensure username is loaded
-               .AsNoTracking()
+            var allBooks = await bookRepository
+                    .GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+
+            var allBooksDto = allBooks
                .Select(b => new
                {
                    b.Id,
@@ -93,7 +78,7 @@ namespace OnlineLibrary.Services.Core
                })
                .OrderBy(b => b.Title)
                .ThenBy(b => b.Genre)
-               .Select(b => new BooksAllViewModel
+               .Select(b => new BookAllDto
                {
                    Id = b.Id,
                    Title = b.Title,
@@ -108,47 +93,27 @@ namespace OnlineLibrary.Services.Core
                    IsAddedToUserCollection = userId != Guid.Empty && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                })
                .Where(b => b.IsAddedByUser == true)
-               .ToListAsync();
+               .ToList();
 
-            return allBooks;
+            return allBooksDto;
         }
 
         // Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.
-        public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync()
+        public async Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAllAuthorsAndPublishersAsync()
         {
-            var publishers = await dbContext.Publishers
-                .OrderBy(p => p.Name)
-                .ToListAsync();
-
-            var authors = await dbContext.Authors
-                .OrderBy(a => a.FullName)
-                .ToListAsync();
+            var (publishers, authors) = await bookRepository.GetAuthorsAndPublishersAsync();
 
             return (publishers, authors);
         }
 
 
-        public async Task<BookDetailsViewModel> GetBookDetailsByIdAsync(Guid id)
+        public async Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id)
         {
             // Load the entity with related data first (server-side)
-            var bookEntity = await dbContext
-                .Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.Publisher)
-                .Include(b => b.UsersBooks)
-                .Include(b => b.BooksAuthors)
-                    .ThenInclude(ba => ba.Author)
-                .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
-                .AsNoTracking()
-                .FirstOrDefaultAsync(b => b.Id == id);
-
-            if (bookEntity == null)
-            {
-                throw new InvalidOperationException("Destination not found");
-            }
+            var bookEntity = await bookRepository.GetBookDetailsByIdAsync(id);
 
             // Map to view model in-memory (safe for string.Join and enum ToString)
-            var bookDetails = new BookDetailsViewModel
+            var bookDetailsDto = new BookDetailsDto
             {
                 Id = bookEntity.Id,
                 Title = bookEntity.Title,
@@ -169,58 +134,34 @@ namespace OnlineLibrary.Services.Core
                 IsAddedToUserCollection = false
             };
 
-            if (bookDetails.IsRead == false)
+            if (bookDetailsDto.IsRead == false)
             {
-                bookDetails.DateRead = null;
+                bookDetailsDto.DateRead = null;
             }
 
-            return bookDetails;
+            return bookDetailsDto;
         }
 
-        public async Task<bool> IsBookAddedByUserAsync(Guid? userId, Guid bookId)
+        public async Task<bool> IsBookDtoAddedByUserAsync(Guid? userId, Guid bookId)
         {
-            return await dbContext.Books
-                 .AnyAsync(b => b.AddedByUserId == userId && b.Id == bookId);
+            return await bookRepository.IsBookAddedByUserAsync(userId, bookId);
         }
-        public async Task<bool> IsBookAddedToUserCollectionAsync(Guid? userId, Guid bookId)
+        public async Task<bool> IsBookDtoAddedToUserCollectionAsync(Guid? userId, Guid bookId)
         {
-            return await dbContext.UsersBooks
-                .AnyAsync(ub => ub.UserId == userId && ub.BookId == bookId && userId != null);
+            return await bookRepository.IsBookAddedToUserCollectionAsync(userId, bookId);
         }
 
-        public async Task<BookCreateViewModel> GetBookCreateViewModelAsync()
+        public async Task<BookCreateDto> GetBookDtoCreateViewModelAsync()
         {
-            await GetAuthorsAndPublishersAsync();
+            await GetAllAuthorsAndPublishersAsync();
 
-            BookCreateViewModel createModel = new BookCreateViewModel();
-
+            BookCreateDto createModel = new BookCreateDto();
             return createModel;
         }
 
-        public async Task CreateBookAsync(BookCreateViewModel inputModel, Guid userId)
+        public async Task CreateDtoBookAsync(BookCreateDto inputModel, Guid userId)
         {
-            // Validate publisher exists
-            if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
-            {
-                throw new PublisherDoesntExistException("Selected publisher does not exist.");
-            }
-
-            // Validate provided author ids (if any) before creating the book to avoid FK errors
-            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-            {
-                var validAuthorIds = await dbContext.Authors
-                    .Where(a => inputModel.AuthorIds.Contains(a.Id))
-                    .Select(a => a.Id)
-                    .ToListAsync();
-
-                var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
-                if (invalidIds.Any())
-                {
-                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
-                }
-            }
-
-            var book = new Book
+            var bookInputModel = new Book
             {
                 Title = inputModel.Title,
                 Description = inputModel.Description,
@@ -235,259 +176,69 @@ namespace OnlineLibrary.Services.Core
                 IsDeleted = false
             };
 
-            try
-            {
-                // Save book first so the DB generates Id
-                await dbContext.Books.AddAsync(book);
-                await dbContext.SaveChangesAsync(); // book.Id populated
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException("\"An error occurred while saving the book. Please try again.\"");
-            }
-
-            // Create BookAuthor records linking saved book to selected authors
-            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-            {
-                var bookAuthors = inputModel.AuthorIds
-                       .Select(autorId => new BookAuthor
-                       {
-                           AuthorId = autorId,
-                           BookId = book.Id
-                       })
-                       .ToList();
-
-                await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
-                await dbContext.SaveChangesAsync();
-            }
+            await bookRepository.CreateBookAsync(bookInputModel, userId);
         }
 
-        public async Task<IEnumerable<BookFavoritesViewModel>> GetFavoriteBooksAsync(Guid userId)
+        public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId)
         {
-            var fevBooks = await dbContext.UsersBooks
-                .Where(ub => ub.UserId == userId)
-                .Include(ub => ub.Book)
-                .Select(ub => new BookFavoritesViewModel
-                {
-                    Id = ub.Book.Id,
-                    Title = ub.Book.Title,
-                    CoverUrl = ub.Book.CoverUrl ?? string.Empty
-                })
-                .ToListAsync();
-            return fevBooks;
+            var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
+            var favBooksDto = favBooks.Select(MapBookToBookFavoritesDto).ToList();
+            return favBooksDto;
         }
 
-        public async Task SaveFevBookAsync(Guid id, Guid userId)
+        public async Task SaveFevBookDtoAsync(Guid id, Guid userId)
         {
-            if (await dbContext.UsersBooks.AnyAsync(ub => ub.UserId == userId && ub.BookId == id))
-            {
-                return;
-            }
-
-            var userBook = new UserBook
-            {
-                BookId = id,
-                UserId = userId
-            };
-
-            await dbContext.UsersBooks.AddAsync(userBook);
-            await dbContext.SaveChangesAsync();
+            await bookRepository.SaveFevBookAsync(id, userId);
         }
 
-        public async Task RemoveFevBookAsync(Guid id, Guid userId)
+        public async Task RemoveFevBookDtoAsync(Guid id, Guid userId)
         {
-            var userBook = await dbContext.UsersBooks
-                 .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == id);
-
-            if (userBook == null)
-            {
-                return;
-            }
-
-            dbContext.UsersBooks.Remove(userBook);
-            await dbContext.SaveChangesAsync();
+            await bookRepository.RemoveFevBookAsync(id, userId);
         }
 
-        public async Task<BookEditViewModel> GetBookForEditAsync(Guid id, Guid userId)
+        public async Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId)
         {
             // Load the entity with related data first (server-side)
-            var bookEntity = await dbContext
-                .Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.Publisher)
-                .Include(b => b.UsersBooks)
-                .Include(b => b.BooksAuthors)
-                    .ThenInclude(ba => ba.Author)
-                .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
-                .AsNoTracking()
-                .FirstOrDefaultAsync(b => b.Id == id);
+            var bookEntity = await bookRepository.GetBookForEditAsync(id, userId);
 
             if (bookEntity == null)
             {
                 throw new InvalidOperationException("Destination not found");
             }
 
-            // Map to view model in-memory (safe for string.Join and enum ToString)
-            var bookDetails = new BookEditViewModel
-            {
-                Id = bookEntity.Id,
-                Title = bookEntity.Title,
-                Description = bookEntity.Description,
-                Genre = bookEntity.Genre,
-                IsRead = bookEntity.IsRead,
-                DateRead = bookEntity.DateRead,
-                Rating = bookEntity.Rating,
-                CoverUrl = bookEntity.CoverUrl,
-                DateAdded = bookEntity.DateAdded,
-                PublisherId = bookEntity.PublisherId,
-                AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-            };
+            var bookDetails = MapBookToBookEditDto(bookEntity);
 
             return (bookDetails);
         }
 
-        public async Task EditBookAsync(BookEditViewModel inputModel, Guid userId)
+        public async Task EditBookDtoAsync(BookEditDto inputModel, Guid userId)
         {
-            var bookEntity = dbContext.Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.BooksAuthors)
-                .FirstOrDefault(b => b.Id == inputModel.Id);
-
-            if (bookEntity == null)
-            {
-                throw new InvalidOperationException("Book not found");
-            }
-
-            // Update book properties
-            bookEntity.Title = inputModel.Title;
-            bookEntity.Description = inputModel.Description;
-            bookEntity.Genre = inputModel.Genre;
-            bookEntity.IsRead = inputModel.IsRead;
-            bookEntity.DateRead = inputModel.DateRead;
-            bookEntity.Rating = inputModel.Rating;
-            bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
-            bookEntity.DateAdded = inputModel.DateAdded;
-            bookEntity.PublisherId = inputModel.PublisherId;
-            // Update BookAuthor relationships
-            var existingAuthorIds = bookEntity.BooksAuthors
-                .Select(ba => ba.AuthorId)
-                .ToList();
-
-            // Validate publisher exists
-            if (!await dbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
-            {
-                throw new PublisherDoesntExistException("Selected publisher does not exist.");
-            }
-
-            // Validate provided author ids (if any) before creating the book to avoid FK errors
-            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
-            {
-                var validAuthorIds = await dbContext.Authors
-                    .Where(a => inputModel.AuthorIds.Contains(a.Id))
-                    .Select(a => a.Id)
-                    .ToListAsync();
-
-                var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
-                if (invalidIds.Any())
-                {
-                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
-                }
-            }
-
-            try
-            {
-                var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
-
-                // Remove unselected authors
-                var toRemove = bookEntity.BooksAuthors
-                    .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
-                    .ToList();
-
-                dbContext.BooksAuthors.RemoveRange(toRemove);
-
-                // Add newly selected authors
-                var toAdd = newAuthorIds
-                    .Except(existingAuthorIds)
-                    .Select(authorId => new BookAuthor
-                    {
-                        BookId = bookEntity.Id,
-                        AuthorId = authorId
-                    });
-
-                await dbContext.BooksAuthors.AddRangeAsync(toAdd);
-                await dbContext.SaveChangesAsync();
-
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
-            }
+            var book = MapBookEditDtoToBook(inputModel);
+            await bookRepository.EditBookAsync(book, userId);
         }
 
-        public async Task<BookDeleteViewModel> GetBookDeleteDetailsAsync(Guid id, Guid userId)
+        public async Task<BookDeleteDto> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId)
         {
-            var book = await dbContext.Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.AddedByUser)
-                .Include(ba => ba.BooksAuthors)
-                    .ThenInclude(ba => ba.Author)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(b => b.Id == id);
+            var book = await bookRepository.GetBookDeleteDetailsAsync(id, userId);
 
-            if (book == null)
-            {
-                throw new ArgumentException("Book not found");
-            }
+            var bookDeleteDto = MapBookToBookDeleteDto(book);
 
-            if (book.AddedByUserId != userId)
-            {
-                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-            }
+            return bookDeleteDto;
+        }
 
-            var deleteModel = new BookDeleteViewModel
+        public async Task DeleteBookDtoAsync(Guid id, Guid userId)
+        {
+            await bookRepository.DeleteBookAsync(id, userId);
+        }
+
+        private static BookFavoritesDto MapBookToBookFavoritesDto(Book book)
+        {
+            return new BookFavoritesDto
             {
                 Id = book.Id,
                 Title = book.Title,
-                AddedByUserName = book.AddedByUser?.UserName, // null-safe access
-                CoverUrl = book.CoverUrl
+                CoverUrl = book.CoverUrl ?? string.Empty
             };
-
-            return deleteModel;
-        }
-
-        public async Task DeleteBookAsync(Guid id, Guid userId)
-        {
-            // Load tracked entity with related collections (no AsNoTracking)
-            var book = await dbContext.Books
-                .Where(b => !b.IsDeleted)
-                .Include(b => b.AddedByUser)
-                .FirstOrDefaultAsync(b => b.Id == id);
-
-            if (book == null)
-            {
-                throw new ArgumentException("Book not found.");
-            }
-
-            if (book.AddedByUserId != userId)
-            {
-                throw new UnauthorizedAccessException("You are not authorized to delete this book.");
-            }
-
-            // Remove dependent BookAuthor entries
-            var bookAuthorEntries = dbContext.BooksAuthors
-                .Where(ba => ba.BookId == id);
-            dbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
-
-            // Remove dependent UserBook entries (user collections)
-            var userBookEntries = dbContext.UsersBooks
-                .Where(ub => ub.BookId == id);
-            dbContext.UsersBooks.RemoveRange(userBookEntries);
-
-            // Soft-delete the book
-            book.IsDeleted = true;
-
-            await dbContext.SaveChangesAsync();
         }
     }
 }
-
