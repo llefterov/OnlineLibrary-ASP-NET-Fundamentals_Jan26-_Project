@@ -62,6 +62,7 @@ namespace OnlineLibrary
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
+                //app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -107,6 +108,8 @@ namespace OnlineLibrary
                 .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
+
+            //app.UseStatusCodePages();
 
             app.Run();
         }

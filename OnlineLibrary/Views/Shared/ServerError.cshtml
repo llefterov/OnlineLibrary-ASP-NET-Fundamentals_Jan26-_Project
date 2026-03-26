@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "500 Server Error";
+}
+
+<section class="server-error-page d-flex align-items-center justify-content-center py-5">
+    <div class="card server-error-card border-0 shadow-lg">
+        <div class="card-body p-4 p-md-5 text-center">
+            <div class="server-error-icon mb-3">
+                <i class="bi bi-exclamation-octagon-fill"></i>
+            </div>
+
+            <p class="text-uppercase text-warning fw-semibold mb-2">Error 500</p>
+            <h1 class="h3 fw-bold mb-3">Internal Server Error</h1>
+
+            <p class="text-muted mb-4">
+                Something went wrong on our side.
+                Please try again in a moment.
+            </p>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-warning px-4">
+                    <i class="bi bi-house-door me-1"></i> Back to Home
+                </a>
+                <a asp-controller="Books" asp-action="All" class="btn btn-outline-dark px-4">
+                    <i class="bi bi-book me-1"></i> Browse Books
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .server-error-page {
+            min-height: calc(100vh - 220px);
+        }
+
+        .server-error-card {
+            max-width: 640px;
+            width: 100%;
+            border-radius: 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .server-error-icon {
+            font-size: 3rem;
+            color: #ffc107;
+            line-height: 1;
+        }
+    </style>
+}

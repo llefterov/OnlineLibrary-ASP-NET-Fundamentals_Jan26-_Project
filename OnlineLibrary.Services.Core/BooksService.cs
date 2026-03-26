@@ -107,10 +107,15 @@ namespace OnlineLibrary.Services.Core
         }
 
 
-        public async Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id)
+        public async Task<BookDetailsDto?> GetBookDtoDetailsByIdAsync(Guid id)
         {
             // Load the entity with related data first (server-side)
             var bookEntity = await bookRepository.GetBookDetailsByIdAsync(id);
+
+            if (bookEntity == null)
+            {
+                return null;
+            }
 
             // Map to view model in-memory (safe for string.Join and enum ToString)
             var bookDetailsDto = new BookDetailsDto
@@ -196,14 +201,14 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.RemoveFevBookAsync(id, userId);
         }
 
-        public async Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId)
+        public async Task<BookEditDto?> GetBookForEditDtoAsync(Guid id, Guid userId)
         {
             // Load the entity with related data first (server-side)
             var bookEntity = await bookRepository.GetBookForEditAsync(id, userId);
 
             if (bookEntity == null)
             {
-                throw new InvalidOperationException("Destination not found");
+                return null;
             }
 
             var bookDetails = MapBookToBookEditDto(bookEntity);
@@ -211,24 +216,29 @@ namespace OnlineLibrary.Services.Core
             return (bookDetails);
         }
 
-        public async Task EditBookDtoAsync(BookEditDto inputModel, Guid userId)
+        public async Task<bool> EditBookDtoAsync(BookEditDto inputModel, Guid userId)
         {
             var book = MapBookEditDtoToBook(inputModel);
-            await bookRepository.EditBookAsync(book, userId);
+            return await bookRepository.EditBookAsync(book, userId);
         }
 
-        public async Task<BookDeleteDto> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId)
+        public async Task<BookDeleteDto?> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId)
         {
             var book = await bookRepository.GetBookDeleteDetailsAsync(id, userId);
+
+            if (book == null)
+            {
+                return null;
+            }
 
             var bookDeleteDto = MapBookToBookDeleteDto(book);
 
             return bookDeleteDto;
         }
 
-        public async Task DeleteBookDtoAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteBookDtoAsync(Guid id, Guid userId)
         {
-            await bookRepository.DeleteBookAsync(id, userId);
+            return await bookRepository.DeleteBookAsync(id, userId);
         }
 
         private static BookFavoritesDto MapBookToBookFavoritesDto(Book book)

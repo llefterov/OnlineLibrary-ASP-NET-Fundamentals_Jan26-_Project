@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
@@ -46,7 +47,7 @@ namespace OnlineLibrary.Data.Repository
         }
 
 
-        public async Task<Book> GetBookDetailsByIdAsync(Guid id)
+        public async Task<Book?> GetBookDetailsByIdAsync(Guid id)
         {
             // Load the entity with related data first (server-side)
             var bookEntity = await DbContext
@@ -59,11 +60,6 @@ namespace OnlineLibrary.Data.Repository
                 .Include(b => b.AddedByUser) // <-- ensure AddedByUser is loaded
                 .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == id);
-
-            if (bookEntity == null)
-            {
-                throw new InvalidOperationException("Book not found");
-            }
 
             return bookEntity;
         }
@@ -186,7 +182,7 @@ namespace OnlineLibrary.Data.Repository
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<Book> GetBookForEditAsync(Guid id, Guid userId)
+        public async Task<Book?> GetBookForEditAsync(Guid id, Guid userId)
         {
             // Load the entity with related data first (server-side)
             var bookEntity = await DbContext
@@ -202,7 +198,7 @@ namespace OnlineLibrary.Data.Repository
 
             if (bookEntity == null)
             {
-                throw new InvalidOperationException("Destination not found");
+                return null;
             }
 
             // Map to view model in-memory (safe for string.Join and enum ToString)
@@ -224,7 +220,7 @@ namespace OnlineLibrary.Data.Repository
             return (bookDetails);
         }
 
-        public async Task EditBookAsync(Book inputModel, Guid userId)
+        public async Task<bool> EditBookAsync(Book inputModel, Guid userId)
         {
             var bookEntity = await DbContext.Books
                 .Where(b => !b.IsDeleted)
@@ -233,7 +229,7 @@ namespace OnlineLibrary.Data.Repository
 
             if (bookEntity == null)
             {
-                throw new InvalidOperationException("Book not found");
+                return false;
             }
 
             // Update book properties
@@ -294,6 +290,7 @@ namespace OnlineLibrary.Data.Repository
 
                 await DbContext.BooksAuthors.AddRangeAsync(toAdd);
                 await DbContext.SaveChangesAsync();
+                return true;
 
             }
             catch (Exception)
@@ -302,7 +299,7 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        public async Task<Book> GetBookDeleteDetailsAsync(Guid id, Guid userId)
+        public async Task<Book?> GetBookDeleteDetailsAsync(Guid id, Guid userId)
         {
             var book = await DbContext.Books
                 .Where(b => !b.IsDeleted)
@@ -314,7 +311,7 @@ namespace OnlineLibrary.Data.Repository
 
             if (book == null)
             {
-                throw new ArgumentException("Book not found");
+                return null;
             }
 
             if (book.AddedByUserId != userId)
@@ -333,7 +330,7 @@ namespace OnlineLibrary.Data.Repository
             return bookToDelete;
         }
 
-        public async Task DeleteBookAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteBookAsync(Guid id, Guid userId)
         {
             // Load tracked entity with related collections (no AsNoTracking)
             var book = await DbContext.Books
@@ -343,7 +340,7 @@ namespace OnlineLibrary.Data.Repository
 
             if (book == null)
             {
-                throw new ArgumentException("Book not found.");
+                return false;
             }
 
             if (book.AddedByUserId != userId)
@@ -365,6 +362,7 @@ namespace OnlineLibrary.Data.Repository
             book.IsDeleted = true;
 
             await DbContext.SaveChangesAsync();
+            return true;
         }
 
 

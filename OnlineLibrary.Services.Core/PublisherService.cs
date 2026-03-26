@@ -36,10 +36,10 @@ namespace OnlineLibrary.Services.Core
         public async Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id)
         {
             var publisher = await publisherRepository.GetPublisherByIdAsync(id);
-             
+
             if (publisher == null)
             {
-                throw new PublisherDoesntExistException("Publisher not found.");
+                return null;
             }
 
             PublisherDetailsDto? publisherDto = new PublisherDetailsDto
@@ -74,24 +74,16 @@ namespace OnlineLibrary.Services.Core
 
         public async Task AddNewPublisherAsync(PublisherAddDto inputModel)
         {
+            var normalizedName = inputModel.Name.Trim();
+
             var publisher = new Publisher
             {
-                Name = inputModel.Name
+                Name = normalizedName
             };
-
-            var publishers = await publisherRepository
-                .GetAllPublishersAsync();
-                
-
-
-            if ((publishers.Any(p => p.Name == publisher.Name)))
-            {
-                throw new PublisherAlreadyExistsException(publisher.Name);
-            }
 
             try
             {
-            await publisherRepository.AddPublisherAsync(publisher);
+                await publisherRepository.AddPublisherAsync(publisher);
             }
             catch (DbUpdateException dbEx)
             {
@@ -99,16 +91,13 @@ namespace OnlineLibrary.Services.Core
             }
         }
 
-        public async Task<PublisherAllDto> GetNewPublisherForEditByIdAsync(Guid id)
+        public async Task<PublisherAllDto?> GetNewPublisherForEditByIdAsync(Guid id)
         {
-
             var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
 
             if (publisher == null)
             {
-
-                throw new PublisherDoesntExistException("Publisher does not exist");
-
+                return null;
             }
 
             var inputModel = new PublisherAllDto
@@ -119,37 +108,29 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public async Task UpdateNewPublisherAsync(Guid id, PublisherAllDto model)
+        public async Task<bool> UpdateNewPublisherAsync(Guid id, PublisherAllDto model)
         {
             var publisher = await publisherRepository.GetPublisherForEditByIdAsync(id);
 
             if (publisher == null)
             {
-                throw new PublisherDoesntExistException("Publisher does not exist");
+                return false;
             }
 
             publisher.Name = model.Name;
 
-            try
-            {
-                await publisherRepository.UpdatePublisherAsync(id, publisher);
-            }
-            catch (DbUpdateException)
-            {
-                throw new PublisherUpdateExeption("Unable to update the publisher in the database.");
-            }
+            return await publisherRepository.UpdatePublisherAsync(id, publisher);
         }
 
 
 
-        public async Task<PublisherDeleteDto> GetPublisherNewDeleteDetailsAsync(Guid id)
+        public async Task<PublisherDeleteDto?> GetPublisherNewDeleteDetailsAsync(Guid id)
         {
-
-           var publisherService = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
+            var publisherService = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
 
             if (publisherService == null)
             {
-                throw new PublisherDoesntExistException("Publisher does not exist");
+                return null;
             }
 
             var publisherToDelete = new PublisherDeleteDto
@@ -159,17 +140,16 @@ namespace OnlineLibrary.Services.Core
                 Books = publisherService.Books
             };
 
-           return publisherToDelete;
+            return publisherToDelete;
         }
 
-        public async Task DeletePublisherByIdAsync(Guid id)
+        public async Task<bool> DeletePublisherByIdAsync(Guid id)
         {
-
-           Publisher? publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);    
+            Publisher? publisher = await publisherRepository.GetPublisherDeleteDetailsAsync(id);
 
             if (publisher == null)
             {
-                throw new PublisherDoesntExistException("Publisher not found.");
+                return false;
             }
 
             if (publisher.Books.Any())
@@ -177,14 +157,7 @@ namespace OnlineLibrary.Services.Core
                 throw new PublisherDeleteException("Cannot delete publisher with associated books.");
             }
 
-            try
-            {
-                await publisherRepository.DeletePublisherAsync(id);
-            }
-            catch (DbUpdateException)
-            {
-                throw new PublisherDeleteException("Unable to delete the publisher from the database.");
-            }
+            return await publisherRepository.DeletePublisherAsync(id);
         }
     }
 }

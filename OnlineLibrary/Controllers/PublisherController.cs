@@ -133,29 +133,28 @@ namespace OnlineLibrary.Web.Controllers
                 return BadRequest();
             }
 
-            var model = new PublisherEditViewModel();
             try
             {
                 var modelDto = await publisherService.GetNewPublisherForEditByIdAsync(id);
-                model = new PublisherEditViewModel
+                if (modelDto == null)
+                {
+                    logger.LogWarning("Attempt to edit non-existing publisher with id {PublisherId}", id);
+                    return NotFound();
+                }
+
+                var model = new PublisherEditViewModel
                 {
                     Id = modelDto.Id,
                     Name = modelDto.Name
                 };
-            }
-            catch (PublisherDoesntExistException ex)
-            {
-                logger.LogWarning(ex, "Attempt to edit non-existing publisher with id {PublisherId}", id);
-                ModelState.AddModelError(string.Empty, "The publisher you are trying to edit does not exist.");
-                return NotFound();
+
+                return View(model);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Unexpected error while loading edit form for publisher with id {PublisherId}.", id);
                 return StatusCode(500, "An unexpected error occurred. Please contact support.");
             }
-
-            return View(model);
         }
 
         [HttpPost]
@@ -171,6 +170,11 @@ namespace OnlineLibrary.Web.Controllers
                 return View(inputModel);
             }
 
+            if (id != inputModel.Id)
+            {
+                return BadRequest();
+            }
+
             try
             {
                 var serviceModel = new PublisherAllDto
@@ -179,14 +183,13 @@ namespace OnlineLibrary.Web.Controllers
                     Name = inputModel.Name
                 };
 
-                await publisherService.UpdateNewPublisherAsync(id, serviceModel);
+                var isUpdated = await publisherService.UpdateNewPublisherAsync(id, serviceModel);
+                if (!isUpdated)
+                {
+                    return NotFound();
+                }
+
                 return RedirectToAction("All", "Publisher");
-            }
-            catch (PublisherDoesntExistException ex)
-            {
-                logger.LogError(ex, "Publisher does not exist");
-                ModelState.AddModelError(string.Empty, "Publisher does not exist");
-                return View(inputModel);
             }
             catch (PublisherUpdateExeption ex)
             {
@@ -211,20 +214,16 @@ namespace OnlineLibrary.Web.Controllers
                 return BadRequest();
             }
 
-            try
-            {
-
-                var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
-                var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
-                return View(publisherToDelete);
-            }
-            catch (PublisherDoesntExistException)
+            var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
+            if (publisherDTo == null)
             {
                 logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
                 ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
-
                 return NotFound();
             }
+
+            var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
+            return View(publisherToDelete);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -237,16 +236,15 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await publisherService.DeletePublisherByIdAsync(id);
+                var isDeleted = await publisherService.DeletePublisherByIdAsync(id);
+                if (!isDeleted)
+                {
+                    logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
+                    ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
+                    return NotFound();
+                }
+
                 return RedirectToAction("All", "Publisher");
-            }
-            catch (PublisherDoesntExistException)
-            {
-                logger.LogWarning("Attempt to delete non-existing publisher with id {PublisherId}", id);
-                ModelState.AddModelError(string.Empty, "The publisher you are trying to delete does not exist.");
-
-                return NotFound();
-
             }
             catch (PublisherDeleteException ex)
             {
@@ -254,6 +252,11 @@ namespace OnlineLibrary.Web.Controllers
                 ModelState.AddModelError(string.Empty, "Cannot delete a publisher that has associated books. Please remove the associations first.");
 
                 var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
+                if (publisherDTo == null)
+                {
+                    return NotFound();
+                }
+
                 var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
 
                 return View("Delete", publisherToDelete);
@@ -263,6 +266,11 @@ namespace OnlineLibrary.Web.Controllers
                 logger.LogError(ex, "Unexpected error while deleting publisher with id {PublisherId}.", id);
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred while deleting the publisher. Please contact support.");
                 var publisherDTo = await publisherService.GetPublisherNewDeleteDetailsAsync(id);
+                if (publisherDTo == null)
+                {
+                    return NotFound();
+                }
+
                 var publisherToDelete = MapPublisherDeleteDtoToPublisherDeleteViewModel(publisherDTo);
 
                 return View("Delete", publisherToDelete);

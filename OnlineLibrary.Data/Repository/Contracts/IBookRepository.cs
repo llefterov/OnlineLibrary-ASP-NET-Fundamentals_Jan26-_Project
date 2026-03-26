@@ -6,7 +6,7 @@ namespace OnlineLibrary.Data.Repository.Contracts
     {
         Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId);
 
-        Task<Book> GetBookDetailsByIdAsync(Guid id);
+        Task<Book?> GetBookDetailsByIdAsync(Guid id);
 
         // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
         Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAuthorsAndPublishersAsync();
@@ -25,13 +25,11 @@ namespace OnlineLibrary.Data.Repository.Contracts
 
         Task RemoveFevBookAsync(Guid id, Guid userId);
 
-        Task<Book> GetBookForEditAsync(Guid id, Guid userId);
-        Task EditBookAsync(Book model, Guid userId);
+        Task<Book?> GetBookForEditAsync(Guid id, Guid userId);
+        Task<bool> EditBookAsync(Book model, Guid userId);
 
-        Task<Book> GetBookDeleteDetailsAsync(Guid id, Guid userId);
+        Task<Book?> GetBookDeleteDetailsAsync(Guid id, Guid userId);
 
-        Task DeleteBookAsync(Guid id, Guid userId);
-
-
+        Task<bool> DeleteBookAsync(Guid id, Guid userId);
     }
 }

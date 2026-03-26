@@ -55,7 +55,7 @@ namespace OnlineLibrary.Web.Controllers
             if (bookDetailsDto == null)
             {
                 logger.LogWarning("Book with ID {BookId} not found.", id);
-                return RedirectToAction("All");
+                return NotFound();
             }
             var userId = GetUserId();
             var isAddedByUser = await booksService.IsBookDtoAddedByUserAsync(userId, id);
@@ -192,12 +192,13 @@ namespace OnlineLibrary.Web.Controllers
             try
             {
                 var modelDto = await booksService.GetBookForEditDtoAsync(id, userId);
-                var model = MapBookEditDtoToBookEditViewModel(modelDto);
 
-                if (model == null)
+                if (modelDto == null)
                 {
                     return NotFound();
                 }
+
+                var model = MapBookEditDtoToBookEditViewModel(modelDto);
 
                 return View(model);
             }
@@ -236,8 +237,11 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-
-                await booksService.EditBookDtoAsync(modelDto, userId);
+                var isEdited = await booksService.EditBookDtoAsync(modelDto, userId);
+                if (!isEdited)
+                {
+                    return NotFound();
+                }
             }
             catch (PublisherDoesntExistException ex)
             {
@@ -278,15 +282,27 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var bookDeleteDto = await booksService.GetBookDeleteDetailsDtoAsync(id, userId);
+            try
+            {
+                var bookDeleteDto = await booksService.GetBookDeleteDetailsDtoAsync(id, userId);
 
-            // Preserve the returnUrl so the POST can redirect back to the previous page
-            var referer = Request.Headers["Referer"].ToString();
-            ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
+                if (bookDeleteDto == null)
+                {
+                    return NotFound();
+                }
 
-            var bookViewModel = MapBookDeleteDtoToBookDeleteViewModel(bookDeleteDto);
+                // Preserve the returnUrl so the POST can redirect back to the previous page
+                var referer = Request.Headers["Referer"].ToString();
+                ViewData["ReturnUrl"] = returnUrl ?? (!string.IsNullOrEmpty(referer) ? referer : null);
 
-            return View(bookViewModel);
+                var bookViewModel = MapBookDeleteDtoToBookDeleteViewModel(bookDeleteDto);
+
+                return View(bookViewModel);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -301,15 +317,15 @@ namespace OnlineLibrary.Web.Controllers
 
             try
             {
-                await booksService.DeleteBookDtoAsync(id, userId);
+                var isDeleted = await booksService.DeleteBookDtoAsync(id, userId);
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
             }
             catch (UnauthorizedAccessException)
             {
                 return Unauthorized();
-            }
-            catch (ArgumentException)
-            {
-                return NotFound();
             }
 
             // Prefer an explicit returnUrl, otherwise fall back to the Referer header if provided.

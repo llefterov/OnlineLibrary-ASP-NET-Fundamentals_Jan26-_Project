@@ -46,12 +46,15 @@ namespace OnlineLibrary.Data.Repository
 
         public async Task AddPublisherAsync(Publisher inputModel)
         {
+            var normalizedName = inputModel.Name.Trim();
+            var normalizedNameUpper = normalizedName.ToUpper();
+
             var publisher = new Publisher
             {
-                Name = inputModel.Name
+                Name = normalizedName
             };
 
-            if (await DbContext.Publishers.AnyAsync(p => p.Name == publisher.Name))
+            if (await DbContext.Publishers.AnyAsync(p => p.Name.ToUpper() == normalizedNameUpper))
             {
                 throw new PublisherAlreadyExistsException(publisher.Name);
             }
@@ -64,26 +67,22 @@ namespace OnlineLibrary.Data.Repository
             }
             catch (DbUpdateException dbEx)
             {
+                if (dbEx.InnerException?.Message.Contains("IX_Publishers_Name", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new PublisherAlreadyExistsException(publisher.Name);
+                }
+
                 throw new PublisherCreateException("Unable to save the publisher to the database.", dbEx);
             }
         }
 
-        public async Task<Publisher> GetPublisherForEditByIdAsync(Guid id)
+        public async Task<Publisher?> GetPublisherForEditByIdAsync(Guid id)
         {
-
-
-            if (!(await ExistsAsync(id)))
-            {
-                throw new PublisherDoesntExistException("Publisher not found.");
-            }
-
             var publisher = await DbContext.Publishers.FirstOrDefaultAsync(p => p.Id == id);
 
             if (publisher == null)
             {
-
-                throw new PublisherDoesntExistException("Publisher does not exist");
-
+                return null;
             }
 
             var inputModel = new Publisher
@@ -103,7 +102,7 @@ namespace OnlineLibrary.Data.Repository
             return publisherExist;
         }
 
-        public Task UpdatePublisherAsync(Guid id, Publisher model)
+        public async Task<bool> UpdatePublisherAsync(Guid id, Publisher model)
         {
             // Ensure that the route id and the model id (if provided) are consistent
             if (model.Id != Guid.Empty && model.Id != id)
@@ -111,12 +110,12 @@ namespace OnlineLibrary.Data.Repository
                 throw new PublisherUpdateExeption("Publisher ID mismatch between route and payload.");
             }
 
-            var publisher = DbContext.Publishers
-               .FirstOrDefault(p => p.Id == id);
+            var publisher = await DbContext.Publishers
+               .FirstOrDefaultAsync(p => p.Id == id);
 
             if (publisher == null)
             {
-                throw new PublisherDoesntExistException("Publisher does not exist");
+                return false;
             }
 
             publisher.Name = model.Name;
@@ -124,7 +123,8 @@ namespace OnlineLibrary.Data.Repository
             try
             {
                 DbContext.Publishers.Update(publisher);
-                return DbContext.SaveChangesAsync();
+                await DbContext.SaveChangesAsync();
+                return true;
             }
             catch (DbUpdateException)
             {
@@ -132,7 +132,7 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        public async Task<Publisher> GetPublisherDeleteDetailsAsync(Guid id)
+        public async Task<Publisher?> GetPublisherDeleteDetailsAsync(Guid id)
         {
             var publisherToDelete = await DbContext.Publishers
                 .Include(b => b.Books)
@@ -144,15 +144,10 @@ namespace OnlineLibrary.Data.Repository
                 })
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (publisherToDelete == null)
-            {
-                throw new PublisherDoesntExistException("Publisher does not exist");
-            }
-
             return publisherToDelete;
         }
 
-        public async Task DeletePublisherAsync(Guid id)
+        public async Task<bool> DeletePublisherAsync(Guid id)
         {
             var publisher = await DbContext.Publishers
                 .Include(b => b.Books)
@@ -160,7 +155,7 @@ namespace OnlineLibrary.Data.Repository
 
             if (publisher == null)
             {
-                throw new PublisherDoesntExistException("Publisher not found.");
+                return false;
             }
 
             if (publisher.Books.Any())
@@ -173,6 +168,7 @@ namespace OnlineLibrary.Data.Repository
             try
             {
                 await DbContext.SaveChangesAsync();
+                return true;
             }
             catch (DbUpdateException)
             {
