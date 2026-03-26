@@ -3,6 +3,7 @@ namespace OnlineLibrary
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using OnlineLibrary.Data;
+    using OnlineLibrary.Data.Configuration;
     using OnlineLibrary.Data.Models;
     using OnlineLibrary.Data.Repository;
     using OnlineLibrary.Data.Repository.Contracts;
@@ -58,11 +59,19 @@ namespace OnlineLibrary
 
             WebApplication app = builder.Build();
 
+            using (IServiceScope scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                DatabaseSeeder.SeedRoles(services);
+                DatabaseSeeder.AssignAdminRole(services);
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
-                //app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -108,8 +117,6 @@ namespace OnlineLibrary
                 .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
-
-            //app.UseStatusCodePages();
 
             app.Run();
         }
