@@ -8,7 +8,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId);
         Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
 
-        Task<BookDetailsDto> GetBookDtoDetailsByIdAsync(Guid id);
+        Task<BookDetailsDto?> GetBookDtoDetailsByIdAsync(Guid id);
 
         // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.
         Task<(IEnumerable<Publisher> Publishers, IEnumerable<Author> Authors)> GetAllAuthorsAndPublishersAsync();
@@ -25,11 +25,11 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);
 
-        Task<BookEditDto> GetBookForEditDtoAsync(Guid id, Guid userId);
-        Task EditBookDtoAsync(BookEditDto model, Guid userId);
+        Task<BookEditDto?> GetBookForEditDtoAsync(Guid id, Guid userId);
+        Task<bool> EditBookDtoAsync(BookEditDto model, Guid userId);
 
-        Task<BookDeleteDto> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId);
+        Task<BookDeleteDto?> GetBookDeleteDetailsDtoAsync(Guid id, Guid userId);
 
-        Task DeleteBookDtoAsync(Guid id, Guid userId);
+        Task<bool> DeleteBookDtoAsync(Guid id, Guid userId);
     }
 }

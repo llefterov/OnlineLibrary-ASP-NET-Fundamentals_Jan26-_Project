@@ -11,11 +11,11 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task AddNewPublisherAsync(PublisherAddDto model);
 
-        Task<PublisherAllDto> GetNewPublisherForEditByIdAsync(Guid id);
+        Task<PublisherAllDto?> GetNewPublisherForEditByIdAsync(Guid id);
 
-        Task UpdateNewPublisherAsync(Guid id, PublisherAllDto model);
+        Task<bool> UpdateNewPublisherAsync(Guid id, PublisherAllDto model);
 
-        Task<PublisherDeleteDto> GetPublisherNewDeleteDetailsAsync(Guid id);
-        Task DeletePublisherByIdAsync(Guid id);
+        Task<PublisherDeleteDto?> GetPublisherNewDeleteDetailsAsync(Guid id);
+        Task<bool> DeletePublisherByIdAsync(Guid id);
     }
 }

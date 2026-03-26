@@ -25,6 +25,14 @@ public class OnlineLibraryDbContext : IdentityDbContext<ApplicationUser, Identit
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<Publisher>()
+            .HasIndex(p => p.Name)
+            .IsUnique();
+
+        builder.Entity<Author>()
+            .HasIndex(a => a.FullName)
+            .IsUnique();
+
         // Used a precomputed password hash to avoid dynamic changes in HasData
         var defaultUser = new ApplicationUser
         {

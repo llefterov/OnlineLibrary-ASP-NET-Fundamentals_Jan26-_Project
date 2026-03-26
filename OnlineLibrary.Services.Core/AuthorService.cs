@@ -72,22 +72,16 @@ namespace OnlineLibrary.Services.Core
 
         public async Task AddNewAuthorAsync(AuthorsAllDto inputModelDto)
         {
+            var normalizedFullName = inputModelDto.FullName.Trim();
+
             var author = new Author
             {
-                FullName = inputModelDto.FullName
-            }
-            ;
-
-            if ((await authorRepository.GetAllAuthorsAsync()).Any(a => a.FullName == author.FullName))
-            {
-                throw new AuthorAlreadyExistsException(author.FullName);
-            }
+                FullName = normalizedFullName
+            };
 
             try
             {
                 await authorRepository.AddAuthorAsync(author);
-
-                //await authorRepository.SaveChangesAsync();
             }
             catch (DbUpdateException dbEx)
             {
@@ -96,20 +90,13 @@ namespace OnlineLibrary.Services.Core
         }
 
 
-        public async Task<AuthorsAllDto> GetNewAuthorForEditByIdAsync(Guid id)
+        public async Task<AuthorsAllDto?> GetNewAuthorForEditByIdAsync(Guid id)
         {
-
-
-            if (!(await authorRepository.ExistsAsync(id)))
-            {
-                throw new AuthorDoesntExistException("Author not found.");
-            }
-
             var author = await authorRepository.GetAuthorForEditByIdAsync(id);
 
             if (author == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return null;
             }
 
             var inputModel = new AuthorsAllDto
@@ -120,34 +107,27 @@ namespace OnlineLibrary.Services.Core
             return inputModel;
         }
 
-        public async Task UpdateNewAuthorAsync(Guid id, AuthorsAllDto model)
+        public async Task<bool> UpdateNewAuthorAsync(Guid id, AuthorsAllDto model)
         {
             var author = await authorRepository.GetAuthorForEditByIdAsync(id);
 
             if (author == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return false;
             }
 
             author.FullName = model.FullName;
 
-            try
-            {
-                await authorRepository.UpdateAuthorAsync(id, author);
-            }
-            catch (DbUpdateException)
-            {
-                throw new AuthorUpdateExeption("Unable to update the author in the database.");
-            }
+            return await authorRepository.UpdateAuthorAsync(id, author);
         }
 
-        public async Task<AuthorDeleteDto> GetAuthorNewDeleteDetailsAsync(Guid id)
+        public async Task<AuthorDeleteDto?> GetAuthorNewDeleteDetailsAsync(Guid id)
         {
             Author? authorToDelete = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
             if (authorToDelete == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return null;
             }
 
             var authorToDeleteDto = new AuthorDeleteDto
@@ -160,13 +140,13 @@ namespace OnlineLibrary.Services.Core
             return authorToDeleteDto;
         }
 
-        public async Task DeleteAuthorByIdAsync(Guid id)
+        public async Task<bool> DeleteAuthorByIdAsync(Guid id)
         {
             Author? author = await authorRepository.GetAuthorDeleteDetailsAsync(id);
 
             if (author == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return false;
             }
 
             if (author.BooksAuthors.Any())
@@ -174,14 +154,7 @@ namespace OnlineLibrary.Services.Core
                 throw new AuthorDeleteException("Cannot delete author with associated books.");
             }
 
-            try
-            {
-                await authorRepository.DeleteAuthorAsync(id);
-            }
-            catch (DbUpdateException)
-            {
-                throw new AuthorDeleteException("Unable to delete the author from the database.");
-            }
+            return await authorRepository.DeleteAuthorAsync(id);
         }
     }
 }

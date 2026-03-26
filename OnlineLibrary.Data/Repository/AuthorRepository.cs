@@ -47,14 +47,17 @@ namespace OnlineLibrary.Data.Repository
 
         public async Task AddAuthorAsync(Author inputModel)
         {
+            var normalizedFullName = inputModel.FullName.Trim();
+            var normalizedFullNameUpper = normalizedFullName.ToUpper();
+
             var author = new Author
             {
-                FullName = inputModel.FullName
+                FullName = normalizedFullName
             };
 
-            if (await DbContext.Authors.AnyAsync(a => a.FullName == author.FullName))
+            if (await DbContext.Authors.AnyAsync(a => a.FullName.ToUpper() == normalizedFullNameUpper))
             {
-                throw new InvalidOperationException($"Author with name '{author.FullName}' already exists.");
+                throw new AuthorAlreadyExistsException(author.FullName);
             }
 
             await DbContext.Authors.AddAsync(author);
@@ -65,23 +68,19 @@ namespace OnlineLibrary.Data.Repository
             }
             catch (DbUpdateException dbEx)
             {
-                throw new InvalidOperationException("Unable to save the author to the database.", dbEx);
+                if (dbEx.InnerException?.Message.Contains("IX_Authors_FullName", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new AuthorAlreadyExistsException(author.FullName);
+                }
+
+                throw new AuthorCreateException("Unable to save the author to the database.", dbEx);
             }
         }
 
-        public async Task<Author> GetAuthorForEditByIdAsync(Guid id)
+        public async Task<Author?> GetAuthorForEditByIdAsync(Guid id)
         {
-            if (!(await ExistsAsync(id)))
-            {
-                throw new AuthorDoesntExistException("Author not found.");
-            }
-
             var author = await DbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
 
-            if (author == null)
-            {
-                throw new AuthorDoesntExistException("Author not found.");
-            }
             return author;
         }
 
@@ -94,14 +93,14 @@ namespace OnlineLibrary.Data.Repository
             return authorExist;
         }
 
-        public async Task UpdateAuthorAsync(Guid id, Author model)
+        public async Task<bool> UpdateAuthorAsync(Guid id, Author model)
         {
             var author = await DbContext.Authors
                .FirstOrDefaultAsync(a => a.Id == model.Id);
 
             if (author == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return false;
             }
 
             author.FullName = model.FullName;
@@ -110,6 +109,7 @@ namespace OnlineLibrary.Data.Repository
             {
                 DbContext.Authors.Update(author);
                 await DbContext.SaveChangesAsync();
+                return true;
             }
             catch (DbUpdateException)
             {
@@ -117,37 +117,30 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        public async Task<Author> GetAuthorDeleteDetailsAsync(Guid id)
+        public async Task<Author?> GetAuthorDeleteDetailsAsync(Guid id)
         {
             var authorToDelete = await DbContext.Authors
                 .Include(a => a.BooksAuthors)
                 .ThenInclude(ba => ba.Book)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-            if (authorToDelete == null)
-            {
-                throw new AuthorDoesntExistException("Author not found.");
-            }
             return authorToDelete;
         }
 
-        public async Task DeleteAuthorAsync(Guid id)
+        public async Task<bool> DeleteAuthorAsync(Guid id)
         {
             var author = await DbContext.Authors
                 .Include(a => a.BooksAuthors)
                 .ThenInclude(ba => ba.Book)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-           // var inputModel = await GetAuthorDeleteDetailsAsync(id);
-
             if (author == null)
             {
-                throw new AuthorDoesntExistException("Author not found.");
+                return false;
             }
 
             if (author.BooksAuthors.Any())
             {
-
                 throw new AuthorDeleteException("Cannot delete author with associated books.");
             }
 
@@ -156,6 +149,7 @@ namespace OnlineLibrary.Data.Repository
             try
             {
                 await DbContext.SaveChangesAsync();
+                return true;
             }
             catch (DbUpdateException)
             {
