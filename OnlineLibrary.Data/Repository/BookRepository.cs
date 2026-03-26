@@ -196,28 +196,28 @@ namespace OnlineLibrary.Data.Repository
                 .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (bookEntity == null)
+            if (bookEntity == null || bookEntity.AddedByUserId != userId)
             {
                 return null;
             }
 
-            // Map to view model in-memory (safe for string.Join and enum ToString)
-            var bookDetails = new Book
-            {
-                Id = bookEntity.Id,
-                Title = bookEntity.Title,
-                Description = bookEntity.Description,
-                Genre = bookEntity.Genre,
-                IsRead = bookEntity.IsRead,
-                DateRead = bookEntity.DateRead,
-                Rating = bookEntity.Rating,
-                CoverUrl = bookEntity.CoverUrl,
-                DateAdded = bookEntity.DateAdded,
-                PublisherId = bookEntity.PublisherId,
-                AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-            };
+            //// Map to view model in-memory (safe for string.Join and enum ToString)
+            //var bookDetails = new Book
+            //{
+            //    Id = bookEntity.Id,
+            //    Title = bookEntity.Title,
+            //    Description = bookEntity.Description,
+            //    Genre = bookEntity.Genre,
+            //    IsRead = bookEntity.IsRead,
+            //    DateRead = bookEntity.DateRead,
+            //    Rating = bookEntity.Rating,
+            //    CoverUrl = bookEntity.CoverUrl,
+            //    DateAdded = bookEntity.DateAdded,
+            //    PublisherId = bookEntity.PublisherId,
+            //    AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
+            //};
 
-            return (bookDetails);
+            return (bookEntity);
         }
 
         public async Task<bool> EditBookAsync(Book inputModel, Guid userId)
@@ -227,7 +227,7 @@ namespace OnlineLibrary.Data.Repository
                 .Include(b => b.BooksAuthors)
                 .FirstOrDefaultAsync(b => b.Id == inputModel.Id);
 
-            if (bookEntity == null)
+            if (bookEntity == null || bookEntity.AddedByUserId != userId)
             {
                 return false;
             }
