@@ -1,0 +1,107 @@
+@using OnlineLibrary.Web.ViewModels.Books
+@model BookEditViewModel
+
+@{
+    ViewData["Title"] = "Edit Book";
+    var routeId = ViewContext.RouteData.Values["id"];
+}
+
+<div class="container py-4">
+    <div class="card shadow-lg border-0 bg-dark text-white rounded-3 mx-auto" style="max-width:900px;">
+        <div class="card-body p-4">
+            <h2 class="card-title text-warning fw-bold mb-3">@ViewData["Title"]</h2>
+
+            <form asp-area="Admin" asp-controller="BookManagement" asp-action="Edit" asp-route-id="@routeId"
+                  method="post" class="needs-validation" novalidate="novalidate">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label text-light"></label>
+                    <input asp-for="Title" class="form-control bg-secondary text-white border-0" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label text-light"></label>
+                    <textarea asp-for="Description" class="form-control bg-secondary text-white border-0" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Genre" class="form-label text-light"></label>
+                        <select asp-for="Genre" class="form-select bg-secondary text-white border-0"
+                                asp-items="Html.GetEnumSelectList(typeof(OnlineLibrary.Data.Models.BookGenre))"></select>
+                        <span asp-validation-for="Genre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Rating" class="form-label text-light"></label>
+                        <input asp-for="Rating" type="number" min="0" max="5"
+                               class="form-control bg-secondary text-white border-0" />
+                        <span asp-validation-for="Rating" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PublisherId" class="form-label text-light">Publisher</label>
+                        <select asp-for="PublisherId" class="form-select bg-secondary text-white border-0"
+                                asp-items="ViewBag.Publishers">
+                            <option value="">-- Select publisher --</option>
+                        </select>
+                        <span asp-validation-for="PublisherId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch my-3">
+                    <input asp-for="IsRead" class="form-check-input" />
+                    <label asp-for="IsRead" class="form-check-label text-light"></label>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DateRead" class="form-label text-light"></label>
+                        <input asp-for="DateRead" type="date" class="form-control bg-secondary text-white border-0" />
+                        <span asp-validation-for="DateRead" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DateAdded" class="form-label text-light"></label>
+                        <input asp-for="DateAdded" type="date" class="form-control bg-secondary text-white border-0" />
+                        <span asp-validation-for="DateAdded" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AuthorIds" class="form-label text-light">Authors</label>
+                    <select asp-for="AuthorIds" asp-items="ViewBag.Authors"
+                            class="form-select bg-secondary text-white border-0" multiple size="6"></select>
+                    <span asp-validation-for="AuthorIds" class="text-danger small"></span>
+                    <div class="form-text text-danger">Hold Ctrl (Cmd) to select multiple authors.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CoverUrl" class="form-label text-light"></label>
+                    <input asp-for="CoverUrl" class="form-control bg-secondary text-white border-0" />
+                    <span asp-validation-for="CoverUrl" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-warning fw-bold">
+                        <i class="bi bi-floppy-fill me-1"></i> Save Changes
+                    </button>
+                    <a asp-area="Admin" asp-controller="BookManagement" asp-action="Manage"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Manage
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

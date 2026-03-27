@@ -30,6 +30,8 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public bool IsAddedToUserCollection { get; set; }
 
+        public bool IsDeleted { get; set; } // Soft-delete flag
+
         // Extra friendly fields for the view
         public string PublisherName { get; set; } = null!;
 

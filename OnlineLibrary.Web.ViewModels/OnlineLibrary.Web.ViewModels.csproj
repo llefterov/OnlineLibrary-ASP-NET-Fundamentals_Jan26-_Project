@@ -15,4 +15,10 @@
     <ProjectReference Include="..\OnlineLibrary.GCommon\OnlineLibrary.GCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Admin\BookManagement\" />
+    <Folder Include="Admin\AuthorManagement\" />
+    <Folder Include="Admin\PublisherManagement\" />
+  </ItemGroup>
+
 </Project>

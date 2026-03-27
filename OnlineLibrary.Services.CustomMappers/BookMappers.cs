@@ -38,7 +38,10 @@ namespace OnlineLibrary.Services.CustomMappers
                 CoverUrl = book.CoverUrl,
                 DateAdded = book.DateAdded,
                 PublisherId = book.PublisherId,
-                AuthorIds = book.BooksAuthors.Select(ba => ba.AuthorId).ToList()
+                AuthorIds = book.BooksAuthors
+                    .Where(ba => !ba.IsDeleted)
+                    .Select(ba => ba.AuthorId)
+                    .ToList()
             };
         }
 
@@ -49,6 +52,7 @@ namespace OnlineLibrary.Services.CustomMappers
                 Id = book.Id,
                 Title = book.Title,
                 AddedByUserName = book.AddedByUser?.UserName ?? string.Empty, // safe access
+                CoverUrl = book.CoverUrl
             };
 
         }
@@ -67,7 +71,8 @@ namespace OnlineLibrary.Services.CustomMappers
                 PublisherId = booksAllDto.PublisherId,
                 PublisherName = booksAllDto.PublisherName,
                 IsAddedByUser = booksAllDto.IsAddedByUser, // Assuming this is already set correctly in the DTO
-                IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection // Assuming this is already set correctly in the DTO
+                IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection, // Assuming this is already set correctly in the DTO
+                IsDeleted = booksAllDto.IsDeleted
             };
         }
 
@@ -136,6 +141,17 @@ namespace OnlineLibrary.Services.CustomMappers
                 AuthorIds = bookCreateViewModel.AuthorIds
             };
         }
+
+        public static BookFavoritesDto MapBookToBookFavoritesDto(Book book)
+        {
+            return new BookFavoritesDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                CoverUrl = book.CoverUrl ?? string.Empty
+            };
+        }
+
 
         public static BookFavoritesViewModel MapBookFavoritesDtoToBookFavoritesViewModel(BookFavoritesDto favBookDto)
         {

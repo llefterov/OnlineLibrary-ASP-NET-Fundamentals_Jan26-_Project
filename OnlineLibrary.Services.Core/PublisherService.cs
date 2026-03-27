@@ -87,7 +87,7 @@ namespace OnlineLibrary.Services.Core
             }
             catch (DbUpdateException dbEx)
             {
-                throw new PublisherCreateException("Unable to save the author to the database.", dbEx);
+                throw new PublisherCreateException("Unable to save the publisher to the database.", dbEx);
             }
         }
 

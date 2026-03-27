@@ -31,5 +31,15 @@ namespace OnlineLibrary.Data.Repository.Contracts
         Task<Book?> GetBookDeleteDetailsAsync(Guid id, Guid userId);
 
         Task<bool> DeleteBookAsync(Guid id, Guid userId);
+
+        // Admin-specific: bypass ownership checks
+        Task<Book?> GetBookForAdminEditAsync(Guid id);
+        Task<bool> EditBookForAdminAsync(Book model);
+
+        Task<Book?> GetBookAdminDeleteDetailsAsync(Guid id);
+        Task<bool> DeleteBookForAdminAsync(Guid id);
+
+        Task<IEnumerable<Book>> GetAllBooksForAdminAsync();
+        Task<bool> RestoreBookForAdminAsync(Guid id);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
@@ -127,7 +126,8 @@ namespace OnlineLibrary.Data.Repository
                        .Select(ba => new BookAuthor
                        {
                            AuthorId = ba.AuthorId,
-                           BookId = inputModel.Id
+                           BookId = inputModel.Id,
+                           IsDeleted = false
                        })
                        .ToList();
 
@@ -272,23 +272,37 @@ namespace OnlineLibrary.Data.Repository
             {
                 var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
 
-                // Remove unselected authors
-                var toRemove = bookEntity.BooksAuthors
-                    .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
+                var activeLinks = bookEntity.BooksAuthors
+                    .Where(ba => !ba.IsDeleted)
                     .ToList();
 
-                DbContext.BooksAuthors.RemoveRange(toRemove);
+                // Soft-delete unselected active authors
+                foreach (var link in activeLinks.Where(ba => !newAuthorIds.Contains(ba.AuthorId)))
+                {
+                    link.IsDeleted = true;
+                }
 
-                // Add newly selected authors
-                var toAdd = newAuthorIds
-                    .Except(existingAuthorIds)
-                    .Select(authorId => new BookAuthor
+                // Add or reactivate selected authors
+                foreach (var authorId in newAuthorIds)
+                {
+                    var existingLink = bookEntity.BooksAuthors
+                        .FirstOrDefault(ba => ba.AuthorId == authorId);
+
+                    if (existingLink == null)
                     {
-                        BookId = bookEntity.Id,
-                        AuthorId = authorId
-                    });
+                        await DbContext.BooksAuthors.AddAsync(new BookAuthor
+                        {
+                            BookId = bookEntity.Id,
+                            AuthorId = authorId,
+                            IsDeleted = false
+                        });
+                    }
+                    else if (existingLink.IsDeleted)
+                    {
+                        existingLink.IsDeleted = false;
+                    }
+                }
 
-                await DbContext.BooksAuthors.AddRangeAsync(toAdd);
                 await DbContext.SaveChangesAsync();
                 return true;
 
@@ -348,10 +362,15 @@ namespace OnlineLibrary.Data.Repository
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
             }
 
-            // Remove dependent BookAuthor entries
-            var bookAuthorEntries = DbContext.BooksAuthors
-                .Where(ba => ba.BookId == id);
-            DbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
+            // Soft-delete dependent BookAuthor entries
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && !ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = true;
+            }
 
             // Remove dependent UserBook entries (user collections)
             var userBookEntries = DbContext.UsersBooks
@@ -365,8 +384,176 @@ namespace OnlineLibrary.Data.Repository
             return true;
         }
 
+        // Admin-specific: no ownership check
+        public async Task<Book?> GetBookForAdminEditAsync(Guid id)
+        {
+            return await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.Publisher)
+                .Include(b => b.UsersBooks)
+                .Include(b => b.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
+                .Include(b => b.AddedByUser)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
 
+        public async Task<bool> EditBookForAdminAsync(Book inputModel)
+        {
+            var bookEntity = await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.BooksAuthors)
+                .FirstOrDefaultAsync(b => b.Id == inputModel.Id);
 
+            if (bookEntity == null)
+            {
+                return false;
+            }
 
+            bookEntity.Title = inputModel.Title;
+            bookEntity.Description = inputModel.Description;
+            bookEntity.Genre = inputModel.Genre;
+            bookEntity.IsRead = inputModel.IsRead;
+            bookEntity.DateRead = inputModel.DateRead;
+            bookEntity.Rating = inputModel.Rating;
+            bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
+            bookEntity.DateAdded = inputModel.DateAdded;
+            bookEntity.PublisherId = inputModel.PublisherId;
+
+            if (!await DbContext.Publishers.AnyAsync(p => p.Id == inputModel.PublisherId))
+            {
+                throw new PublisherDoesntExistException("Selected publisher does not exist.");
+            }
+
+            if (inputModel.AuthorIds != null && inputModel.AuthorIds.Any())
+            {
+                var validAuthorIds = await DbContext.Authors
+                    .Where(a => inputModel.AuthorIds.Contains(a.Id))
+                    .Select(a => a.Id)
+                    .ToListAsync();
+
+                var invalidIds = inputModel.AuthorIds.Except(validAuthorIds).ToList();
+                if (invalidIds.Any())
+                {
+                    throw new AuthorDoesntExistException("One or more selected authors are invalid.");
+                }
+            }
+
+            try
+            {
+                var existingAuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList();
+                var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
+
+                var toRemove = bookEntity.BooksAuthors
+                    .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
+                    .ToList();
+                DbContext.BooksAuthors.RemoveRange(toRemove);
+
+                var toAdd = newAuthorIds
+                    .Except(existingAuthorIds)
+                    .Select(authorId => new BookAuthor { BookId = bookEntity.Id, AuthorId = authorId });
+                await DbContext.BooksAuthors.AddRangeAsync(toAdd);
+
+                await DbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("An error occurred while updating the book. Please try again.");
+            }
+        }
+
+        public async Task<Book?> GetBookAdminDeleteDetailsAsync(Guid id)
+        {
+            var book = await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.AddedByUser)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                return null;
+            }
+
+            return new Book
+            {
+                Id = book.Id,
+                Title = book.Title,
+                AddedByUserName = book.AddedByUser?.UserName,
+                CoverUrl = book.CoverUrl
+            };
+        }
+
+        public async Task<bool> DeleteBookForAdminAsync(Guid id)
+        {
+            // Load entity
+            var book = await DbContext.Books
+                .Where(b => !b.IsDeleted)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                return false;
+            }
+
+            // Soft-delete dependent BookAuthor entries
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && !ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = true;
+            }
+
+            // Remove dependent UserBook entries (user collections)
+            var userBookEntries = DbContext.UsersBooks.Where(ub => ub.BookId == id);
+            DbContext.UsersBooks.RemoveRange(userBookEntries);
+
+            // Soft-delete the book
+            book.IsDeleted = true;
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Book>> GetAllBooksForAdminAsync()
+        {
+            return await DbContext.Books
+                .Include(b => b.Publisher)
+                .Include(b => b.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
+                .Include(b => b.AddedByUser)
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Genre)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<bool> RestoreBookForAdminAsync(Guid id)
+        {
+            var book = await DbContext.Books
+                .Where(b => b.IsDeleted)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                return false;
+            }
+
+            book.IsDeleted = false;
+
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = false;
+            }
+
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

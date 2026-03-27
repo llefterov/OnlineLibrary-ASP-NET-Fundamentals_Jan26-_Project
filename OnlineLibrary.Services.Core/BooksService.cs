@@ -133,6 +133,7 @@ namespace OnlineLibrary.Services.Core
                 PublisherId = bookEntity.PublisherId,
                 PublisherName = bookEntity.Publisher?.Name ?? string.Empty,
                 AuthorsName = string.Join(", ", bookEntity.BooksAuthors
+                    .Where(ba => !ba.IsDeleted)
                     .Select(ba => ba.Author.FullName)),
                 AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
                 IsAddedByUser = false,
@@ -239,16 +240,6 @@ namespace OnlineLibrary.Services.Core
         public async Task<bool> DeleteBookDtoAsync(Guid id, Guid userId)
         {
             return await bookRepository.DeleteBookAsync(id, userId);
-        }
-
-        private static BookFavoritesDto MapBookToBookFavoritesDto(Book book)
-        {
-            return new BookFavoritesDto
-            {
-                Id = book.Id,
-                Title = book.Title,
-                CoverUrl = book.CoverUrl ?? string.Empty
-            };
         }
     }
 }
