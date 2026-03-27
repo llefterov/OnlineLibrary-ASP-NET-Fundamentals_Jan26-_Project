@@ -39,6 +39,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var publisherDto = await publisherService.GetPublisherDetailsByIdAsync(id);
@@ -76,6 +77,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Add()
         {
             var model = new PublisherAddViewModel();
@@ -83,6 +85,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add(PublisherAddViewModel inputModel)
         {
             var modelDto = publisherService.GetEmptyPublisherViewModel();
@@ -126,6 +129,7 @@ namespace OnlineLibrary.Web.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
             if (id == Guid.Empty)
@@ -158,6 +162,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id, PublisherEditViewModel inputModel)
         {
             if (id == Guid.Empty)
@@ -207,6 +212,7 @@ namespace OnlineLibrary.Web.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             if (id == Guid.Empty)
@@ -227,6 +233,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
         {
             if (id == Guid.Empty)

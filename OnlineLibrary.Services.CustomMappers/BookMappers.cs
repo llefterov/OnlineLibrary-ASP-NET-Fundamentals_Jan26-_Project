@@ -49,6 +49,7 @@ namespace OnlineLibrary.Services.CustomMappers
                 Id = book.Id,
                 Title = book.Title,
                 AddedByUserName = book.AddedByUser?.UserName ?? string.Empty, // safe access
+                CoverUrl = book.CoverUrl
             };
 
         }
@@ -67,7 +68,8 @@ namespace OnlineLibrary.Services.CustomMappers
                 PublisherId = booksAllDto.PublisherId,
                 PublisherName = booksAllDto.PublisherName,
                 IsAddedByUser = booksAllDto.IsAddedByUser, // Assuming this is already set correctly in the DTO
-                IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection // Assuming this is already set correctly in the DTO
+                IsAddedToUserCollection = booksAllDto.IsAddedToUserCollection, // Assuming this is already set correctly in the DTO
+                IsDeleted = booksAllDto.IsDeleted
             };
         }
 

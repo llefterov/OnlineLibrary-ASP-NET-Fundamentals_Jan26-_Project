@@ -32,5 +32,7 @@ namespace OnlineLibrary.Services.Models.Book
         public string GenreName { get; set; } = null!;
 
         public ICollection<BookAuthor> BooksAuthors { get; set; } = new HashSet<BookAuthor>();
+
+        public bool IsDeleted { get; set; }
     }
 }

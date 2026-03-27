@@ -35,6 +35,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Amin,User")]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var authorDetailsDto = await authorService
@@ -72,6 +73,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Add()
         {
             var model = new AuthorAddViewModel();
@@ -79,6 +81,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add(AuthorAddViewModel inputModel)
         {
             if (!ModelState.IsValid)
@@ -117,6 +120,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
             if (id == Guid.Empty)
@@ -150,6 +154,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit([FromRoute] Guid id, AuthorEditViewModel inputModel)
         {
             if (id == Guid.Empty)
@@ -198,6 +203,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             if (id == Guid.Empty)
@@ -218,6 +224,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid id)
         {
             if (id == Guid.Empty)

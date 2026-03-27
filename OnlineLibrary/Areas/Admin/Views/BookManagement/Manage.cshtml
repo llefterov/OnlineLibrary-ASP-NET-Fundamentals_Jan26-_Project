@@ -1,0 +1,85 @@
+@using OnlineLibrary.Web.ViewModels.Books
+@using static OnlineLibrary.GCommon.ApplicationConstants
+@model IEnumerable<BooksAllViewModel>
+
+@{
+    ViewData["Title"] = "Manage Books";
+}
+
+<div class="container mt-4">
+    <h1 class="text-center text-warning fw-bold">Manage Books</h1>
+    <p class="text-center text-muted">View, edit, or delete book entries.</p>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="btn btn-secondary fw-bold">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <a asp-area="Admin" asp-controller="BookManagement" asp-action="Create" class="btn btn-success fw-bold shadow-lg">
+            <i class="bi bi-plus-circle"></i> Add New Book
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="bi bi-exclamation-circle"></i> No books found. Click "Add New Book" to create one.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover shadow-lg rounded-3">
+                <thead>
+                    <tr class="text-warning text-center">
+                        <th scope="col">Title</th>
+                        <th scope="col">Genre</th>
+                        <th scope="col">Publisher</th>
+                        <th scope="col">Rating</th>
+                        <th scope="col">Added By</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in Model)
+                    {
+                        <tr class="align-middle text-center @(book.IsDeleted ? "table-danger" : "")">
+                            <td class="fw-bold text-start">
+                                @book.Title
+                                @if (book.IsDeleted)
+                                {
+                                    <span class="badge bg-danger ms-2">Deleted</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-primary">@book.GenreName</span></td>
+                            <td>@book.PublisherName</td>
+                            <td>@book.Rating / 5</td>
+                            <td class="text-warning small">@book.AddedByUserName</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (!book.IsDeleted)
+                                    {
+                                        <a asp-area="Admin" asp-controller="BookManagement" asp-action="Edit"
+                                           asp-route-id="@book.Id" class="btn btn-sm btn-warning fw-bold">
+                                            <i class="bi bi-pencil-fill"></i> Edit
+                                        </a>
+                                    }
+
+                                    <form asp-area="Admin" asp-controller="BookManagement"
+                                          asp-action="@(book.IsDeleted ? "Restore" : "Delete")"
+                                          asp-route-id="@book.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="btn btn-sm fw-bold @(book.IsDeleted ? "btn-success" : "btn-danger")">
+                                            <i class="bi @(book.IsDeleted ? "bi-arrow-clockwise" : "bi-trash-fill")"></i>
+                                            @(book.IsDeleted ? "Restore" : "Delete")
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
