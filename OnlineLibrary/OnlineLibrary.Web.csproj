@@ -32,4 +32,8 @@
     <ProjectReference Include="..\OnlineLibrary.Web.ViewModels\OnlineLibrary.Web.ViewModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\Admin\Views\BookManagement\" />
+  </ItemGroup>
+
 </Project>
