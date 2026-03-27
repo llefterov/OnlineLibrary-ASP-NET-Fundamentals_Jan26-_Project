@@ -21,5 +21,7 @@ namespace OnlineLibrary.Data.Models
 
         [Required]
         public Author Author { get; set; } = null!;
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

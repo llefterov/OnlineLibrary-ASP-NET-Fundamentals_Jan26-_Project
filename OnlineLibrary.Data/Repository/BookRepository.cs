@@ -126,7 +126,8 @@ namespace OnlineLibrary.Data.Repository
                        .Select(ba => new BookAuthor
                        {
                            AuthorId = ba.AuthorId,
-                           BookId = inputModel.Id
+                           BookId = inputModel.Id,
+                           IsDeleted = false
                        })
                        .ToList();
 
@@ -271,23 +272,37 @@ namespace OnlineLibrary.Data.Repository
             {
                 var newAuthorIds = inputModel.AuthorIds ?? new List<Guid>();
 
-                // Remove unselected authors
-                var toRemove = bookEntity.BooksAuthors
-                    .Where(ba => !newAuthorIds.Contains(ba.AuthorId))
+                var activeLinks = bookEntity.BooksAuthors
+                    .Where(ba => !ba.IsDeleted)
                     .ToList();
 
-                DbContext.BooksAuthors.RemoveRange(toRemove);
+                // Soft-delete unselected active authors
+                foreach (var link in activeLinks.Where(ba => !newAuthorIds.Contains(ba.AuthorId)))
+                {
+                    link.IsDeleted = true;
+                }
 
-                // Add newly selected authors
-                var toAdd = newAuthorIds
-                    .Except(existingAuthorIds)
-                    .Select(authorId => new BookAuthor
+                // Add or reactivate selected authors
+                foreach (var authorId in newAuthorIds)
+                {
+                    var existingLink = bookEntity.BooksAuthors
+                        .FirstOrDefault(ba => ba.AuthorId == authorId);
+
+                    if (existingLink == null)
                     {
-                        BookId = bookEntity.Id,
-                        AuthorId = authorId
-                    });
+                        await DbContext.BooksAuthors.AddAsync(new BookAuthor
+                        {
+                            BookId = bookEntity.Id,
+                            AuthorId = authorId,
+                            IsDeleted = false
+                        });
+                    }
+                    else if (existingLink.IsDeleted)
+                    {
+                        existingLink.IsDeleted = false;
+                    }
+                }
 
-                await DbContext.BooksAuthors.AddRangeAsync(toAdd);
                 await DbContext.SaveChangesAsync();
                 return true;
 
@@ -347,10 +362,15 @@ namespace OnlineLibrary.Data.Repository
                 throw new UnauthorizedAccessException("You are not authorized to delete this book.");
             }
 
-            // Remove dependent BookAuthor entries
-            var bookAuthorEntries = DbContext.BooksAuthors
-                .Where(ba => ba.BookId == id);
-            DbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
+            // Soft-delete dependent BookAuthor entries
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && !ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = true;
+            }
 
             // Remove dependent UserBook entries (user collections)
             var userBookEntries = DbContext.UsersBooks
@@ -477,9 +497,15 @@ namespace OnlineLibrary.Data.Repository
                 return false;
             }
 
-            // Remove dependent BookAuthor entries
-            var bookAuthorEntries = DbContext.BooksAuthors.Where(ba => ba.BookId == id);
-            DbContext.BooksAuthors.RemoveRange(bookAuthorEntries);
+            // Soft-delete dependent BookAuthor entries
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && !ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = true;
+            }
 
             // Remove dependent UserBook entries (user collections)
             var userBookEntries = DbContext.UsersBooks.Where(ub => ub.BookId == id);
@@ -516,6 +542,16 @@ namespace OnlineLibrary.Data.Repository
             }
 
             book.IsDeleted = false;
+
+            var bookAuthorEntries = await DbContext.BooksAuthors
+                .Where(ba => ba.BookId == id && ba.IsDeleted)
+                .ToListAsync();
+
+            foreach (var bookAuthorEntry in bookAuthorEntries)
+            {
+                bookAuthorEntry.IsDeleted = false;
+            }
+
             await DbContext.SaveChangesAsync();
             return true;
         }
