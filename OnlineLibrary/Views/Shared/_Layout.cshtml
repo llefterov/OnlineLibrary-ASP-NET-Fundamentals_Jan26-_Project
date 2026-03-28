@@ -25,60 +25,58 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto">
 
-                     @if (User?.Identity?.IsAuthenticated ?? false)
+                    @if (User?.Identity?.IsAuthenticated ?? false)
+                    {
+                        @if (User.IsInRole("Admin"))
                         {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-light fw-bold" href="#" id="manageDropdown"
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light fw-bold" href="#" id="manageDropdown"
                                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-tools"></i> Admin
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-dark border-0">
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">
+                                    <i class="bi bi-tools"></i> Admin
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark border-0">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">
                                             <i class="bi bi-people-fill"></i> Manage Users
-                                            </a>
-                                        </li>
+                                        </a>
+                                    </li>
                                     <li>
                                         <a class="dropdown-item" asp-area="Admin" asp-controller="BookManagement" asp-action="Manage">
                                             <i class="bi bi-book"></i> Manage Books
                                         </a>
                                     </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="AuthorManagement" asp-action="Manage">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="AuthorManagement" asp-action="Manage">
                                             <i class="bi bi-pencil-square"></i> Manage Authors
-                                            </a>
-                                        </li>
+                                        </a>
+                                    </li>
                                     <li>
                                         <a class="dropdown-item" asp-area="Admin" asp-controller="PublisherManagement" asp-action="Manage">
                                             <i class="bi bi-journal-richtext"></i> Manage Publishers
                                         </a>
                                     </li>
-                                      
-                                    </ul>
-                                </li>
-                            }
 
-                    @*     @if (User.IsInRole("User"))
+                                </ul>
+                            </li>
+                        }
+
+                        @*  @if (User.IsInRole("User") || User.IsInRole("")) *@
+                        else
                         {
                             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Books/All">Books</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Author/All">Authors</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Publisher/All">Publishers</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Books/Favorites">Favorites</a></li>
-                        } *@
+                        }
                     }
-
-                  @*   @if (User?.Identity?.IsAuthenticated == true)
+                    else if (User?.Identity?.IsAuthenticated == false)
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Books/Favorites">Favorites</a></li>
-                    } *@
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Books/All">Books</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Author/All">Authors</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Publisher/All">Publishers</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Books/Favorites">Favorites</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Books/All">Books</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Author/All">Authors</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Publisher/All">Publishers</a></li>
+                    }
 
                     <li class="nav-item"><a class="nav-link" href="/Home/Privacy">Privacy</a></li>
                 </ul>
@@ -113,7 +111,7 @@
 
     @RenderSection("Scripts", required: false)
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   @*  <script src="~/js/adminManagement.js" asp-append-version="true"></script> *@
+    @* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    @*  <script src="~/js/adminManagement.js" asp-append-version="true"></script> *@
 </body>
 </html>
