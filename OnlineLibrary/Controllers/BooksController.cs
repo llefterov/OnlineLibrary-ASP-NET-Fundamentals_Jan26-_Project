@@ -316,7 +316,6 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpPost, ActionName("Delete")]
         [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
         {
             Guid userId = GetUserId();
