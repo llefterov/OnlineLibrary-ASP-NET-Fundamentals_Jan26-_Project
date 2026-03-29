@@ -32,7 +32,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> MyBooks()
         {
             var userId = GetUserId();
@@ -43,6 +43,7 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             return View(myBooksViewModel);
@@ -50,8 +51,8 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet("Books/Details/{id:guid}")]
         [HttpGet("Books/Details/{slug}/{id:guid}")]
-        [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> Details(Guid id, string? slug = null)
+        [Authorize(Roles = "Admin,Manager,User")]
+        public async Task<IActionResult> Details(Guid id)
         {
             var bookDetailsDto = await booksService.GetBookDtoDetailsByIdAsync(id);
             if (bookDetailsDto == null)
@@ -72,7 +73,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Create()
         {
             await AddPublishersAndAuthirsListsAsync();
@@ -83,7 +84,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Create(BookCreateViewModel model)
         {
             await AddPublishersAndAuthirsListsAsync();
@@ -135,7 +136,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,Manager,User")]
         public async Task<IActionResult> Favorites()
         {
             Guid userId = GetUserId();
@@ -151,7 +152,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,Manager,User")]
         public async Task<IActionResult> Save(Guid id)
         {
             Guid userId = GetUserId();
@@ -171,7 +172,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,Manager,User")]
         public async Task<IActionResult> Remove(Guid id)
         {
             Guid userId = GetUserId();
@@ -185,7 +186,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(Guid id)
         {
             await AddPublishersAndAuthirsListsAsync();
@@ -220,7 +221,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit([FromRoute] Guid id, BookEditViewModel model)
         {
             if (id != model.Id || id == Guid.Empty)
@@ -282,7 +283,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(Guid id, string? returnUrl = null)
         {
             Guid userId = GetUserId();
@@ -315,7 +316,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
         {
             Guid userId = GetUserId();

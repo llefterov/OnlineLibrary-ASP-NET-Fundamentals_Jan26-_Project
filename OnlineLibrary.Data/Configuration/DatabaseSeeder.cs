@@ -10,7 +10,7 @@ namespace OnlineLibrary.Data.Configuration
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-            string[] roles = { "Admin", "User" };
+            string[] roles = {"Admin","Manager","User"};
 
             foreach (var role in roles)
             {

@@ -144,7 +144,18 @@ namespace OnlineLibrary.Web.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     var userDefaultRole = "User"; // Replace with your default role
-                    await _userManager.AddToRoleAsync(user, userDefaultRole);
+
+                    var roleResult = await _userManager.AddToRoleAsync(user, userDefaultRole);
+                    if (!roleResult.Succeeded)
+                    {
+                        foreach (var error in roleResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+
+                        return Page();
+                    }
+
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                     //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 

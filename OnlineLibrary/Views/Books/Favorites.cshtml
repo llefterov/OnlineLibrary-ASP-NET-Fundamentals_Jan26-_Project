@@ -4,51 +4,57 @@
 @model IEnumerable<BookFavoritesViewModel>
 @inject ISlugGenerator slugGenerator
 
-
 @{
     ViewData["Title"] = "My Favorites";
 }
+<link rel="stylesheet" href="~/css/books-all.css" asp-append-version="true" />
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">@ViewData["Title"]</h1>
         <a asp-controller="Books" asp-action="All" class="btn btn-sm btn-outline-secondary">Browse all books</a>
     </div>
-
-    @if (!Model?.Any() ?? true)
-    {
-        <div class="alert alert-info">You have no favorite books yet.</div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            @foreach (var item in Model)
-            {
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@(string.IsNullOrEmpty(item.CoverUrl) ? DefaultImageUrl : item.CoverUrl)"
-                             class="card-img-top" alt="@item.Title" style="height:220px; object-fit:cover;" />
-
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title mb-2 text-truncate">@item.Title</h5>
-
-                            <div class="mt-auto d-flex gap-2 justify-content-center">
-                                <a asp-route="slugRoute" asp-route-id="@item.Id" asp-route-slug="@slugGenerator.GenerateSlug(item.Title)" class="btn btn-sm btn-info">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </a>
-
-                                <form asp-controller="Books" asp-action="Remove" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash-alt"></i> Remove
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
 </div>
+
+@if (!Model?.Any() ?? true)
+{
+    <div class="alert alert-info">You have no favorite books yet.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BookFavoritesViewModel book in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: auto;" />
+                    </td>
+                    <td>@book.Title</td>
+                    <td>
+                        @if (User?.Identity?.IsAuthenticated == true @*book.AddedByUserName != User?.Identity?.Name*@)
+                        {
+                            <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+
+                            <form asp-controller="Books" asp-action="Remove" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Remove
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

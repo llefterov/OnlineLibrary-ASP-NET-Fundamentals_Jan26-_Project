@@ -48,10 +48,10 @@
                 <input type="hidden" asp-for="Id" />
 
                 <div class="d-flex gap-2">
-                  @*  @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                   @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
                     {
                         <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                    } *@
+                    }
                     <a asp-controller="Publisher" asp-action="All" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </form>

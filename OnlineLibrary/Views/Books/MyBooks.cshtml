@@ -3,60 +3,71 @@
 @using static OnlineLibrary.GCommon.ApplicationConstants
 @model IEnumerable<BooksAllViewModel>
 @inject ISlugGenerator slugGenerator
+
 @{
     ViewData["Title"] = "My Books";
 }
 
 <link rel="stylesheet" href="~/css/books-all.css" asp-append-version="true" />
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h3 mb-0">@ViewData["Title"]</h1>
-            <p class="h6 mb-0 text-muted mt-1">Books added by the current site user: <strong>@User?.Identity?.Name?.ToString()</strong></p>  
-        </div>
-
-        <div>
-            @if (User?.Identity?.IsAuthenticated == true)
-            {
-                <a asp-controller="Books" asp-action="All" class="btn btn-sm btn-outline-primary ms-2">Browse all books</a>
-                <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-outline-primary ms-2">Add New Book</a>
-            }
-        </div>
+@* <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+ *@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        <p class="h6 mb-0 text-muted mt-1">Books added by the current site user: <strong>@User?.Identity?.Name?.ToString()</strong></p>
     </div>
 
-    @if (!Model?.Any() ?? true)
-    {
-        <div class="alert alert-info">No books found.</div>
-    }
-    else
-    {
-        <div class="cards-grid">
-            @foreach (var book in Model)
-            {
-                <div class="book-card">
-                    <div class="card shadow-sm">
-                        <div class="card-top">
-                            <h5 class="card-title mb-1">@book.Title</h5>
-                            <p class="card-subtitle mb-1 text-muted small">@book.PublisherName</p>
-                            <span class="badge bg-primary">@book.GenreName</span>
-                        </div>
-
-                        <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)"
-                             class="card-cover" alt="@book.Title" />
-
-                        <div class="card-bottom">
-                            <p class="mb-0 small text-muted"><strong>Rating:</strong> @book.Rating / 5</p>
-
-                            <div class="card-actions">
-                                <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+    <div>
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Books" asp-action="All" class="btn btn-sm btn-outline-primary ms-2">Browse all books</a>
+        }
+    </div>
 </div>
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Publisher</th>
+            <th>Genre</th>
+            <th>Rating</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (BooksAllViewModel book in Model)
+        {
+            <tr>
+                <td>
+
+                    <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: auto;" />
+
+                </td>
+                <td>@book.Title</td>
+                <td>@book.PublisherName</td>
+                <td>@book.GenreName</td>
+                <td>@book.Rating / 5</td>
+                <td>
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+
+                        @if (!book.IsAddedToUserCollection)
+                        {
+                            <form asp-controller="Books" asp-action="Save" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <button type="submit" class="btn btn-sm btn-success">Favorites</button>
+                            </form>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
