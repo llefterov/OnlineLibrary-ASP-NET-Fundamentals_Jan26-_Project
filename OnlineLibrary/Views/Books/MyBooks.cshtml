@@ -1,6 +1,8 @@
 ﻿@using OnlineLibrary.Web.ViewModels.Books
+@using OnlineLibrary.Web.Infrastructure.Utilities.Contracts
 @using static OnlineLibrary.GCommon.ApplicationConstants
 @model IEnumerable<BooksAllViewModel>
+@inject ISlugGenerator slugGenerator
 @{
     ViewData["Title"] = "My Books";
 }
@@ -47,7 +49,7 @@
                             <p class="mb-0 small text-muted"><strong>Rating:</strong> @book.Rating / 5</p>
 
                             <div class="card-actions">
-                                <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-info">
+                                <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
                                     <i class="fas fa-info-circle"></i> Details
                                 </a>
                             </div>

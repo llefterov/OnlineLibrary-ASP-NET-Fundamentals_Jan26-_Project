@@ -1,6 +1,9 @@
 @using OnlineLibrary.Web.ViewModels.Books
+@using OnlineLibrary.Web.Infrastructure.Utilities.Contracts
 @using static OnlineLibrary.GCommon.ApplicationConstants
 @model IEnumerable<BookFavoritesViewModel>
+@inject ISlugGenerator slugGenerator
+
 
 @{
     ViewData["Title"] = "My Favorites";
@@ -30,7 +33,7 @@
                             <h5 class="card-title mb-2 text-truncate">@item.Title</h5>
 
                             <div class="mt-auto d-flex gap-2 justify-content-center">
-                                <a asp-controller="Books" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                <a asp-route="slugRoute" asp-route-id="@item.Id" asp-route-slug="@slugGenerator.GenerateSlug(item.Title)" class="btn btn-sm btn-info">
                                     <i class="fas fa-info-circle"></i> Details
                                 </a>
 

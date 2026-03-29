@@ -35,7 +35,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var authorDetailsDto = await authorService

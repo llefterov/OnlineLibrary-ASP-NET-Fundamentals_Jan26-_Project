@@ -4,7 +4,8 @@ using System.Security.Claims;
 
 namespace OnlineLibrary.Web.Controllers
 {
-    [Authorize]
+    //[Authorize]
+    [AutoValidateAntiforgeryToken]
     public class BaseController : Controller
     {
         public Guid GetUserId()

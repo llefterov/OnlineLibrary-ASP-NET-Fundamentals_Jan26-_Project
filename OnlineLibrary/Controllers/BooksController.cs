@@ -48,9 +48,10 @@ namespace OnlineLibrary.Web.Controllers
             return View(myBooksViewModel);
         }
 
-        [HttpGet]
+        [HttpGet("Books/Details/{id:guid}")]
+        [HttpGet("Books/Details/{slug}/{id:guid}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> Details(Guid id, string? slug = null)
         {
             var bookDetailsDto = await booksService.GetBookDtoDetailsByIdAsync(id);
             if (bookDetailsDto == null)
@@ -62,7 +63,6 @@ namespace OnlineLibrary.Web.Controllers
             var isAddedByUser = await booksService.IsBookDtoAddedByUserAsync(userId, id);
             var isAddedToUserCollection = await booksService.IsBookDtoAddedToUserCollectionAsync(userId, id);
 
-            // Assuming bookDetails has only one item since it's by ID
             bookDetailsDto.IsAddedByUser = isAddedByUser;
             bookDetailsDto.IsAddedToUserCollection = isAddedToUserCollection;
 
@@ -316,7 +316,6 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpPost, ActionName("Delete")]
         [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, string? returnUrl)
         {
             Guid userId = GetUserId();

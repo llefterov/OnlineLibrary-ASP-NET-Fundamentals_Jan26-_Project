@@ -10,6 +10,8 @@ namespace OnlineLibrary
     using OnlineLibrary.Services.Core;
     using OnlineLibrary.Services.Core.Interfaces;
     using OnlineLibrary.Web.Infrastructure.Extensions;
+    using OnlineLibrary.Web.Infrastructure.Utilities;
+    using OnlineLibrary.Web.Infrastructure.Utilities.Contracts;
 
     public class Program
     {
@@ -29,6 +31,8 @@ namespace OnlineLibrary
 
             builder.Services.RegisterUserServices(typeof(IAuthorService));
             builder.Services.RegisterRepositories(typeof(IAuthorRepository));
+
+            builder.Services.AddSingleton<ISlugGenerator, SlugGenerator>();
 
             //builder.Services.AddScoped<IBooksService, BooksService>();
             //builder.Services.AddScoped<IAuthorService, AuthorService>();
@@ -108,16 +112,17 @@ namespace OnlineLibrary
             app.MapControllerRoute(
                name: "areas",
                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-            app.UseStatusCodePagesWithRedirects("/Home/Error/{0}");
-
+            app.MapControllerRoute(
+                name: "slugRoute",
+                pattern: "Books/Details/{slug:required}/{id:guid}");
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+               // .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
 
+            app.UseStatusCodePagesWithRedirects("/Home/Error/{0}");
             app.Run();
         }
 

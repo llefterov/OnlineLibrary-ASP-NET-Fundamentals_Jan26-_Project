@@ -35,15 +35,15 @@ namespace OnlineLibrary.Web.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager)
-           // ILogger<RegisterModel> logger)
-            //IEmailSender emailSender)
+        // ILogger<RegisterModel> logger)
+        //IEmailSender emailSender)
         {
             _userManager = userManager;
             _userStore = userStore;
             _signInManager = signInManager;
             _emailStore = GetEmailStore();
-           // _logger = logger;
-           // _emailSender = emailSender;
+            // _logger = logger;
+            // _emailSender = emailSender;
         }
 
         /// <summary>
@@ -143,6 +143,8 @@ namespace OnlineLibrary.Web.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
+                    var userDefaultRole = "User"; // Replace with your default role
+                    await _userManager.AddToRoleAsync(user, userDefaultRole);
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                     //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
