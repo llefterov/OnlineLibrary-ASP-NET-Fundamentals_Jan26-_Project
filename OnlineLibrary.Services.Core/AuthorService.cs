@@ -17,7 +17,7 @@ namespace OnlineLibrary.Services.Core
             this.authorRepository = authorRepository;
         }
 
-        public async Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync(string? searchQuery = null)
+        public async Task<(IEnumerable<AuthorsAllDto> AuthorsAllDtos, int TotalPages)> GetAllAuthorsForViewModelAsync(string? searchQuery = null, int pageNumber = 1, int pageSize = 20)
         {
             var authorsData = await authorRepository.GetAllAuthorsAsync();
 
@@ -27,7 +27,15 @@ namespace OnlineLibrary.Services.Core
                 authorsData = authorsData.Where(a => a.FullName.ToLower().Contains(searchQuery));
             }
 
-            var authors = authorsData
+            var orderedAuthors = authorsData
+                .OrderBy(a => a.FullName);
+
+            int totalAuthors = orderedAuthors.Count();
+            int totalPages = (int)Math.Ceiling(totalAuthors / (double)pageSize);
+
+            var authors = orderedAuthors
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(a => new AuthorsAllDto
                 {
                     Id = a.Id,
@@ -35,7 +43,7 @@ namespace OnlineLibrary.Services.Core
                 })
                 .ToList();
 
-            return authors;
+            return (authors, totalPages);
         }
 
         public async Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id)
