@@ -5,8 +5,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IBooksService
     {
-        Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null);
-        Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null);
+        Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5);
+        Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5);
 
         Task<BookDetailsDto?> GetBookDtoDetailsByIdAsync(Guid id);
 

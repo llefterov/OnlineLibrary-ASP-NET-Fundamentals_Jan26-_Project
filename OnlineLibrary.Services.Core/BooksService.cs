@@ -18,7 +18,7 @@ namespace OnlineLibrary.Services.Core
 
 
 
-        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
+        public async Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5)
         {
             var allBooks = await bookRepository.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
 
@@ -40,22 +40,16 @@ namespace OnlineLibrary.Services.Core
                 allBooks = allBooks.Where(b => b.Genre.ToString().ToLower().Contains(genreFilter));
             }
 
-            var allBooksDto = allBooks
-                .Select(b => new
-                {
-                    b.Id,
-                    b.Title,
-                    b.Description,
-                    b.Genre,
-                    b.CoverUrl,
-                    b.AddedByUser,
-                    b.PublisherId,
-                    b.Rating,
-                    PublisherName = b.Publisher.Name,
-                    b.UsersBooks
-                })
+            var orderedBooks = allBooks
                 .OrderBy(b => b.Title)
-                .ThenBy(b => b.Genre)
+                .ThenBy(b => b.Genre);
+
+            int totalBooks = orderedBooks.Count();
+            int totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
+
+            var allBooksDto = orderedBooks
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(b => new BookAllDto
                 {
                     Id = b.Id,
@@ -64,21 +58,23 @@ namespace OnlineLibrary.Services.Core
                     GenreName = b.Genre.ToString(),
                     Rating = b.Rating,
                     CoverUrl = b.CoverUrl ?? string.Empty,
-                    AddedByUserName = b.AddedByUser.UserName, // null-safe
+                    AddedByUserName = b.AddedByUser.UserName,
                     PublisherId = b.PublisherId,
-                    PublisherName = b.PublisherName,
+                    PublisherName = b.Publisher.Name,
                     IsAddedByUser = userId != null && b.AddedByUser != null && b.AddedByUser.Id == userId,
                     IsAddedToUserCollection = userId != null && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
                 })
                 .ToList();
 
-            return allBooksDto;
+            return (allBooksDto, totalPages);
         }
 
-        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
+        public async Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5)
         {
             var allBooks = await bookRepository
                     .GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+
+            allBooks = allBooks.Where(b => b.AddedByUserId == userId);
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
@@ -98,40 +94,33 @@ namespace OnlineLibrary.Services.Core
                 allBooks = allBooks.Where(b => b.Genre.ToString().ToLower().Contains(genreFilter));
             }
 
-            var allBooksDto = allBooks
-               .Select(b => new
-               {
-                   b.Id,
-                   b.Title,
-                   b.Description,
-                   b.Genre,
-                   b.CoverUrl,
-                   b.AddedByUser,
-                   b.PublisherId,
-                   b.Rating,
-                   PublisherName = b.Publisher.Name,
-                   b.UsersBooks
-               })
-               .OrderBy(b => b.Title)
-               .ThenBy(b => b.Genre)
-               .Select(b => new BookAllDto
-               {
-                   Id = b.Id,
-                   Title = b.Title,
-                   Genre = b.Genre,
-                   GenreName = b.Genre.ToString(),
-                   Rating = b.Rating,
-                   CoverUrl = b.CoverUrl ?? string.Empty,
-                   AddedByUserName = b.AddedByUser.UserName, // null-safe
-                   PublisherId = b.PublisherId,
-                   PublisherName = b.PublisherName,
-                   IsAddedByUser = userId != Guid.Empty && b.AddedByUser != null && b.AddedByUser.Id == userId,
-                   IsAddedToUserCollection = userId != Guid.Empty && b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
-               })
-               .Where(b => b.IsAddedByUser == true)
-               .ToList();
+            var orderedBooks = allBooks
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Genre);
 
-            return allBooksDto;
+            int totalBooks = orderedBooks.Count();
+            int totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
+
+            var allBooksDto = orderedBooks
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(b => new BookAllDto
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    Genre = b.Genre,
+                    GenreName = b.Genre.ToString(),
+                    Rating = b.Rating,
+                    CoverUrl = b.CoverUrl ?? string.Empty,
+                    AddedByUserName = b.AddedByUser.UserName,
+                    PublisherId = b.PublisherId,
+                    PublisherName = b.Publisher.Name,
+                    IsAddedByUser = b.AddedByUserId == userId,
+                    IsAddedToUserCollection = b.UsersBooks.Any(ub => ub.UserId == userId && ub.BookId == b.Id)
+                })
+                .ToList();
+
+            return (allBooksDto, totalPages);
         }
 
         // Return raw Publisher/Author lists. Controller creates SelectList and assigns to ViewBag.

@@ -21,24 +21,25 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
+        public async Task<IActionResult> All(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1)
         {
             var userId = GetUserId();
-            //string? searchQuery = null;
 
-            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery, publisherFilter, genreFilter);
+            var (allBooksDto, totalPages) = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5); 
             var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             ViewData["SearchQuery"] = searchQuery;
             ViewData["PublisherFilter"] = publisherFilter;
             ViewData["GenreFilter"] = genreFilter;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(allBooksViewModel);
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> MyBooks(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
+        public async Task<IActionResult> MyBooks(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1)
         {
             var userId = GetUserId();
 
@@ -47,13 +48,15 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter);
+            var (myBooksDto, totalPages) = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5);
 
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             ViewData["SearchQuery"] = searchQuery;
             ViewData["PublisherFilter"] = publisherFilter;
             ViewData["GenreFilter"] = genreFilter;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(myBooksViewModel);
         }
