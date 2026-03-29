@@ -43,6 +43,7 @@ namespace OnlineLibrary.Web.Controllers
             }
 
             var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             return View(myBooksViewModel);
