@@ -15,6 +15,13 @@
         <a asp-controller="Books" asp-action="All" class="btn btn-sm btn-outline-secondary">Browse all books</a>
     </div>
 </div>
+
+@if (!Model?.Any() ?? true)
+{
+    <div class="alert alert-info">You have no favorite books yet.</div>
+}
+else
+{
     <table class="table table-striped">
         <thead>
             <tr>
@@ -39,7 +46,6 @@
                             </a>
 
                             <form asp-controller="Books" asp-action="Remove" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@book.Id" />
                                 <button type="submit" class="btn btn-sm btn-danger">
                                     <i class="fas fa-trash-alt"></i> Remove
@@ -51,3 +57,4 @@
             }
         </tbody>
     </table>
+}

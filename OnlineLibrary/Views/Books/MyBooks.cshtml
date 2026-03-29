@@ -52,7 +52,7 @@
                 <td>@book.GenreName</td>
                 <td>@book.Rating / 5</td>
                 <td>
-                    @if (User?.Identity?.IsAuthenticated == true @*book.AddedByUserName != User?.Identity?.Name*@)
+                    @if (User?.Identity?.IsAuthenticated == true)
                     {
                         <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
                             <i class="fas fa-info-circle"></i> Details
