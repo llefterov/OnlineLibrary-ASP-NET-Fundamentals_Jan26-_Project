@@ -18,7 +18,7 @@ namespace OnlineLibrary.Services.Core
 
 
 
-        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null)
+        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
         {
             var allBooks = await bookRepository.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
 
@@ -26,6 +26,18 @@ namespace OnlineLibrary.Services.Core
             {
                 searchQuery = searchQuery.Trim().ToLower();
                 allBooks = allBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(publisherFilter))
+            {
+                publisherFilter = publisherFilter.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Publisher.Name.ToLower().Contains(publisherFilter));
+            }
+
+            if (!string.IsNullOrEmpty(genreFilter))
+            {
+                genreFilter = genreFilter.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Genre.ToString().ToLower().Contains(genreFilter));
             }
 
             var allBooksDto = allBooks
@@ -60,14 +72,10 @@ namespace OnlineLibrary.Services.Core
                 })
                 .ToList();
 
-
-
-
-
             return allBooksDto;
         }
 
-        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null)
+        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
         {
             var allBooks = await bookRepository
                     .GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
@@ -76,6 +84,18 @@ namespace OnlineLibrary.Services.Core
             {
                 searchQuery = searchQuery.Trim().ToLower();
                 allBooks = allBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(publisherFilter))
+            {
+                publisherFilter = publisherFilter.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Publisher.Name.ToLower().Contains(publisherFilter));
+            }
+
+            if (!string.IsNullOrEmpty(genreFilter))
+            {
+                genreFilter = genreFilter.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Genre.ToString().ToLower().Contains(genreFilter));
             }
 
             var allBooksDto = allBooks

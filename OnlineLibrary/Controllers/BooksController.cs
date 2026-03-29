@@ -21,22 +21,24 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(string? searchQuery = null)
+        public async Task<IActionResult> All(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
         {
             var userId = GetUserId();
             //string? searchQuery = null;
 
-            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery);
+            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery, publisherFilter, genreFilter);
             var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             ViewData["SearchQuery"] = searchQuery;
+            ViewData["PublisherFilter"] = publisherFilter;
+            ViewData["GenreFilter"] = genreFilter;
 
             return View(allBooksViewModel);
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> MyBooks(string? searchQuery = null)
+        public async Task<IActionResult> MyBooks(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null)
         {
             var userId = GetUserId();
 
@@ -45,11 +47,13 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery);
+            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter);
 
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             ViewData["SearchQuery"] = searchQuery;
+            ViewData["PublisherFilter"] = publisherFilter;
+            ViewData["GenreFilter"] = genreFilter;
 
             return View(myBooksViewModel);
         }
