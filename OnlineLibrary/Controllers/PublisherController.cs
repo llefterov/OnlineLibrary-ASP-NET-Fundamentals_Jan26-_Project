@@ -39,7 +39,7 @@ namespace OnlineLibrary.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var publisherDto = await publisherService.GetPublisherDetailsByIdAsync(id);

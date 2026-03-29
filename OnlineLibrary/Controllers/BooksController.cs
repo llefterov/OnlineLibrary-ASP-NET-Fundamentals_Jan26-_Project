@@ -51,7 +51,7 @@ namespace OnlineLibrary.Web.Controllers
         [HttpGet("Books/Details/{id:guid}")]
         [HttpGet("Books/Details/{slug}/{id:guid}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> Details(Guid id, string? slug = null)
+        public async Task<IActionResult> Details(Guid id)
         {
             var bookDetailsDto = await booksService.GetBookDtoDetailsByIdAsync(id);
             if (bookDetailsDto == null)
