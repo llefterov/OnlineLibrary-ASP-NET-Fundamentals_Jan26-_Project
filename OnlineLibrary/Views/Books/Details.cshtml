@@ -31,11 +31,11 @@
                 </form>
             }
         
-           @*  @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true) && User.IsInRole("Admin"))
+            @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true) && User.IsInRole("Manager"))
             {
                 <a class="btn btn-filled-primary" asp-controller="Books" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
                 <a class="btn btn-filled-danger" asp-controller="Books" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
-            } *@
+            }
         </div>
     </div>
 </div>
@@ -95,11 +95,11 @@
                     }
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-@*                     @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
                     {
                         <a class="btn btn-filled-primary" asp-controller="Books" asp-action="MyBooks">MyBooks</a>
                     }
- *@                    <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Browse all books</a>
+                    <a class="btn btn-filled-secondary" asp-controller="Books" asp-action="All">Browse all books</a>
                    </div>
             </div>
         </div>

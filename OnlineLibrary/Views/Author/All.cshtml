@@ -9,10 +9,10 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">@ViewData["Title"]</h1>
 
-        @*  @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+        @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
         {
             <a asp-controller="Author" asp-action="Add" class="btn btn-sm btn-outline-primary">Add New Author</a>
-        } *@
+        }
     </div>
 </div>
 
@@ -29,18 +29,19 @@
         @foreach (AuthorAllViewModel author in Model)
         {
             <tr>
-               
                 <td>@author.FullName</td>
                 <td>
 
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
                         <a class="btn btn-sm btn-outline-secondary" asp-controller="Author" asp-action="Details" asp-route-id="@author.Id">Details</a>
-
-                        @*                                     <a class="btn btn-sm btn-outline-primary" asp-controller="Author" asp-action="Edit" asp-route-id="@author.Id">Edit</a>
-                                    <a class="btn btn-sm btn-outline-danger" asp-controller="Author" asp-action="Delete" asp-route-id="@author.Id">Delete</a>
- *@                 }
-
+                        
+                        @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
+                        {
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Author" asp-action="Edit" asp-route-id="@author.Id">Edit</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-controller="Author" asp-action="Delete" asp-route-id="@author.Id">Delete</a>
+                        }
+                    }
                 </td>
             </tr>
         }

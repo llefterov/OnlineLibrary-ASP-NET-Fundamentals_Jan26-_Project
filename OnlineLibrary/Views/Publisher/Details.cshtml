@@ -15,10 +15,10 @@
 
         <div>
             <a class="btn btn-sm btn-outline-secondary" asp-controller="Publisher" asp-action="All">Back to publishers</a>
-          @*  @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+           @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
             {
                 <a class="btn btn-sm btn-outline-primary" asp-controller="Publisher" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-            } *@
+            }
         </div>
     </div>
 

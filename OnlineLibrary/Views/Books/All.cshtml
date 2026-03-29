@@ -11,8 +11,17 @@
 
 <link rel="stylesheet" href="~/css/books-all.css" asp-append-version="true" />
 
-<h1 class="h3 mb-0">@ViewData["Title"]</h1>
+@* <h1 class="h3 mb-0">@ViewData["Title"]</h1>*@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
 
+    @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Manager"))
+    {
+        <a asp-controller="Books" asp-action="MyBooks" class="btn btn-sm btn-outline-primary">My Books</a>
+        <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-outline-primary">Add New Book</a>
+    }
+
+</div>
 <table class="table table-striped">
     <thead>
         <tr>

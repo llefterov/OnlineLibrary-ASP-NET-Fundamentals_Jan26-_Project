@@ -35,8 +35,8 @@
                                 @if (!user.Roles.Contains("Admin"))
                                 {
                                     <select id="roleDropdown-@user.Id" class="form-select form-select-sm w-auto me-2">
-@*                                         <option value="Manager" selected="@(user.Roles.Contains("Manager") ? "selected" : null)">Manager</option>
- *@                                        <option value="User" selected="@(user.Roles.Contains("User") ? "selected" : null)">User</option>
+                                        <option value="Manager" selected="@(user.Roles.Contains("Manager") ? "selected" : null)">Manager</option>
+                                        <option value="User" selected="@(user.Roles.Contains("User") ? "selected" : null)">User</option>
                                     </select>
 
                                     <form method="post" asp-action="AssignRole" asp-controller="UserManagement" asp-area="Admin" class="d-inline">
