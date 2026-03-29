@@ -17,9 +17,15 @@ namespace OnlineLibrary.Services.Core
             this.authorRepository = authorRepository;
         }
 
-        public async Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync()
+        public async Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync(string? searchQuery = null)
         {
             var authorsData = await authorRepository.GetAllAuthorsAsync();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim().ToLower();
+                authorsData = authorsData.Where(a => a.FullName.ToLower().Contains(searchQuery));
+            }
 
             var authors = authorsData
                 .Select(a => new AuthorsAllDto

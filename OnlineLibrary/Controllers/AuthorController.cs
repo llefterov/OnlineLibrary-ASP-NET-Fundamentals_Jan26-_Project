@@ -20,9 +20,11 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string? searchQuery = null)
         {
-            var model = await authorService.GetAllAuthorsForViewModelAsync();
+            var model = await authorService.GetAllAuthorsForViewModelAsync(searchQuery);
+
+            ViewData["SearchQuery"] = searchQuery;
 
             var authorsList = model
                 .Select(a => new AuthorAllViewModel

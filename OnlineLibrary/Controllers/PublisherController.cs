@@ -23,10 +23,13 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string? searchQuery = null)
         {
             var model = await publisherService
-                .GetAllPublishersAsync();
+                .GetAllPublishersAsync(searchQuery);
+
+            ViewData["SearchQuery"] = searchQuery;
+
             var publishersList = model
                 .Select(p => new PublisherAllViewModel
                 {

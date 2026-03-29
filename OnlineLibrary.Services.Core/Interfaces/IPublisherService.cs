@@ -4,7 +4,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IPublisherService
     {
-        Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync();
+        Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync(string? searchQuery = null);
         Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id);
 
         PublisherAddDto GetEmptyPublisherViewModel();

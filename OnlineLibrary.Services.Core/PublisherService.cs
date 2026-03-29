@@ -17,9 +17,15 @@ namespace OnlineLibrary.Services.Core
             this.publisherRepository = publisherRepository;
         }
 
-        public async Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync()
+        public async Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync(string? searchQuery = null)
         {
             var publishers = await publisherRepository.GetAllPublishersAsync();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim().ToLower();
+                publishers = publishers.Where(p => p.Name.ToLower().Contains(searchQuery));
+            }
 
             var publishersDto = publishers
             .OrderBy(p => p.Name)
