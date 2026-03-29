@@ -18,9 +18,15 @@ namespace OnlineLibrary.Services.Core
 
 
 
-        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId)
+        public async Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null)
         {
             var allBooks = await bookRepository.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+            }
 
             var allBooksDto = allBooks
                 .Select(b => new
@@ -54,13 +60,23 @@ namespace OnlineLibrary.Services.Core
                 })
                 .ToList();
 
+
+
+
+
             return allBooksDto;
         }
 
-        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId)
+        public async Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null)
         {
             var allBooks = await bookRepository
                     .GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim().ToLower();
+                allBooks = allBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+            }
 
             var allBooksDto = allBooks
                .Select(b => new
@@ -185,9 +201,16 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.CreateBookAsync(bookInputModel, userId);
         }
 
-        public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId)
+        public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null)
         {
             var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim().ToLower();
+                favBooks = favBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+            }
+
             var favBooksDto = favBooks.Select(MapBookToBookFavoritesDto).ToList();
             return favBooksDto;
         }

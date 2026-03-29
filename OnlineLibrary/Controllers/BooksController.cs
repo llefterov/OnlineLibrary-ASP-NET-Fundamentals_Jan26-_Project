@@ -21,19 +21,22 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string? searchQuery = null)
         {
             var userId = GetUserId();
+            //string? searchQuery = null;
 
-            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId);
+            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery);
             var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
 
             return View(allBooksViewModel);
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> MyBooks()
+        public async Task<IActionResult> MyBooks(string? searchQuery = null)
         {
             var userId = GetUserId();
 
@@ -42,9 +45,11 @@ namespace OnlineLibrary.Web.Controllers
                 return View();
             }
 
-            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery);
 
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
 
             return View(myBooksViewModel);
         }
@@ -137,7 +142,7 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager,User")]
-        public async Task<IActionResult> Favorites()
+        public async Task<IActionResult> Favorites(string? searchQuery = null)
         {
             Guid userId = GetUserId();
             if (userId == Guid.Empty)
@@ -145,8 +150,10 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId);
+            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId, searchQuery);
             var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToBookFavoritesViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
 
             return View(bookFavoritesViewModels);
         }

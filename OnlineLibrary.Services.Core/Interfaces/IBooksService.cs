@@ -5,8 +5,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IBooksService
     {
-        Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId);
-        Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
+        Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null);
+        Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null);
 
         Task<BookDetailsDto?> GetBookDtoDetailsByIdAsync(Guid id);
 
@@ -20,7 +20,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookCreateDto> GetBookDtoCreateViewModelAsync();
 
         Task CreateDtoBookAsync(BookCreateDto model, Guid userId);
-        Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId);
+        Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null);
         Task SaveFevBookDtoAsync(Guid id, Guid userId);
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);
