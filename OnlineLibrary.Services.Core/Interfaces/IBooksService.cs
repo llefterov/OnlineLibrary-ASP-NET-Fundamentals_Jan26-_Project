@@ -20,7 +20,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookCreateDto> GetBookDtoCreateViewModelAsync();
 
         Task CreateDtoBookAsync(BookCreateDto model, Guid userId);
-        Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null);
+        Task<(IEnumerable<BookFavoritesDto> BookFavoritesDtos, int TotalPages)> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null, int pageNumber = 1, int pageSize = 5);
         Task SaveFevBookDtoAsync(Guid id, Guid userId);
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);

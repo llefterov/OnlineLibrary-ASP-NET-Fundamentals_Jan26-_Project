@@ -210,7 +210,7 @@ namespace OnlineLibrary.Services.Core
             await bookRepository.CreateBookAsync(bookInputModel, userId);
         }
 
-        public async Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null)
+        public async Task<(IEnumerable<BookFavoritesDto> BookFavoritesDtos, int TotalPages)> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null, int pageNumber = 1, int pageSize = 5)
         {
             var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
 
@@ -220,8 +220,19 @@ namespace OnlineLibrary.Services.Core
                 favBooks = favBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
             }
 
-            var favBooksDto = favBooks.Select(MapBookToBookFavoritesDto).ToList();
-            return favBooksDto;
+            var orderedFavBooks = favBooks
+                .OrderBy(b => b.Title);
+
+            int totalBooks = orderedFavBooks.Count();
+            int totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
+
+            var favBooksDto = orderedFavBooks
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(MapBookToBookFavoritesDto)
+                .ToList();
+
+            return (favBooksDto, totalPages);
         }
 
         public async Task SaveFevBookDtoAsync(Guid id, Guid userId)

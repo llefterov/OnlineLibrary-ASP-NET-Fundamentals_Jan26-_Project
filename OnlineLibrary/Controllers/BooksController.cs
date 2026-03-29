@@ -149,7 +149,7 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager,User")]
-        public async Task<IActionResult> Favorites(string? searchQuery = null)
+        public async Task<IActionResult> Favorites(string? searchQuery = null, int pageNumber = 1)
         {
             Guid userId = GetUserId();
             if (userId == Guid.Empty)
@@ -157,10 +157,12 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId, searchQuery);
+            var (bookFavoritesDtos, totalPages) = await booksService.GetFavoriteBooksDtoAsync(userId, searchQuery, pageNumber, pageSize: 5);
             var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToBookFavoritesViewModel);
 
             ViewData["SearchQuery"] = searchQuery;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(bookFavoritesViewModels);
         }
