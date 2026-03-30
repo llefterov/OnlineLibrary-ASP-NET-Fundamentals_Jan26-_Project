@@ -10,8 +10,6 @@
 
 <link rel="stylesheet" href="~/css/books-all.css" asp-append-version="true" />
 
-@* <h1 class="h3 mb-0">@ViewData["Title"]</h1>
- *@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <h1 class="h3 mb-0">@ViewData["Title"]</h1>
@@ -57,52 +55,60 @@
     </div>
 </form>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Image</th>
-            <th>Title</th>
-            <th>Publisher</th>
-            <th>Genre</th>
-            <th>Rating</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (BooksAllViewModel book in Model)
-        {
+
+@if (!Model?.Any() ?? true)
+{
+    <div class="alert alert-info">No books found.</div>
+}
+else
+{
+
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>
-
-                    <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: 130px;" />
-
-                </td>
-                <td>@book.Title</td>
-                <td>@book.PublisherName</td>
-                <td>@book.GenreName</td>
-                <td>@book.Rating / 5</td>
-                <td>
-                    @if (User?.Identity?.IsAuthenticated == true)
-                    {
-                        <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
-                            <i class="fas fa-info-circle"></i> Details
-                        </a>
-
-                        @if (!book.IsAddedToUserCollection)
-                        {
-                            <form asp-controller="Books" asp-action="Save" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@book.Id" />
-                                <button type="submit" class="btn btn-sm btn-success">Favorites</button>
-                            </form>
-                        }
-                    }
-                </td>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Publisher</th>
+                <th>Genre</th>
+                <th>Rating</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (BooksAllViewModel book in Model)
+            {
+                <tr>
+                    <td>
 
-                        
+                        <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: 130px;" />
+
+                    </td>
+                    <td>@book.Title</td>
+                    <td>@book.PublisherName</td>
+                    <td>@book.GenreName</td>
+                    <td>@book.Rating / 5</td>
+                    <td>
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+
+                            @if (!book.IsAddedToUserCollection)
+                            {
+                                <form asp-controller="Books" asp-action="Save" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@book.Id" />
+                                    <button type="submit" class="btn btn-sm btn-success">Favorites</button>
+                                </form>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination">
         @if ((int)ViewData["CurrentPage"] > 1)

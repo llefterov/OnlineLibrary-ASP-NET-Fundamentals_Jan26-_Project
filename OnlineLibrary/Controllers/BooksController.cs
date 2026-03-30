@@ -45,7 +45,14 @@ namespace OnlineLibrary.Web.Controllers
 
             if (userId == Guid.Empty)
             {
-                return View();
+                var emptyBooksViewModel = Enumerable.Empty<BooksAllViewModel>();
+                ViewData["SearchQuery"] = searchQuery;
+                ViewData["PublisherFilter"] = publisherFilter;
+                ViewData["GenreFilter"] = genreFilter;
+                ViewData["CurrentPage"] = pageNumber;
+                ViewData["TotalPages"] = 0;
+
+                return View(emptyBooksViewModel);
             }
 
             var (myBooksDto, totalPages) = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5);
