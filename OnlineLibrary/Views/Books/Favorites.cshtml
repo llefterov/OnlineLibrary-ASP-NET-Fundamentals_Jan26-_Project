@@ -16,6 +16,19 @@
     </div>
 </div>
 
+<!-- Search Form -->
+<form asp-action="Favorites" method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text"
+               name="searchQuery"
+               class="form-control"
+               placeholder="Search by title..."
+               value="@ViewData["SearchQuery"]" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+
 @if (!Model?.Any() ?? true)
 {
     <div class="alert alert-info">You have no favorite books yet.</div>
@@ -35,7 +48,7 @@ else
             {
                 <tr>
                     <td>
-                        <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: auto;" />
+                        <img src="@(string.IsNullOrEmpty(book.CoverUrl) ? DefaultImageUrl : book.CoverUrl)" class="card-cover" alt="@book.Title" style="width: 100px; height: 130px;" />
                     </td>
                     <td>@book.Title</td>
                     <td>
@@ -57,4 +70,41 @@ else
             }
         </tbody>
     </table>
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination">
+            @if ((int)ViewData["CurrentPage"] > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Favorites"
+                       asp-route-pageNumber="@((int)ViewData["CurrentPage"] - 1)"
+                       asp-route-searchQuery="@ViewData["SearchQuery"]">
+                        Previous
+                    </a>
+                </li>
+            }
+
+            @for (int i = 1; i <= (int)ViewData["TotalPages"]; i++)
+            {
+                <li class="page-item @(i == (int)ViewData["CurrentPage"] ? "active" : "")">
+                    <a class="page-link" asp-action="Favorites"
+                       asp-route-pageNumber="@i"
+                       asp-route-searchQuery="@ViewData["SearchQuery"]">
+                        @i
+                    </a>
+                </li>
+            }
+
+            @if ((int)ViewData["CurrentPage"] < (int)ViewData["TotalPages"])
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Favorites"
+                       asp-route-pageNumber="@((int)ViewData["CurrentPage"] + 1)"
+                       asp-route-searchQuery="@ViewData["SearchQuery"]">
+                        Next
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
 }

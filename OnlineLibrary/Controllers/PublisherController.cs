@@ -23,10 +23,15 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string? searchQuery = null, int pageNumber = 1)
         {
-            var model = await publisherService
-                .GetAllPublishersAsync();
+            var (model, totalPages) = await publisherService
+                .GetAllPublishersAsync(searchQuery, pageNumber, pageSize: 20);
+
+            ViewData["SearchQuery"] = searchQuery;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
+
             var publishersList = model
                 .Select(p => new PublisherAllViewModel
                 {

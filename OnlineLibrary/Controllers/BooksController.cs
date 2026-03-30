@@ -21,30 +21,49 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1)
         {
             var userId = GetUserId();
 
-            var allBooksDto = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId);
+            var (allBooksDto, totalPages) = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5); 
             var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
+            ViewData["PublisherFilter"] = publisherFilter;
+            ViewData["GenreFilter"] = genreFilter;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(allBooksViewModel);
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> MyBooks()
+        public async Task<IActionResult> MyBooks(string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1)
         {
             var userId = GetUserId();
 
             if (userId == Guid.Empty)
             {
-                return View();
+                var emptyBooksViewModel = Enumerable.Empty<BooksAllViewModel>();
+                ViewData["SearchQuery"] = searchQuery;
+                ViewData["PublisherFilter"] = publisherFilter;
+                ViewData["GenreFilter"] = genreFilter;
+                ViewData["CurrentPage"] = pageNumber;
+                ViewData["TotalPages"] = 0;
+
+                return View(emptyBooksViewModel);
             }
 
-            var myBooksDto = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
+            var (myBooksDto, totalPages) = await booksService.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5);
 
             var myBooksViewModel = myBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
+            ViewData["PublisherFilter"] = publisherFilter;
+            ViewData["GenreFilter"] = genreFilter;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(myBooksViewModel);
         }
@@ -137,7 +156,7 @@ namespace OnlineLibrary.Web.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,Manager,User")]
-        public async Task<IActionResult> Favorites()
+        public async Task<IActionResult> Favorites(string? searchQuery = null, int pageNumber = 1)
         {
             Guid userId = GetUserId();
             if (userId == Guid.Empty)
@@ -145,8 +164,12 @@ namespace OnlineLibrary.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var bookFavoritesDtos = await booksService.GetFavoriteBooksDtoAsync(userId);
+            var (bookFavoritesDtos, totalPages) = await booksService.GetFavoriteBooksDtoAsync(userId, searchQuery, pageNumber, pageSize: 5);
             var bookFavoritesViewModels = bookFavoritesDtos.Select(MapBookFavoritesDtoToBookFavoritesViewModel);
+
+            ViewData["SearchQuery"] = searchQuery;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = totalPages;
 
             return View(bookFavoritesViewModels);
         }

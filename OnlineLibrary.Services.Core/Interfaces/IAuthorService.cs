@@ -6,7 +6,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IAuthorService 
     {
-        Task<IEnumerable<AuthorsAllDto>> GetAllAuthorsForViewModelAsync();
+        Task<(IEnumerable<AuthorsAllDto> AuthorsAllDtos, int TotalPages)> GetAllAuthorsForViewModelAsync(string? searchQuery = null, int pageNumber = 1, int pageSize = 20);
         Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id);
 
         AuthorsAllDto GetEmptyAuthorViewModelAsync();

@@ -17,20 +17,33 @@ namespace OnlineLibrary.Services.Core
             this.publisherRepository = publisherRepository;
         }
 
-        public async Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync()
+        public async Task<(IEnumerable<PublisherAllDto> PublisherAllDtos, int TotalPages)> GetAllPublishersAsync(string? searchQuery = null, int pageNumber = 1, int pageSize = 20)
         {
             var publishers = await publisherRepository.GetAllPublishersAsync();
 
-            var publishersDto = publishers
-            .OrderBy(p => p.Name)
-            .Select(p => new PublisherAllDto
+            if (!string.IsNullOrEmpty(searchQuery))
             {
-                Id = p.Id,
-                Name = p.Name
-            })
-         .ToList();
+                searchQuery = searchQuery.Trim().ToLower();
+                publishers = publishers.Where(p => p.Name.ToLower().Contains(searchQuery));
+            }
 
-            return publishersDto;
+            var orderedPublishers = publishers
+                .OrderBy(p => p.Name);
+
+            int totalPublishers = orderedPublishers.Count();
+            int totalPages = (int)Math.Ceiling(totalPublishers / (double)pageSize);
+
+            var publishersDto = orderedPublishers
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PublisherAllDto
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                })
+                .ToList();
+
+            return (publishersDto, totalPages);
         }
 
         public async Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id)

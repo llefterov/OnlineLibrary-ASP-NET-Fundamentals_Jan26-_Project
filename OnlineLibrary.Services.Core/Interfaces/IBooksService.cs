@@ -5,8 +5,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IBooksService
     {
-        Task<IEnumerable<BookAllDto>> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId);
-        Task<IEnumerable<BookAllDto>> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
+        Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(Guid? userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5);
+        Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5);
 
         Task<BookDetailsDto?> GetBookDtoDetailsByIdAsync(Guid id);
 
@@ -20,7 +20,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
         Task<BookCreateDto> GetBookDtoCreateViewModelAsync();
 
         Task CreateDtoBookAsync(BookCreateDto model, Guid userId);
-        Task<IEnumerable<BookFavoritesDto>> GetFavoriteBooksDtoAsync(Guid userId);
+        Task<(IEnumerable<BookFavoritesDto> BookFavoritesDtos, int TotalPages)> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null, int pageNumber = 1, int pageSize = 5);
         Task SaveFevBookDtoAsync(Guid id, Guid userId);
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);

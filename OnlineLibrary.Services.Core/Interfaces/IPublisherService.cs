@@ -4,7 +4,7 @@ namespace OnlineLibrary.Services.Core.Interfaces
 {
     public interface IPublisherService
     {
-        Task<IEnumerable<PublisherAllDto>> GetAllPublishersAsync();
+        Task<(IEnumerable<PublisherAllDto> PublisherAllDtos, int TotalPages)> GetAllPublishersAsync(string? searchQuery = null, int pageNumber = 1, int pageSize = 20);
         Task<PublisherDetailsDto?> GetPublisherDetailsByIdAsync(Guid id);
 
         PublisherAddDto GetEmptyPublisherViewModel();
