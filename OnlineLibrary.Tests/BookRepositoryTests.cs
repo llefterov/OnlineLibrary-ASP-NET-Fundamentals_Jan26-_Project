@@ -101,6 +101,97 @@ namespace OnlineLibrary.Tests
         }
 
         // ──────────────────────────────────────────────────────────────────────
+        // GetBooksByUserOrderedByTitleThenByGenreAscAsync
+        // ──────────────────────────────────────────────────────────────────────
+
+        [Test]
+        public async Task GetBooksByUserOrderedByTitleThenByGenreAscAsync_EmptyDatabase_ReturnsEmptyList()
+        {
+            await using var ctx = CreateContext(nameof(GetBooksByUserOrderedByTitleThenByGenreAscAsync_EmptyDatabase_ReturnsEmptyList));
+            var repo = new BookRepository(ctx);
+
+            var result = await repo.GetBooksByUserOrderedByTitleThenByGenreAscAsync(Guid.NewGuid());
+
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public async Task GetBooksByUserOrderedByTitleThenByGenreAscAsync_DeletedBooksExist_ReturnsOnlyNonDeleted()
+        {
+            await using var ctx = CreateContext(nameof(GetBooksByUserOrderedByTitleThenByGenreAscAsync_DeletedBooksExist_ReturnsOnlyNonDeleted));
+            var userId = Guid.NewGuid();
+            var pubId = Guid.NewGuid();
+            ctx.Users.Add(MakeUser(userId));
+            ctx.Publishers.Add(MakePublisher(pubId));
+            ctx.Books.AddRange(
+                MakeBook(Guid.NewGuid(), "My Active Book", pubId, userId, isDeleted: false),
+                MakeBook(Guid.NewGuid(), "My Deleted Book", pubId, userId, isDeleted: true)
+            );
+            await ctx.SaveChangesAsync();
+            var repo = new BookRepository(ctx);
+
+            var result = (await repo.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId)).ToList();
+
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].Title, Is.EqualTo("My Active Book"));
+        }
+
+        [Test]
+        public async Task GetBooksByUserOrderedByTitleThenByGenreAscAsync_ReturnsOnlyCurrentUserNonDeletedBooks()
+        {
+            await using var ctx = CreateContext(nameof(GetBooksByUserOrderedByTitleThenByGenreAscAsync_ReturnsOnlyCurrentUserNonDeletedBooks));
+            var userId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
+            var pubId = Guid.NewGuid();
+
+            ctx.Users.AddRange(MakeUser(userId, "owner"), MakeUser(otherUserId, "other"));
+            ctx.Publishers.Add(MakePublisher(pubId));
+
+            ctx.Books.AddRange(
+                MakeBook(Guid.NewGuid(), "My Active Book", pubId, userId, isDeleted: false),
+                MakeBook(Guid.NewGuid(), "My Deleted Book", pubId, userId, isDeleted: true),
+                MakeBook(Guid.NewGuid(), "Other User Book", pubId, otherUserId, isDeleted: false)
+            );
+
+            await ctx.SaveChangesAsync();
+            var repo = new BookRepository(ctx);
+
+            var result = (await repo.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId)).ToList();
+
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].Title, Is.EqualTo("My Active Book"));
+            Assert.That(result[0].AddedByUserId, Is.EqualTo(userId));
+        }
+
+        [Test]
+        public async Task GetBooksByUserOrderedByTitleThenByGenreAscAsync_PopulatesUsersBooksOnlyForCurrentUser()
+        {
+            await using var ctx = CreateContext(nameof(GetBooksByUserOrderedByTitleThenByGenreAscAsync_PopulatesUsersBooksOnlyForCurrentUser));
+            var userId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
+            var pubId = Guid.NewGuid();
+            var bookId = Guid.NewGuid();
+
+            ctx.Users.AddRange(MakeUser(userId, "owner"), MakeUser(otherUserId, "other"));
+            ctx.Publishers.Add(MakePublisher(pubId));
+            ctx.Books.Add(MakeBook(bookId, "My Book", pubId, userId));
+
+            ctx.UsersBooks.AddRange(
+                new UserBook { UserId = userId, BookId = bookId },
+                new UserBook { UserId = otherUserId, BookId = bookId }
+            );
+
+            await ctx.SaveChangesAsync();
+            var repo = new BookRepository(ctx);
+
+            var result = (await repo.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId)).ToList();
+
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].UsersBooks.Count, Is.EqualTo(1));
+            Assert.That(result[0].UsersBooks.First().UserId, Is.EqualTo(userId));
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
         // GetAuthorsAndPublishersAsync
         // ──────────────────────────────────────────────────────────────────────
 

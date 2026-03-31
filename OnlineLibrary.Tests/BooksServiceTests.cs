@@ -136,19 +136,19 @@ namespace OnlineLibrary.Tests
         {
             var pubId = Guid.NewGuid();
             var userId = Guid.NewGuid();
-            var otherId = Guid.NewGuid();
             var books = new List<Book>
             {
-                MakeBook(Guid.NewGuid(), "My Book", pubId, "Publisher", userId, "owner"),
-                MakeBook(Guid.NewGuid(), "Other Book", pubId, "Publisher", otherId, "other")
+                MakeBook(Guid.NewGuid(), "My Book", pubId, "Publisher", userId, "owner")
             };
-            _repoMock.Setup(r => r.GetAllBooksOrderedByTitleThenByGenreAscAsync(userId))
+            _repoMock.Setup(r => r.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId))
                 .ReturnsAsync(books);
 
             var (dtos, _) = await _sut.GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(userId);
 
             Assert.That(dtos.Count(), Is.EqualTo(1));
             Assert.That(dtos.First().Title, Is.EqualTo("My Book"));
+            _repoMock.Verify(r => r.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId), Times.Once);
+            _repoMock.Verify(r => r.GetAllBooksOrderedByTitleThenByGenreAscAsync(It.IsAny<Guid?>()), Times.Never);
         }
 
         // ──────────────────────────────────────────────────────────────────────
