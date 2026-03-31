@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="8.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="4.5.1" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.12.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineLibrary.Data.Models\OnlineLibrary.Data.Models.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Data\OnlineLibrary.Data.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.GCommon\OnlineLibrary.GCommon.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Services.Core\OnlineLibrary.Services.Core.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Services.CustomMappers\OnlineLibrary.Services.CustomMappers.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Services.Models\OnlineLibrary.Services.Models.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Web.Infrastructure\OnlineLibrary.Web.Infrastructure.csproj" />
+    <ProjectReference Include="..\OnlineLibrary.Web.ViewModels\OnlineLibrary.Web.ViewModels.csproj" />
+    <ProjectReference Include="..\OnlineLibrary\OnlineLibrary.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>

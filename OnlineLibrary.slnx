@@ -8,6 +8,9 @@
     <Project Path="OnlineLibrary.Services.CustomMappers/OnlineLibrary.Services.CustomMappers.csproj" Id="994cb7fc-6479-4451-b9b3-82de2d223e87" />
     <Project Path="OnlineLibrary.Services.Models/OnlineLibrary.Services.Models.csproj" Id="33e75eeb-38c7-44b2-8fa5-7845b15092eb" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="OnlineLibrary.Tests/OnlineLibrary.Tests.csproj" Id="1868a4ca-17e0-4af5-87a0-b93505c99889" />
+  </Folder>
   <Folder Name="/Web/">
     <Project Path="OnlineLibrary.Web.Infrastructure/OnlineLibrary.Web.Infrastructure.csproj" Id="8d0498a3-1b5b-45e7-8195-f13eb82ff0a0" />
     <Project Path="OnlineLibrary.Web.ViewModels/OnlineLibrary.Web.ViewModels.csproj" />
@@ -15,3 +18,5 @@
   </Folder>
   <Project Path="OnlineLibrary.GCommon/OnlineLibrary.GCommon.csproj" />
 </Solution>
+
+

@@ -100,7 +100,7 @@ namespace OnlineLibrary.Services.CustomMappers
 
             if (bookDetailsDto.IsRead == false)
             {
-                bookDetailsDto.DateRead = null;
+                booksDetailsViewModel.DateRead = null;
             }
 
             return booksDetailsViewModel;

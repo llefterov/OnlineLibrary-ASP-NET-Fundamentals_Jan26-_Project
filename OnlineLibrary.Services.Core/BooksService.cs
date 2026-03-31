@@ -71,10 +71,11 @@ namespace OnlineLibrary.Services.Core
 
         public async Task<(IEnumerable<BookAllDto> BooksAllDtos, int TotalPages)> GetBooksDtoCreatedByUserOrderedByTitleThenByGenreAscAsync(Guid userId, string? searchQuery = null, string? publisherFilter = null, string? genreFilter = null, int pageNumber = 1, int pageSize = 5)
         {
-            var allBooks = await bookRepository
-                    .GetAllBooksOrderedByTitleThenByGenreAscAsync(userId);
+            // Use the dedicated repository method that filters at DB level
+            var allBooks = await bookRepository.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId);
 
-            allBooks = allBooks.Where(b => b.AddedByUserId == userId);
+            // No need for: allBooks = allBooks.Where(b => b.AddedByUserId == userId);
+            // The repository method already filters by user
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
