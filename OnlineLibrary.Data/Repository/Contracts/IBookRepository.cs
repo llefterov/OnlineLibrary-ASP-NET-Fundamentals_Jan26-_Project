@@ -6,6 +6,8 @@ namespace OnlineLibrary.Data.Repository.Contracts
     {
         Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId);
 
+        Task<IEnumerable<Book>> GetBooksByUserOrderedByTitleThenByGenreAscAsync(Guid userId);
+
         Task<Book?> GetBookDetailsByIdAsync(Guid id);
 
         // Return raw model lists for Authors and Publishers; the controller constructs SelectList/ViewBag.

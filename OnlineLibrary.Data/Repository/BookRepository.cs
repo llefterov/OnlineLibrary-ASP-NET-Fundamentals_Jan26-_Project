@@ -16,18 +16,70 @@ namespace OnlineLibrary.Data.Repository
 
         public async Task<IEnumerable<Book>> GetAllBooksOrderedByTitleThenByGenreAscAsync(Guid? userId)
         {
+            // Optimized: Use split queries to avoid Cartesian explosion
+            // Returns ALL books in the database
             var allBooks = await DbContext
                 .Books
                 .Where(b => !b.IsDeleted)
-                .Include(b => b.UsersBooks)
                 .Include(b => b.Publisher)
+                .Include(b => b.AddedByUser)
                 .Include(b => b.BooksAuthors)
                     .ThenInclude(ba => ba.Author)
-                .Include(b => b.AddedByUser) // ensure username is loaded
+                .AsSplitQuery() // Avoid Cartesian explosion
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Genre)
                 .AsNoTracking()
                 .ToListAsync();
 
+            // Fetch UsersBooks separately if userId is provided (for checking IsAddedToUserCollection)
+            if (userId.HasValue)
+            {
+                var bookIds = allBooks.Select(b => b.Id).ToList();
+                var userBooks = await DbContext.UsersBooks
+                    .Where(ub => ub.UserId == userId.Value && bookIds.Contains(ub.BookId))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Manually populate the navigation property
+                foreach (var book in allBooks)
+                {
+                    book.UsersBooks = userBooks.Where(ub => ub.BookId == book.Id).ToList();
+                }
+            }
+
             return allBooks;
+        }
+
+        public async Task<IEnumerable<Book>> GetBooksByUserOrderedByTitleThenByGenreAscAsync(Guid userId)
+        {
+            // Optimized: Only fetch books created by the specific user (filter at DB level)
+            var userBooks = await DbContext
+                .Books
+                .Where(b => !b.IsDeleted && b.AddedByUserId == userId) // Filter in database
+                .Include(b => b.Publisher)
+                .Include(b => b.AddedByUser)
+                .Include(b => b.BooksAuthors)
+                    .ThenInclude(ba => ba.Author)
+                .AsSplitQuery()
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Genre)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Fetch UsersBooks for this specific user
+            var bookIds = userBooks.Select(b => b.Id).ToList();
+            var userFavorites = await DbContext.UsersBooks
+                .Where(ub => ub.UserId == userId && bookIds.Contains(ub.BookId))
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Populate navigation property
+            foreach (var book in userBooks)
+            {
+                book.UsersBooks = userFavorites.Where(ub => ub.BookId == book.Id).ToList();
+            }
+
+            return userBooks;
         }
 
 
