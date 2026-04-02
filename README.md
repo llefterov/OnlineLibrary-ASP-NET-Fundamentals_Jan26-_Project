@@ -691,7 +691,7 @@ This project is created for educational purposes as part of the SoftUni ASP.NET 
 
 ## 🙏 Acknowledgments
 
-- **SoftUni** - For the excellent ASP.NET Fundamentals course
+- **SoftUni** - For the excellent ASP.NET Fundamentals and Advance courses
 - **Microsoft** - For the comprehensive .NET documentation
 - **Bootstrap Team** - For the amazing UI framework
 
