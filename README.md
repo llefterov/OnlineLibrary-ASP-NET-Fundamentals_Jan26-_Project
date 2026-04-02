@@ -440,6 +440,23 @@ Use the search box and dropdowns on the **All Books**, **My Books**, and **Favor
   - New registrations are automatically assigned the **User** role
   - Admin area protected by `[Authorize(Roles = "Admin")]`
   - Admins can assign/remove any role via the User Management panel
+
+#### Role Permissions Matrix
+
+| Action | User | Manager | Admin |
+|--------|------|---------|-------|
+| Browse all books (All, Details) | ✅ | ✅ | ✅ |
+| Favorites (Save / Remove) | ✅ | ✅ | ✅ |
+| Create a book | ❌ | ✅ | ✅ |
+| Edit a book | ❌ | ✅ **own books only** | ✅ any book |
+| Delete a book | ❌ | ✅ **own books only** | ✅ any book |
+| View My Books list | ❌ | ✅ | ✅ |
+| Restore soft-deleted books | ❌ | ❌ | ✅ |
+| Author CRUD | ❌ | ✅ | ✅ |
+| Publisher CRUD | ❌ | ✅ | ✅ |
+| Admin area (book/author/publisher/user mgmt) | ❌ | ❌ | ✅ |
+
+> **Manager ownership rule**: The `Edit` and `Delete` actions verify `book.AddedByUserId == currentUserId` at the repository level. A Manager who attempts to edit or delete a book they did not create receives an `UnauthorizedAccessException` (HTTP 401).
 - Account lockout after failed login attempts
 - Secure cookie authentication
 - Soft delete for data integrity (books are never hard-deleted by regular users)
