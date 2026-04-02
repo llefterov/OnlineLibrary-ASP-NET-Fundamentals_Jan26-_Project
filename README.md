@@ -606,6 +606,48 @@ Used in the `slugRoute` pattern: `Books/Details/{slug}/{id}`.
 
 ---
 
+## 🚨 Error Handling
+
+The application provides a consistent, user-friendly error handling experience using a dedicated `HomeController.Error` action combined with three custom Razor views located in `Views/Shared/`.
+
+### Middleware Configuration (`Program.cs`)
+
+Two middleware components handle errors at different levels:
+
+- **`UseExceptionHandler("/Home/Error")`** — Active in **production** only. Catches unhandled exceptions and redirects to the Error action.
+- **`UseStatusCodePagesWithRedirects("/Home/Error/{0}")`** — Active in all environments. Intercepts HTTP error status codes (400, 404, 500, etc.) and redirects to `/Home/Error/{statusCode}`, passing the numeric status code as a route parameter.
+
+### `HomeController.Error` Action
+
+```
+Route: Home/Error/{statusCode}
+```
+
+The `Error(int statusCode)` action inspects the status code and returns the appropriate custom view:
+
+| Status Code | View Returned | Description |
+|-------------|---------------|-------------|
+| `400` | `Views/Shared/BadRequest.cshtml` | Bad Request |
+| `404` | `Views/Shared/NotFound.cshtml` | Page Not Found |
+| `500` | `Views/Shared/ServerError.cshtml` | Internal Server Error |
+| Other | `Views/Shared/Error.cshtml` | Generic error (with RequestId) |
+
+The action is decorated with `[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]` and `[AllowAnonymous]` (via the controller-level attribute) so that error pages are always accessible and never served from cache.
+
+### Custom Error Views (`Views/Shared/`)
+
+All three custom views follow the same design pattern — a centered Bootstrap 5 card with an icon, a coloured status label, a heading, a descriptive message, and two action buttons (**Back to Home** and **Browse Books**):
+
+| View | HTTP Status | Icon | Message |
+|------|-------------|------|---------|
+| `BadRequest.cshtml` | **400 Bad Request** | ⚠️ `bi-exclamation-triangle-fill` (yellow) | "We couldn't process your request. Please check your input and try again." |
+| `NotFound.cshtml` | **404 Page Not Found** | 🎬 `bi-film` (yellow) | "The page you're looking for doesn't exist or may have been moved." |
+| `ServerError.cshtml` | **500 Internal Server Error** | 🔴 `bi-exclamation-octagon-fill` (yellow) | "Something went wrong on our side. Please try again in a moment." |
+
+Each view defines its own scoped `@section Styles { ... }` block for page-specific CSS and uses `asp-controller` / `asp-action` tag helpers for the navigation buttons so links remain correct regardless of deployment path.
+
+---
+
 ## 🔮 Future Enhancements
 
 - [ ] Search functionality by title, author, or genre (enhanced full-text)
