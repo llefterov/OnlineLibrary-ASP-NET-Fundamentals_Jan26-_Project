@@ -1,8 +1,9 @@
-# 📚 OnlineLibrary - ASP.NET Fundamentals Project
+# 📚 OnlineLibrary - ASP.NET Advanced Project - February 2026
 
-A comprehensive online library management system built with **ASP.NET Core MVC** and **Entity Framework Core**. This project demonstrates modern web development practices including authentication, CRUD operations, and a clean layered architecture.
+This project is continuatiuon of the existing project:  "OnlineLibrary - ASP.NET Fundamentals Project - january 2026" with added exta features lerned in the Advanced course.
+A comprehensive online library management system built with **ASP.NET Core MVC** and **Entity Framework Core**. This project demonstrates modern web development practices including authentication, role-based authorization, a full Repository-Service-Controller architecture, CRUD operations, and a clean layered architecture.
 
-> **SoftUni Exam Project** - January 2026
+> **SoftUni Exam Project** - February 2026
 
 ---
 
@@ -10,73 +11,225 @@ A comprehensive online library management system built with **ASP.NET Core MVC**
 
 - **Book Management**: Add, edit, view, and delete books with detailed information
 - **User Authentication**: Secure user registration and login using ASP.NET Core Identity
+- **Role-Based Authorization**: Admin, Manager, and User roles with a separate Admin area
 - **Reading Tracking**: Mark books as read, add reading dates, and rate books (1-5 stars)
-- **Genre Categorization**: Organize books by genres (Biography, Romance, Mystery, Fantasy, Science Fiction, Horror, Thriller, Historical Fiction, Self-Help, Other)
-- **Author & Publisher Management**: Complete CRUD operations (Create, Read, Update, Delete) for authors and publishers
+- **Genre Categorization**: Organize books by genres (Fiction, NonFiction, Mystery, Fantasy, ScienceFiction, Biography, History, Romance, Thriller, SelfHelp, Other)
+- **Author & Publisher Management**: Complete CRUD operations for authors and publishers (both regular and admin)
 - **Quick Add Feature**: Add new authors/publishers on-the-fly while creating books
 - **My Books Collection**: View and manage only the books you've added to the library
-- **User Book Collections**: Users can maintain their personal book collections
-- **Filter Capabilities**: View all books by a specific author or publisher through Details pages
+- **Favorites Collection**: Add/remove books to/from a personal favorites list
+- **Filter & Search Capabilities**: Full-text search plus genre/publisher filters across Books, My Books, and Favorites
+- **Pagination**: Server-side pagination throughout all listing pages
+- **Admin Panel**: Dedicated admin area for managing books (including restore of soft-deleted books), authors, publishers, and users
+- **User Management (Admin)**: Assign/remove roles and delete user accounts
+- **Slug-based URLs**: SEO-friendly URLs for book detail pages
+- **Soft Delete**: Books are soft-deleted and can be restored by Admins
 - **Responsive UI**: Modern Bootstrap 5 interface with custom styling
 
 ---
 
 ## 🏗️ Project Structure
 
-The solution follows a **clean, layered architecture**:
+The solution follows a **clean, layered Repository-Service-Controller architecture** split across 9 projects:
 
 ```
 OnlineLibrary/
-├── OnlineLibrary/                          # Main web application (MVC)
-│   ├── Areas/                              # Identity scaffolded pages
-│   ├── Controllers/                        # MVC Controllers (Books, Authors, Publishers, Home)
-│   ├── Views/                              # Razor views
-│   ├── wwwroot/                            # Static files (CSS, JS, images)
-│   ├── Properties/                         # Launch settings
-│   ├── Program.cs                          # Application entry point
-│   ├── appsettings.json                    # Configuration
-│   └── OnlineLibrary.Web.csproj            # Web project file
+├── OnlineLibrary/                              # Main web application (ASP.NET Core MVC)
+│   ├── Areas/
+│   │   ├── Admin/                              # Admin area (Role-protected)
+│   │   │   ├── Controllers/
+│   │   │   │   ├── BaseAdminController.cs      # Base: [Area("Admin")][Authorize(Roles="Admin")]
+│   │   │   │   ├── HomeController.cs           # Admin dashboard
+│   │   │   │   ├── AuthorManagementController.cs
+│   │   │   │   ├── BookManagementController.cs # Includes Restore action
+│   │   │   │   ├── PublisherManagementController.cs
+│   │   │   │   └── UserManagementController.cs # Role assignment & user deletion
+│   │   │   └── Views/
+│   │   │       ├── Home/
+│   │   │       ├── AuthorManagement/
+│   │   │       ├── BookManagement/
+│   │   │       ├── PublisherManagement/
+│   │   │       └── UserManagement/
+│   │   └── Identity/
+│   │       └── Pages/Account/                  # Scaffolded Identity pages
+│   │           ├── Login.cshtml(.cs)
+│   │           ├── Register.cshtml(.cs)        # Auto-assigns "User" role on registration
+│   │           └── Logout.cshtml(.cs)
+│   ├── Controllers/
+│   │   ├── BaseController.cs                   # [AutoValidateAntiforgeryToken], GetUserId()
+│   │   ├── HomeController.cs
+│   │   ├── AuthorController.cs
+│   │   ├── BooksController.cs
+│   │   └── PublisherController.cs
+│   ├── Views/
+│   │   ├── Author/
+│   │   ├── Books/
+│   │   ├── Publisher/
+│   │   ├── Home/
+│   │   └── Shared/
+│   ├── wwwroot/                                # Static files (CSS, JS, images, libs)
+│   ├── Program.cs                              # App entry point, DI, middleware
+│   ├── appsettings.json                        # Production configuration
+│   └── appsettings.Development.json            # Development configuration
 │
-├── OnlineLibrary.Data/                     # Data access layer
-│   ├── Configuration/                      # Entity configurations (Fluent API)
-│   ├── Migrations/                         # EF Core database migrations
-│   ├── OnlineLibraryDbContext.cs           # EF Core DbContext
-│   └── OnlineLibrary.Data.csproj           # Data project file
+├── OnlineLibrary.Data/                         # Data access layer
+│   ├── Repository/
+│   │   ├── Contracts/
+│   │   │   ├── IAuthorRepository.cs
+│   │   │   ├── IBookRepository.cs
+│   │   │   └── IPublisherRepository.cs
+│   │   ├── BaseRepository.cs                   # Common EF Core operations
+│   │   ├── AuthorRepository.cs
+│   │   ├── BookRepository.cs                   # Soft delete, admin bypass methods
+│   │   └── PublisherRepository.cs
+│   ├── Configuration/
+│   │   ├── AuthorConfiguration.cs              # Unique index on FullName
+│   │   ├── BookConfiguration.cs
+│   │   ├── PublisherConfiguration.cs           # Unique index on Name
+│   │   ├── BookAuthorConfiguration.cs
+│   │   └── DatabaseSeeder.cs                   # Seeds roles, admin user, sample data
+│   ├── Migrations/
+│   └── OnlineLibraryDbContext.cs
 │
-├── OnlineLibrary.Data.Models/              # Domain models
-│   ├── Author.cs                           # Author entity
-│   ├── Book.cs                             # Book entity
-│   ├── BookAuthor.cs                       # Many-to-many relationship
-│   ├── Publisher.cs                        # Publisher entity
-│   ├── UserBook.cs                         # User book collection
-│   ├── Enums/                              # Genre enum
-│   └── OnlineLibrary.Data.Models.csproj    # Models project file
+├── OnlineLibrary.Data.Models/                  # Domain/entity models
+│   ├── ApplicationUser.cs                      # IdentityUser<Guid>
+│   ├── Author.cs
+│   ├── Book.cs                                 # Includes IsDeleted soft-delete flag
+│   ├── Publisher.cs
+│   ├── BookAuthor.cs                           # Many-to-many (Book ↔ Author)
+│   └── UserBook.cs                             # Many-to-many (User ↔ Book favorites)
 │
-├── OnlineLibrary.Services.Core/            # Business logic layer
-│   ├── Interfaces/                         # Service interfaces
-│   │   ├── IBooksService.cs
+├── OnlineLibrary.Services.Core/                # Business logic layer
+│   ├── Interfaces/
 │   │   ├── IAuthorService.cs
+│   │   ├── IBooksService.cs
 │   │   └── IPublisherService.cs
-│   ├── Exceptions/                         # Custom exceptions
-│   ├── BooksService.cs                     # Book operations
-│   ├── AuthorService.cs                    # Author operations
-│   ├── PublisherService.cs                 # Publisher operations
-│   └── OnlineLibrary.Services.Core.csproj  # Services project file
+│   ├── Admin/
+│   │   ├── Interfaces/
+│   │   │   ├── IAuthorManagementService.cs     # Extends IAuthorService
+│   │   │   ├── IBookManagementService.cs       # Extends IBooksService + admin methods
+│   │   │   └── IPublisherManagementService.cs  # Extends IPublisherService
+│   │   ├── AuthorManagementService.cs
+│   │   ├── BookManagementService.cs            # Inherits BooksService
+│   │   └── PublisherManagementService.cs
+│   ├── AuthorService.cs
+│   ├── BooksService.cs
+│   └── PublisherService.cs
 │
-├── OnlineLibrary.Web.ViewModels/           # View models and DTOs
-│   ├── Books/                              # Book-related view models
-│   ├── Authors/                            # Author-related view models
-│   ├── Publishers/                         # Publisher-related view models
-│   ├── ErrorViewModel.cs
-│   └── OnlineLibrary.Web.ViewModels.csproj # ViewModels project file
+├── OnlineLibrary.Services.Models/              # DTOs (Data Transfer Objects)
+│   ├── Author/
+│   │   ├── AuthorsAllDto.cs
+│   │   ├── AuthorDetailsDto.cs
+│   │   ├── AuthorBookDto.cs
+│   │   └── AuthorDeleteDto.cs
+│   ├── Book/
+│   │   ├── BookAllDto.cs
+│   │   ├── BookDetailsDto.cs
+│   │   ├── BookCreateDto.cs
+│   │   ├── BookEditDto.cs
+│   │   ├── BookDeleteDto.cs
+│   │   └── BookFavoritesDto.cs
+│   └── Publisher/
+│       ├── PublisherAllDto.cs
+│       ├── PublisherDetailsDto.cs
+│       ├── PublisherAddDto.cs
+│       ├── PublisherBookDto.cs
+│       └── PublisherDeleteDto.cs
 │
-├── OnlineLibrary.GCommon/                  # Shared constants and utilities
-│   ├── ValidationConstants.cs              # Validation rules
-|   └── ApplicationConstants.cs             # Common Application Constants
-│   └── OnlineLibrary.GCommon.csproj        # Common project file
+├── OnlineLibrary.Services.CustomMappers/       # Manual mapping layer (no AutoMapper)
+│   ├── AuthorMappers.cs
+│   ├── BookMappers.cs
+│   └── PublisherMappers.cs
 │
-└── OnlineLibrary.slnx                      # Solution file
+├── OnlineLibrary.Web.ViewModels/               # View models for MVC views
+│   ├── Author/
+│   ├── Books/
+│   ├── Publisher/
+│   ├── Admin/UserManagement/
+│   │   └── UserViewModel.cs
+│   └── ErrorViewModel.cs
+│
+├── OnlineLibrary.Web.Infrastructure/           # Cross-cutting utilities & DI extensions
+│   ├── Extensions/
+│   │   └── WebApplicationBuilderExtension.cs  # Reflection-based DI auto-registration
+│   └── Utilities/
+│       ├── Contracts/ISlugGenerator.cs
+│       └── SlugGenerator.cs                   # URL slug generation
+│
+├── OnlineLibrary.GCommon/                      # Shared constants & domain exceptions
+│   ├── ApplicationConstants.cs                # DateTimeFormat, DefaultImageUrl
+│   ├── ValidationConstants.cs                 # All validation min/max lengths & ranges
+│   └── Exceptions/
+│       ├── AuthorExceptions/                  # 5 typed author exceptions
+│       └── PublisherExceptions/               # 5 typed publisher exceptions
+│
+└── OnlineLibrary.Tests/                        # Unit test project (20 test classes)
+    ├── AdminAuthorManagementControllerTests.cs
+    ├── AdminBookManagementControllerTests.cs
+    ├── AdminBookRepositoryTests.cs
+    ├── AdminHomeControllerTests.cs
+    ├── AdminPublisherManagementControllerTests.cs
+    ├── AdminUserManagementControllerTests.cs
+    ├── AuthorControllerTests.cs
+    ├── AuthorRepositoryTests.cs
+    ├── AuthorServiceTests.cs
+    ├── BaseControllerTests.cs
+    ├── BookManagementServiceTests.cs
+    ├── BookMappersTests.cs
+    ├── BookRepositoryTests.cs
+    ├── BooksControllerTests.cs
+    ├── BooksServiceTests.cs
+    ├── HomeControllerTests.cs
+    ├── PublisherControllerTests.cs
+    ├── PublisherRepositoryTests.cs
+    ├── PublisherServiceTests.cs
+    └── SlugGeneratorTests.cs
 ```
+
+---
+
+## 🏛️ Architecture — Repository-Service-Controller Pattern
+
+The project strictly follows a **layered, loosely-coupled architecture**:
+
+```
+[ Views / Razor Pages ]
+        ↓
+[ Controllers ]          ← BaseController (CSRF protection, GetUserId())
+        ↓
+[ Service Layer ]        ← Interfaces in Services.Core/Interfaces/
+        ↓                   Admin services extend core services
+[ Repository Layer ]     ← Interfaces in Data/Repository/Contracts/
+        ↓
+[ EF Core DbContext ]    ← OnlineLibraryDbContext
+        ↓
+[ SQL Server Database ]
+```
+
+**Supporting layers:**
+- `Services.Models` (DTOs) — flow between Repository ↔ Service
+- `Web.ViewModels` — flow between Service ↔ Controller ↔ View
+- `Services.CustomMappers` — explicit manual mappings (no third-party mapper)
+- `GCommon` — shared validation constants and domain exceptions
+- `Web.Infrastructure` — reflection-based DI registration and slug utility
+
+**Dependency Injection** is auto-registered via reflection in `WebApplicationBuilderExtension.cs`, which scans assemblies and maps all `IRepository` / `IService` interface-to-implementation pairs by naming convention.
+
+---
+
+## 🔑 Admin Area
+
+The Admin area is a fully separate MVC area accessible only to users in the **Admin** role. All admin controllers inherit `BaseAdminController`, which applies `[Area("Admin")]`, `[Authorize(Roles = "Admin")]`, and `[AutoValidateAntiforgeryToken]` globally.
+
+| Admin Controller | Key Actions |
+|-----------------|-------------|
+| `HomeController` | Admin dashboard |
+| `AuthorManagementController` | Manage, Add, Edit, Delete authors |
+| `BookManagementController` | Manage (incl. soft-deleted), Create, Edit, Delete, **Restore** |
+| `PublisherManagementController` | Manage, Add, Edit, Delete publishers |
+| `UserManagementController` | List users, AssignRole, RemoveRole, DeleteUser |
+
+Authenticated admins are **automatically redirected** to `/Admin/Home/Index` when visiting the home page (middleware in `Program.cs`).
 
 ---
 
@@ -85,34 +238,45 @@ OnlineLibrary/
 ### Core Entities
 
 **Books**
-- `Id` (Guid) - Primary Key
-- `Title` (string, max 250 chars) - **Required**
-- `Description` (string, max 1000 chars) - **Required**
-- `Genre` (Enum: Biography, Romance, Mystery, Fantasy, ScienceFiction, Horror, Thriller, HistoricalFiction, SelfHelp, Other) - **Required**
-- `IsRead` (bool)
-- `DateRead` (DateTime?) - Optional
-- `Rating` (int, 0-5)
-- `CoverUrl` (string?, max 2083 chars) - **Optional** (valid URL format when provided)
-- `DateAdded` (DateTime) - **Required**
-- `PublisherId` (int, Foreign Key) - **Required**
-- `AddedByUserId` (string, Foreign Key to AspNetUsers) - **Required** (every book must be associated with a user)
-- `IsDeleted` (bool, soft delete)
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | Guid | Primary Key |
+| `Title` | string (max 250) | Required |
+| `Description` | string (max 1000) | Required |
+| `Genre` | Enum | Required (Fiction, NonFiction, Mystery, Fantasy, ScienceFiction, Biography, History, Romance, Thriller, SelfHelp, Other) |
+| `IsRead` | bool | |
+| `DateRead` | DateTime? | Optional |
+| `Rating` | int (0–5) | 0 = not rated |
+| `CoverUrl` | string? (max 2083) | Optional, valid URL when provided |
+| `DateAdded` | DateTime | Required |
+| `PublisherId` | Guid FK | Required |
+| `AddedByUserId` | Guid FK | Required — every book is linked to a user |
+| `IsDeleted` | bool | Soft delete flag |
 
 **Authors**
-- `Id` (int) - Primary Key
-- `FullName` (string, max 150 chars)
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | Guid | Primary Key |
+| `FullName` | string (max 150) | Required, **unique index** |
 
 **Publishers**
-- `Id` (int) - Primary Key
-- `Name` (string, max 200 chars)
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | Guid | Primary Key |
+| `Name` | string (max 200) | Required, **unique index** |
 
 **BooksAuthors** (Many-to-Many)
-- `BookId` (Guid)
-- `AuthorId` (int)
+| Column | Type |
+|--------|------|
+| `BookId` | Guid (FK) |
+| `AuthorId` | Guid (FK) |
+| `IsDeleted` | bool |
 
-**UsersBooks** (User Collections)
-- `UserId` (string)
-- `BookId` (Guid)
+**UsersBooks** (User Favorites — Many-to-Many)
+| Column | Type |
+|--------|------|
+| `UserId` | Guid (FK) |
+| `BookId` | Guid (FK) |
 
 ---
 
@@ -120,13 +284,15 @@ OnlineLibrary/
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **ASP.NET Core MVC** | 10.0+ | Web framework |
-| **Entity Framework Core** | 10.0+ | ORM & Data access |
-| **ASP.NET Core Identity** | 10.0+ | Authentication & Authorization |
-| **SQL Server** | - | Database |
+| **ASP.NET Core MVC** | 10.0 | Web framework |
+| **Entity Framework Core** | 10.0 | ORM & Data access |
+| **ASP.NET Core Identity** | 10.0 | Authentication & Authorization |
+| **SQL Server** | — | Database |
 | **Bootstrap** | 5.3.2 | UI framework |
-| **Razor** | - | View engine |
-| **C#** | 10.0+ | Programming language |
+| **Razor** | — | View engine |
+| **C#** | 13.0 / .NET 10 | Programming language |
+| **xUnit** | — | Unit testing |
+| **Moq** | — | Mocking framework for tests |
 
 ---
 
@@ -169,11 +335,14 @@ cd OnlineLibrary
 dotnet ef database update
 ```
 
-This will create the database with seed data including:
-- **1 Admin User** (email: admin@onlinelibrary.com, password: Admin123!)
-- 5 Authors (Jane Austen, George Orwell, Isaac Asimov, J.R.R. Tolkien, Agatha Christie)
-- 5 Publishers (Apress, Manning Publications, O'Reilly Media, Packt Publishing, Addison-Wesley)
-- 5 Sample books with correct author-book mappings (all added by the Admin user)
+This will create the database and run the seeder, which provisions:
+- **3 Roles**: Admin, Manager, User
+- **1 Admin User** (email: `admin@onlinelibrary.com`, password: `Admin123!`) — assigned the **Admin** role
+- **5 Authors**: Jane Austen, George Orwell, Isaac Asimov, J.R.R. Tolkien, Agatha Christie
+- **5 Publishers**: Apress, Manning Publications, O'Reilly Media, Packt Publishing, Addison-Wesley
+- **5 Sample books** with correct author–book mappings (all added by the Admin user)
+
+> **Note:** Every new user who self-registers via the Register page is automatically assigned the **User** role.
 
 ### 4️⃣ Run the Application
 
@@ -187,15 +356,11 @@ Navigate to `https://localhost:5001` or `http://localhost:5000`
 
 ## 👤 Default Admin User
 
-The database is seeded with a default admin user for testing purposes:
-
 | Property | Value |
 |----------|-------|
 | **Email** | admin@onlinelibrary.com |
 | **Password** | Admin123! |
-| **Username** | admin@onlinelibrary.com |
-
-> **Note:** All 5 seeded books are associated with this admin user.
+| **Role** | Admin |
 
 > ⚠️ **Security Warning:** Change this password immediately in production environments!
 
@@ -205,57 +370,54 @@ The database is seeded with a default admin user for testing purposes:
 
 ### Creating an Account
 1. Click **Register** in the navigation menu
-2. Fill in your email and password (minimum 6 characters, 4 unique characters)
-3. Confirm your registration
+2. Fill in your email and password
+3. Confirm your registration — you are automatically assigned the **User** role
 
 ### Adding a Book
 1. Log in to your account
 2. Navigate to **Books** > **Add New Book**
-3. Fill in the book details:
-   - Title
-   - Description
-   - Genre (dropdown)
-   - Cover URL (image link)
-   - Publisher (dropdown or quick-add new)
-   - Select existing author/authors or add new author on-the-fly
-   - Reading status and rating (optional)
+3. Fill in: Title, Description, Genre, Cover URL, Publisher, Author(s), reading status and rating
+4. Use the **Quick Add** links to create a new author or publisher on-the-fly
 5. Click **Create**
 
 ### Viewing My Books
-Navigate to **Books** > **My Books** to see a personalized view of all books you've added to the library. This filtered view shows only the books created by the currently logged-in user, making it easy to manage your contributions to the library.
+Navigate to **Books** > **My Books** to see all books you have personally added, with search and filter support.
 
-### Managing Your Collection
-- Mark books as read/unread
-- Add reading dates
-- Rate books (1-5 stars)
-- View all books in the library
-- Add books to your personal collection
-- Remove books from your collection
-- View your personal book contributions in 'My Books'
-- Filter by author or publisher through Details pages
+### Managing Your Favorites
+- Navigate to **Books** > **Favorites** to see your personal favorites collection
+- Click **Save** on any book to add it to your favorites
+- Click **Remove** to take it out of your favorites
+
+### Filtering & Search
+Use the search box and dropdowns on the **All Books**, **My Books**, and **Favorites** pages to filter by:
+- Title keyword
+- Publisher
+- Genre
 
 ### Managing Authors & Publishers
-1. **View All**: Navigate to Authors/Publishers section to see complete lists
-2. **Add New**: Click "Add New Author/Publisher" to create entries
-3. **Edit**: Modify existing author or publisher information
-4. **Delete**: Remove authors or publishers (with validation checks)
-5. **View Details**: See all books associated with a specific author or publisher
-6. **Quick Add**: When creating a book, there is a link to add new authors/publishers
+1. **View All**: Navigate to Authors / Publishers section for a paginated, searchable list
+2. **Add New**: Click "Add New Author/Publisher"
+3. **Edit / Delete**: Use the action buttons on each entry
+4. **Details**: Click an author or publisher to see all associated books
+
+### Admin Panel
+1. Log in as an Admin — you will be redirected to `/Admin/Home/Index`
+2. Use the sidebar to manage Books, Authors, Publishers, or Users
+3. In Book Management, soft-deleted books are shown and can be **Restored**
+4. In User Management, assign/remove roles (Admin, Manager, User) or delete accounts
 
 ---
 
 ## 📊 Sample Data
 
-The database is seeded with sample data:
-
 **Authors:**
-| ID | Full Name |
-|----|-----------|
-| 1 | Jane Austen |
-| 2 | George Orwell |
-| 3 | Isaac Asimov |
-| 4 | R.R. Tolkien |
-| 5 | Agatha Christie |
+| Full Name |
+|-----------|
+| Jane Austen |
+| George Orwell |
+| Isaac Asimov |
+| J.R.R. Tolkien |
+| Agatha Christie |
 
 **Books:**
 | Title | Author | Publisher | Genre |
@@ -263,83 +425,242 @@ The database is seeded with sample data:
 | Pride and Prejudice | Jane Austen | Apress | Biography |
 | 1984 | George Orwell | Manning Publications | ScienceFiction |
 | Foundation | Isaac Asimov | O'Reilly Media | ScienceFiction |
-| The Hobbit | R.R. Tolkien | Packt Publishing | Fantasy |
+| The Hobbit | J.R.R. Tolkien | Packt Publishing | Fantasy |
 | Murder on the Orient Express | Agatha Christie | Addison-Wesley | Mystery |
 
-**Publishers:**
-- Apress
-- Manning Publications
-- O'Reilly Media
-- Packt Publishing
-- Addison-Wesley
+**Publishers:** Apress, Manning Publications, O'Reilly Media, Packt Publishing, Addison-Wesley
 
 ---
 
 ## 🔐 Security Features
 
-- **ASP.NET Core Identity** for user management
+- **ASP.NET Core Identity** for user management with `IdentityUser<Guid>`
 - Password hashing and validation
-- Enhanced password requirements (8+ characters, 4 unique characters)
-- Account lockout after 5 failed login attempts (5-minute duration)
-- CSRF protection
+- **CSRF protection** via `[AutoValidateAntiforgeryToken]` on all controllers (base classes)
+- **Role-based authorization** — 3 roles seeded: **Admin**, **Manager**, **User**
+  - New registrations are automatically assigned the **User** role
+  - Admin area protected by `[Authorize(Roles = "Admin")]`
+  - Admins can assign/remove any role via the User Management panel
+
+#### Role Permissions Matrix
+
+> An Admin can **remove the "User" role** from any account via the User Management panel. Once the "User" role is removed the account becomes a **Blank (no role)** account and loses all authenticated-only features — it can only browse the public listing pages.
+
+| Action | Blank (no role) | User | Manager | Admin |
+|--------|:-----------:|:----:|:-------:|:-----:|
+| **Books** | | | | |
+| Browse all books — All | ✅ | ✅ | ✅ | ✅ |
+| Book — Details | ❌ | ✅ | ✅ | ✅ |
+| Favorites (Save / Remove) | ❌ | ✅ | ✅ | ✅ |
+| View My Books list | ❌ | ❌ | ✅ | ✅ |
+| Create a book | ❌ | ❌ | ✅ | ✅ |
+| Edit a book | ❌ | ❌ | ✅ **own books only** | ✅ any book |
+| Delete a book | ❌ | ❌ | ✅ **own books only** | ✅ any book |
+| Restore soft-deleted books | ❌ | ❌ | ❌ | ✅ |
+| **Authors** | | | | |
+| Browse all authors — All | ✅ | ✅ | ✅ | ✅ |
+| Author — Details | ❌ | ✅ | ✅ | ✅ |
+| Author Add / Edit / Delete | ❌ | ❌ | ✅ | ✅ |
+| **Publishers** | | | | |
+| Browse all publishers — All | ✅ | ✅ | ✅ | ✅ |
+| Publisher — Details | ❌ | ✅ | ✅ | ✅ |
+| Publisher Add / Edit / Delete | ❌ | ❌ | ✅ | ✅ |
+| **Administration** | | | | |
+| Admin area (user mgmt, book/author/publisher mgmt) | ❌ | ❌ | ❌ | ✅ |
+
+> **Manager ownership rule**: The `Edit` and `Delete` actions verify `book.AddedByUserId == currentUserId` at the repository level. A Manager who attempts to edit or delete a book they did not create receives an `UnauthorizedAccessException` (HTTP 401).
+- Account lockout after failed login attempts
 - Secure cookie authentication
-- User-specific book collections
-- Soft delete for data integrity
+- Soft delete for data integrity (books are never hard-deleted by regular users)
+- Unique indexes on Author FullName and Publisher Name to prevent duplicates
+- Domain exceptions (`AuthorAlreadyExistsException`, `PublisherAlreadyExistsException`, etc.) for meaningful error handling
 
-  NOTES:
-  1. All enhanced IdentityOptions above are valid for **All Environments exept Development** (All set in appsettings.json file).
+### Environment-Specific Identity Options
 
-  2. Current IdentityOptions are valid for **Development Environment only** (All set in appsettings.Development.json). Security Reqirements are redused to allow easier access during the Development and Testing of the application. In all other cases, the enhaced requirements should be applied. Current Password requirements are:
+| Setting | Development | Production |
+|---------|-------------|------------|
+| Min password length | 6 chars | 8+ chars |
+| Required unique chars | 0 | 4 |
+| Max failed login attempts | 255 | 5 |
+| Lockout duration | 1 minute | 5 minutes |
 
- - **Current password requirements** (6+ characters, 0 unique characters)
- - **Account lockout** after 255 failed login attempts (1-minute duration)
+> Development settings are defined in `appsettings.Development.json`; production settings in `appsettings.json`.
 
 ---
 
 ## 🎨 UI/UX Features
 
-- **Responsive Design**: Mobile-first approach with Bootstrap 5
+- **Responsive Design**: Mobile-first with Bootstrap 5
 - **Custom Branding**: Gradient navigation with brand colors
 - **Card-Based Layout**: Modern card design for book display
-- **User-Specific Views**: 'My Books' page for personal contributions
+- **Pagination Controls**: On all listing pages
+- **Search & Filter Bar**: Inline search + dropdown filters on book lists
 - **Hover Effects**: Interactive UI elements
-- **Clean Typography**: Professional font hierarchy
-- **Intuitive Navigation**: Easy access to all features
+- **Default Cover Image**: Placeholder shown when no cover URL is provided
+- **Intuitive Navigation**: Role-aware nav links (Admin panel visible only to Admins)
+
+---
+
+## 🗺️ Routing
+
+| Route Name | Pattern | Purpose |
+|-----------|---------|---------|
+| `areas` | `{area:exists}/{controller=Home}/{action=Index}/{id?}` | Admin area routing |
+| `slugRoute` | `Books/Details/{slug:required}/{id:guid}` | SEO-friendly book detail URLs |
+| `default` | `{controller=Home}/{action=Index}/{id?}` | Standard MVC routing |
+
+---
+
+## 🧩 Service Layer Details
+
+### Core Services
+
+**`IBooksService` / `BooksService`**
+- Paginated book listing with multi-filter support (search, publisher, genre)
+- User-scoped queries: All Books, My Books, Favorites
+- Book create / edit / delete (ownership-checked)
+- Favorites management (Save / Remove)
+- Date strings formatted as `yyyy-MM-dd` (ApplicationConstants.DateTimeFormat)
+
+**`IAuthorService` / `AuthorService`**
+- Paginated author listing with search
+- Author CRUD with deletion guard (cannot delete if books exist)
+- `AuthorAlreadyExistsException` on duplicate name
+
+**`IPublisherService` / `PublisherService`**
+- Paginated publisher listing with search
+- Publisher CRUD with deletion guard
+- `PublisherAlreadyExistsException` on duplicate name
+
+### Admin Services (extend core services)
+
+**`IBookManagementService` / `BookManagementService`**
+- All `IBooksService` operations **without** ownership checks
+- `GetAllBooksForAdminDtoAsync()` — includes soft-deleted books
+- `RestoreBookForAdminDtoAsync()` — restore a soft-deleted book
+- `EditBookForAdminDtoAsync()` / `DeleteBookForAdminDtoAsync()` — admin overrides
+
+**`IAuthorManagementService`** / **`IPublisherManagementService`** — extend their respective core services (no additional methods)
+
+---
+
+## 🗃️ Repository Layer Details
+
+### `IBookRepository` highlights
+- `GetAllBooksForAdminAsync()` — returns all books including soft-deleted
+- `RestoreBookForAdminAsync()` — clears the `IsDeleted` flag
+- `GetBookForAdminEditAsync()` / `EditBookForAdminAsync()` — admin bypasses ownership check
+- `IsBookAddedByUserAsync()` / `IsBookAddedToUserCollectionAsync()` — ownership/collection checks
+- All list methods materialize with `ToListAsync()` and return `IEnumerable`
+
+### `IAuthorRepository` / `IPublisherRepository`
+- Full CRUD with unique-constraint-aware update
+- `ExistsAsync()` for pre-deletion validation
+
+---
+
+## 🧪 Unit Tests
+
+The `OnlineLibrary.Tests` project contains **20 test classes** covering all layers:
+
+| Layer | Test Classes |
+|-------|-------------|
+| **Controllers (regular)** | `HomeControllerTests`, `BooksControllerTests`, `AuthorControllerTests`, `PublisherControllerTests`, `BaseControllerTests` |
+| **Controllers (admin)** | `AdminHomeControllerTests`, `AdminBookManagementControllerTests`, `AdminAuthorManagementControllerTests`, `AdminPublisherManagementControllerTests`, `AdminUserManagementControllerTests` |
+| **Services** | `BooksServiceTests`, `AuthorServiceTests`, `PublisherServiceTests`, `BookManagementServiceTests` |
+| **Repositories** | `BookRepositoryTests`, `AuthorRepositoryTests`, `PublisherRepositoryTests`, `AdminBookRepositoryTests` |
+| **Mappers & Utilities** | `BookMappersTests`, `SlugGeneratorTests` |
+
+---
+
+## 🧰 Infrastructure & Utilities
+
+### Dependency Injection Auto-Registration
+`WebApplicationBuilderExtension.cs` uses **reflection** to scan assemblies and automatically register all repository and service interfaces with their implementations by naming convention — no manual `AddScoped<IFoo, Foo>()` calls needed for new repositories/services.
+
+### Slug Generator
+`SlugGenerator` converts book titles to URL-friendly slugs:
+- `"The Great Gatsby"` → `"the-great-gatsby"`
+- Strips non-URL-safe characters, collapses hyphens, trims ends
+
+Used in the `slugRoute` pattern: `Books/Details/{slug}/{id}`.
 
 ---
 
 ## 📝 Validation Rules
 
 **Books:**
-- **Title**: Required, 2-250 characters
-- **Description**: Required, 2-1000 characters
-- **Genre**: Required (must be valid enum value)
-- **CoverUrl**: **Optional** - Valid URL format when provided (7-2083 chars)
-- **AddedByUserId**: **Required** - Every book must be associated with a user
-- **PublisherId**: Required (must reference existing publisher)
-- **Rating**: 0-5 (0 = not rated)
+- `Title`: Required, 2–250 characters
+- `Description`: Required, 2–1000 characters
+- `Genre`: Required (must be valid enum value)
+- `CoverUrl`: **Optional** — valid URL format when provided (7–2083 chars)
+- `AddedByUserId`: Required — every book must be associated with a user
+- `PublisherId`: Required — must reference an existing publisher
+- `Rating`: 0–5 (0 = not rated)
 
 **Authors:**
-- Full Name: 2-150 characters
+- `FullName`: Required, 2–150 characters, **unique**
 
 **Publishers:**
-- Name: 2-200 characters
+- `Name`: Required, 2–200 characters, **unique**
 
 ---
 
-## 🧪 Future Enhancements
+## 🚨 Error Handling
 
-- [ ] Search functionality by title, author, or genre
+The application provides a consistent, user-friendly error handling experience using a dedicated `HomeController.Error` action combined with three custom Razor views located in `Views/Shared/`.
+
+### Middleware Configuration (`Program.cs`)
+
+Two middleware components handle errors at different levels:
+
+- **`UseExceptionHandler("/Home/Error")`** — Active in **production** only. Catches unhandled exceptions and redirects to the Error action.
+- **`UseStatusCodePagesWithRedirects("/Home/Error/{0}")`** — Active in all environments. Intercepts HTTP error status codes (400, 404, 500, etc.) and redirects to `/Home/Error/{statusCode}`, passing the numeric status code as a route parameter.
+
+### `HomeController.Error` Action
+
+```
+Route: Home/Error/{statusCode}
+```
+
+The `Error(int statusCode)` action inspects the status code and returns the appropriate custom view:
+
+| Status Code | View Returned | Description |
+|-------------|---------------|-------------|
+| `400` | `Views/Shared/BadRequest.cshtml` | Bad Request |
+| `404` | `Views/Shared/NotFound.cshtml` | Page Not Found |
+| `500` | `Views/Shared/ServerError.cshtml` | Internal Server Error |
+| Other | `Views/Shared/Error.cshtml` | Generic error (with RequestId) |
+
+The action is decorated with `[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]` and `[AllowAnonymous]` (via the controller-level attribute) so that error pages are always accessible and never served from cache.
+
+### Custom Error Views (`Views/Shared/`)
+
+All three custom views follow the same design pattern — a centered Bootstrap 5 card with an icon, a coloured status label, a heading, a descriptive message, and two action buttons (**Back to Home** and **Browse Books**):
+
+| View | HTTP Status | Icon | Message |
+|------|-------------|------|---------|
+| `BadRequest.cshtml` | **400 Bad Request** | ⚠️ `bi-exclamation-triangle-fill` (yellow) | "We couldn't process your request. Please check your input and try again." |
+| `NotFound.cshtml` | **404 Page Not Found** | 📖 `bi-book` (yellow) | "The page you're looking for doesn't exist or may have been moved." |
+| `ServerError.cshtml` | **500 Internal Server Error** | 🔴 `bi-exclamation-octagon-fill` (yellow) | "Something went wrong on our side. Please try again in a moment." |
+
+Each view defines its own scoped `@section Styles { ... }` block for page-specific CSS and uses `asp-controller` / `asp-action` tag helpers for the navigation buttons so links remain correct regardless of deployment path.
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] Search functionality by title, author, or genre (enhanced full-text)
 - [ ] Book reviews and comments
 - [ ] Reading statistics dashboard
 - [ ] Book recommendations based on reading history
 - [ ] Export/Import book collections
 - [ ] Social features (share lists, follow users)
-- [ ] Advanced filtering and sorting options
+- [ ] Advanced sorting options
 - [ ] Book cover upload (instead of URLs only)
 - [ ] Multi-language support
 - [ ] Reading goals and challenges
-- [ ] Integration with external book APIs
+- [ ] Integration with external book APIs (Google Books, Open Library)
 
 ---
 
