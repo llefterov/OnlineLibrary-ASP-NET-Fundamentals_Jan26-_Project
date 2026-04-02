@@ -641,7 +641,7 @@ All three custom views follow the same design pattern — a centered Bootstrap 5
 | View | HTTP Status | Icon | Message |
 |------|-------------|------|---------|
 | `BadRequest.cshtml` | **400 Bad Request** | ⚠️ `bi-exclamation-triangle-fill` (yellow) | "We couldn't process your request. Please check your input and try again." |
-| `NotFound.cshtml` | **404 Page Not Found** | 🎬 `bi-film` (yellow) | "The page you're looking for doesn't exist or may have been moved." |
+| `NotFound.cshtml` | **404 Page Not Found** | 📖 `bi-book` (yellow) | "The page you're looking for doesn't exist or may have been moved." |
 | `ServerError.cshtml` | **500 Internal Server Error** | 🔴 `bi-exclamation-octagon-fill` (yellow) | "Something went wrong on our side. Please try again in a moment." |
 
 Each view defines its own scoped `@section Styles { ... }` block for page-specific CSS and uses `asp-controller` / `asp-action` tag helpers for the navigation buttons so links remain correct regardless of deployment path.
