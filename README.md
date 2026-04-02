@@ -443,18 +443,29 @@ Use the search box and dropdowns on the **All Books**, **My Books**, and **Favor
 
 #### Role Permissions Matrix
 
-| Action | User | Manager | Admin |
-|--------|------|---------|-------|
-| Browse all books (All, Details) | ✅ | ✅ | ✅ |
-| Favorites (Save / Remove) | ✅ | ✅ | ✅ |
-| Create a book | ❌ | ✅ | ✅ |
-| Edit a book | ❌ | ✅ **own books only** | ✅ any book |
-| Delete a book | ❌ | ✅ **own books only** | ✅ any book |
-| View My Books list | ❌ | ✅ | ✅ |
-| Restore soft-deleted books | ❌ | ❌ | ✅ |
-| Author CRUD | ❌ | ✅ | ✅ |
-| Publisher CRUD | ❌ | ✅ | ✅ |
-| Admin area (book/author/publisher/user mgmt) | ❌ | ❌ | ✅ |
+> An Admin can **remove the "User" role** from any account via the User Management panel. Once the "User" role is removed the account becomes a **Blank (no role)** account and loses all authenticated-only features — it can only browse the public listing pages.
+
+| Action | Blank (no role) | User | Manager | Admin |
+|--------|:-----------:|:----:|:-------:|:-----:|
+| **Books** | | | | |
+| Browse all books — All | ✅ | ✅ | ✅ | ✅ |
+| Book — Details | ❌ | ✅ | ✅ | ✅ |
+| Favorites (Save / Remove) | ❌ | ✅ | ✅ | ✅ |
+| View My Books list | ❌ | ❌ | ✅ | ✅ |
+| Create a book | ❌ | ❌ | ✅ | ✅ |
+| Edit a book | ❌ | ❌ | ✅ **own books only** | ✅ any book |
+| Delete a book | ❌ | ❌ | ✅ **own books only** | ✅ any book |
+| Restore soft-deleted books | ❌ | ❌ | ❌ | ✅ |
+| **Authors** | | | | |
+| Browse all authors — All | ✅ | ✅ | ✅ | ✅ |
+| Author — Details | ❌ | ✅ | ✅ | ✅ |
+| Author Add / Edit / Delete | ❌ | ❌ | ✅ | ✅ |
+| **Publishers** | | | | |
+| Browse all publishers — All | ✅ | ✅ | ✅ | ✅ |
+| Publisher — Details | ❌ | ✅ | ✅ | ✅ |
+| Publisher Add / Edit / Delete | ❌ | ❌ | ✅ | ✅ |
+| **Administration** | | | | |
+| Admin area (user mgmt, book/author/publisher mgmt) | ❌ | ❌ | ❌ | ✅ |
 
 > **Manager ownership rule**: The `Edit` and `Delete` actions verify `book.AddedByUserId == currentUserId` at the repository level. A Manager who attempts to edit or delete a book they did not create receives an `UnauthorizedAccessException` (HTTP 401).
 - Account lockout after failed login attempts
