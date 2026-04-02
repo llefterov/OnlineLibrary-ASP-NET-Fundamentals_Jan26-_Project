@@ -5,9 +5,7 @@ namespace OnlineLibrary
     using OnlineLibrary.Data;
     using OnlineLibrary.Data.Configuration;
     using OnlineLibrary.Data.Models;
-    using OnlineLibrary.Data.Repository;
     using OnlineLibrary.Data.Repository.Contracts;
-    using OnlineLibrary.Services.Core;
     using OnlineLibrary.Services.Core.Interfaces;
     using OnlineLibrary.Web.Infrastructure.Extensions;
     using OnlineLibrary.Web.Infrastructure.Utilities;
@@ -33,16 +31,6 @@ namespace OnlineLibrary
             builder.Services.RegisterRepositories(typeof(IAuthorRepository));
 
             builder.Services.AddSingleton<ISlugGenerator, SlugGenerator>();
-
-            //builder.Services.AddScoped<IBooksService, BooksService>();
-            //builder.Services.AddScoped<IAuthorService, AuthorService>();
-            //builder.Services.AddScoped<IPublisherService, PublisherService>();
-            //builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-
-            /* Register Identity in DI */
-            //builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-            //ConfigureIdentityOptions(options,builder.Configuration))
-            //.AddEntityFrameworkStores<OnlineLibraryDbContext>();
 
             builder.Services
                   .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
