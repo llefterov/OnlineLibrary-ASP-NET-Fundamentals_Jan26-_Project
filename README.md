@@ -1,8 +1,9 @@
-# 📚 OnlineLibrary - ASP.NET Fundamentals Project
+# 📚 OnlineLibrary - ASP.NET Advanced Project - February 2026
 
+This project is continuatiuon of the existing project:  "OnlineLibrary - ASP.NET Fundamentals Project - january 2026" with added exta features lerned in the Advanced course.
 A comprehensive online library management system built with **ASP.NET Core MVC** and **Entity Framework Core**. This project demonstrates modern web development practices including authentication, role-based authorization, a full Repository-Service-Controller architecture, CRUD operations, and a clean layered architecture.
 
-> **SoftUni Exam Project** - January 2026
+> **SoftUni Exam Project** - February 2026
 
 ---
 
