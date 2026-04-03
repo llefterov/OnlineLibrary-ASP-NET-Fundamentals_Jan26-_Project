@@ -151,8 +151,6 @@ namespace OnlineLibrary.Services.Core
                 Description = bookEntity.Description,
                 Genre = bookEntity.Genre,
                 GenreName = bookEntity.Genre.ToString(),
-                IsRead = bookEntity.IsRead,
-                DateRead = bookEntity.DateRead?.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
                 Rating = bookEntity.Rating,
                 CoverUrl = bookEntity.CoverUrl ?? string.Empty,
                 DateAdded = bookEntity.DateAdded.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
@@ -161,15 +159,10 @@ namespace OnlineLibrary.Services.Core
                 AuthorsName = string.Join(", ", bookEntity.BooksAuthors
                     .Where(ba => !ba.IsDeleted)
                     .Select(ba => ba.Author.FullName)),
-                AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty, // safe access
+                AddedByUserName = bookEntity.AddedByUser?.UserName ?? string.Empty,
                 IsAddedByUser = false,
                 IsAddedToUserCollection = false
             };
-
-            if (bookDetailsDto.IsRead == false)
-            {
-                bookDetailsDto.DateRead = null;
-            }
 
             return bookDetailsDto;
         }
@@ -198,8 +191,6 @@ namespace OnlineLibrary.Services.Core
                 Title = inputModel.Title,
                 Description = inputModel.Description,
                 Genre = inputModel.Genre,
-                IsRead = inputModel.IsRead,
-                DateRead = inputModel.DateRead,
                 Rating = inputModel.Rating,
                 CoverUrl = inputModel.CoverUrl ?? string.Empty,
                 DateAdded = inputModel.DateAdded,
@@ -213,16 +204,16 @@ namespace OnlineLibrary.Services.Core
 
         public async Task<(IEnumerable<BookFavoritesDto> BookFavoritesDtos, int TotalPages)> GetFavoriteBooksDtoAsync(Guid userId, string? searchQuery = null, int pageNumber = 1, int pageSize = 5)
         {
-            var favBooks = await bookRepository.GetFavoriteBooksAsync(userId);
+            var favUserBooks = await bookRepository.GetFavoriteBooksAsync(userId);
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 searchQuery = searchQuery.Trim().ToLower();
-                favBooks = favBooks.Where(b => b.Title.ToLower().Contains(searchQuery));
+                favUserBooks = favUserBooks.Where(ub => ub.Book.Title.ToLower().Contains(searchQuery));
             }
 
-            var orderedFavBooks = favBooks
-                .OrderBy(b => b.Title);
+            var orderedFavBooks = favUserBooks
+                .OrderBy(ub => ub.Book.Title);
 
             int totalBooks = orderedFavBooks.Count();
             int totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
@@ -230,7 +221,7 @@ namespace OnlineLibrary.Services.Core
             var favBooksDto = orderedFavBooks
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(MapBookToBookFavoritesDto)
+                .Select(MapUserBookToBookFavoritesDto)
                 .ToList();
 
             return (favBooksDto, totalPages);
@@ -244,6 +235,11 @@ namespace OnlineLibrary.Services.Core
         public async Task RemoveFevBookDtoAsync(Guid id, Guid userId)
         {
             await bookRepository.RemoveFevBookAsync(id, userId);
+        }
+
+        public async Task UpdateFavBookReadStatusDtoAsync(Guid id, Guid userId, bool isRead, DateTime? dateRead)
+        {
+            await bookRepository.UpdateFavBookReadStatusAsync(userId, id, isRead, dateRead);
         }
 
         public async Task<BookEditDto?> GetBookForEditDtoAsync(Guid id, Guid userId)

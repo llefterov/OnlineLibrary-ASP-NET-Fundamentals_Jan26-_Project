@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto">
 
-                    @if (User?.Identity?.IsAuthenticated ?? false)
+                    @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("User")))
                     {
                         @if (User.IsInRole("Admin"))
                         {

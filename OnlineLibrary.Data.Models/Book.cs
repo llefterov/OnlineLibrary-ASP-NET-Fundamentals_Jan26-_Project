@@ -26,12 +26,6 @@ namespace OnlineLibrary.Data.Models
         [MaxLength(BookGenreMaxLength)]
         public BookGenre Genre { get; set; }
 
-        [Required]
-        public bool IsRead { get; set; }
-
-        public DateTime? DateRead { get; set; }
-
-
         public int Rating { get; set; }
 
         [MaxLength(BookCoverUrlMaxLength)]

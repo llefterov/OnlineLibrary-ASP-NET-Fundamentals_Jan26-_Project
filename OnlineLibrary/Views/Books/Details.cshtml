@@ -53,11 +53,6 @@
 
                 <div class="mb-2">
                     <strong>Genre:</strong> @Model.GenreName
-
-                    @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true))
-                    {
-                        <span class="badge @(Model.IsRead ? "bg-success ms-2" : "bg-secondary ms-2")">@(Model.IsRead ? "Read" : "Not read")</span>
-                    }
                 </div>
 
                 <div class="row">
@@ -74,16 +69,6 @@
                             <div><strong>Added by:</strong> @Model.AddedByUserName</div>
                         }
                     </div>
-
-                    @if (Model.IsAddedByUser && (User?.Identity?.IsAuthenticated == true))
-                    {
-                        <div class="col-sm-6 text-sm-end small text-muted">
-                            @if (!string.IsNullOrEmpty(Model.DateRead))
-                            {
-                                <div><strong>Read:</strong> @Model.DateRead</div>
-                            }
-                        </div>
-                    }
 
                     @if (User?.Identity?.IsAuthenticated == true && !Model.IsAddedByUser && Model.IsAddedToUserCollection)
                     {

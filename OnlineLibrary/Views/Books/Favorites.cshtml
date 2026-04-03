@@ -40,6 +40,8 @@ else
             <tr>
                 <th>Image</th>
                 <th>Title</th>
+                <th>Status</th>
+                <th>Date Read</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -52,11 +54,33 @@ else
                     </td>
                     <td>@book.Title</td>
                     <td>
-                        @if (User?.Identity?.IsAuthenticated == true @*book.AddedByUserName != User?.Identity?.Name*@)
+                        <span class="badge @(book.IsRead ? "bg-success" : "bg-primary")">
+                            @(book.IsRead ? "Read" : "Not read")
+                        </span>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(book.DateRead))
+                        {
+                            <span>@book.DateRead</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                    <td>
+                        @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("User")))
                         {
                             <a asp-route="slugRoute" asp-route-id="@book.Id" asp-route-slug="@slugGenerator.GenerateSlug(book.Title)" class="btn btn-sm btn-info">
                                 <i class="fas fa-info-circle"></i> Details
                             </a>
+
+                            <button type="button" class="btn btn-sm btn-secondary"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#update-@book.Id"
+                                    aria-expanded="false">
+                                <i class="fas fa-edit"></i> Update Status
+                            </button>
 
                             <form asp-controller="Books" asp-action="Remove" method="post" class="d-inline">
                                 <input type="hidden" name="id" value="@book.Id" />
@@ -67,6 +91,28 @@ else
                         }
                     </td>
                 </tr>
+                @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("User")))
+                {
+                    <tr class="collapse" id="update-@book.Id">
+                        <td colspan="5" class="bg-light">
+                            <form asp-controller="Books" asp-action="UpdateReadStatus" method="post" class="d-flex align-items-center gap-3 p-2">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" name="isRead" value="true"
+                                           id="isRead-@book.Id" @(book.IsRead ? "checked" : "") />
+                                    <label class="form-check-label" for="isRead-@book.Id">Mark as read</label>
+                                </div>
+                                <div>
+                                    <label for="dateRead-@book.Id" class="form-label mb-0 me-1">Date read:</label>
+                                    <input type="date" name="dateRead" id="dateRead-@book.Id"
+                                           class="form-control form-control-sm d-inline-block" style="width:160px;"
+                                           value="@book.DateRead" />
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

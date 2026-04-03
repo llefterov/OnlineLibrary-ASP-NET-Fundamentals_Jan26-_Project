@@ -208,6 +208,20 @@ namespace OnlineLibrary.Web.Controllers
             return RedirectToAction("Favorites");
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Admin,Manager,User")]
+        public async Task<IActionResult> UpdateReadStatus(Guid id, bool isRead, DateTime? dateRead)
+        {
+            Guid userId = GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            await booksService.UpdateFavBookReadStatusDtoAsync(id, userId, isRead, dateRead);
+            return RedirectToAction("Favorites");
+        }
+
         [HttpGet]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(Guid id)

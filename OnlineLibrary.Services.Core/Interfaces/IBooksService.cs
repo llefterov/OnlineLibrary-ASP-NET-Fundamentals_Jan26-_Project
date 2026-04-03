@@ -25,6 +25,8 @@ namespace OnlineLibrary.Services.Core.Interfaces
 
         Task RemoveFevBookDtoAsync(Guid id, Guid userId);
 
+        Task UpdateFavBookReadStatusDtoAsync(Guid id, Guid userId, bool isRead, DateTime? dateRead);
+
         Task<BookEditDto?> GetBookForEditDtoAsync(Guid id, Guid userId);
         Task<bool> EditBookDtoAsync(BookEditDto model, Guid userId);
 
