@@ -5,5 +5,7 @@
         public Guid Id { get; set; }
         public string Title { get; set; } = null!;
         public string CoverUrl { get; set; } = null!;
+        public bool IsRead { get; set; }
+        public string? DateRead { get; set; }
     }
 }

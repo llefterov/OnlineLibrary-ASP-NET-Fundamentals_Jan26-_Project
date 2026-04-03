@@ -42,7 +42,7 @@
                 <td>@author.FullName</td>
                 <td>
 
-                    @if (User?.Identity?.IsAuthenticated == true)
+                    @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("User")))
                     {
                         <a class="btn btn-sm btn-outline-secondary" asp-controller="Author" asp-action="Details" asp-route-id="@author.Id">Details</a>
                         

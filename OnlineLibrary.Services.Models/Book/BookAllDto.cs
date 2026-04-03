@@ -11,8 +11,6 @@ namespace OnlineLibrary.Services.Models.Book
 
         public BookGenre Genre { get; set; }
 
-        public bool IsRead { get; set; }
-
         public int Rating { get; set; }
 
         public string CoverUrl { get; set; } = null!;

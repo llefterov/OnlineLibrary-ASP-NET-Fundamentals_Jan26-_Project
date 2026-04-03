@@ -28,7 +28,6 @@ namespace OnlineLibrary.Tests
                 Title = title,
                 Description = "A description",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 Rating = 5,
                 CoverUrl = "http://example.com/cover.jpg",
                 DateAdded = DateTime.UtcNow,
@@ -245,7 +244,6 @@ namespace OnlineLibrary.Tests
                 Title = "New Book",
                 Description = "A description",
                 Genre = BookGenre.Mystery,
-                IsRead = false,
                 Rating = 4,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = pubId,
@@ -270,7 +268,7 @@ namespace OnlineLibrary.Tests
         {
             var userId = Guid.NewGuid();
             _repoMock.Setup(r => r.GetFavoriteBooksAsync(userId))
-                .ReturnsAsync(new List<Book>());
+                .ReturnsAsync(new List<UserBook>());
 
             var (dtos, totalPages) = await _sut.GetFavoriteBooksDtoAsync(userId);
 
@@ -282,11 +280,10 @@ namespace OnlineLibrary.Tests
         public async Task GetFavoriteBooksDtoAsync_WithSearchQuery_FiltersResults()
         {
             var userId = Guid.NewGuid();
-            var pubId = Guid.NewGuid();
-            var favBooks = new List<Book>
+            var favBooks = new List<UserBook>
             {
-                new Book { Id = Guid.NewGuid(), Title = "Dune", CoverUrl = "http://a.com/img.jpg" },
-                new Book { Id = Guid.NewGuid(), Title = "Foundation", CoverUrl = "http://a.com/img2.jpg" }
+                new UserBook { UserId = userId, BookId = Guid.NewGuid(), Book = new Book { Id = Guid.NewGuid(), Title = "Dune", CoverUrl = "http://a.com/img.jpg" } },
+                new UserBook { UserId = userId, BookId = Guid.NewGuid(), Book = new Book { Id = Guid.NewGuid(), Title = "Foundation", CoverUrl = "http://a.com/img2.jpg" } }
             };
             _repoMock.Setup(r => r.GetFavoriteBooksAsync(userId)).ReturnsAsync(favBooks);
 
@@ -301,7 +298,7 @@ namespace OnlineLibrary.Tests
         {
             var userId = Guid.NewGuid();
             var favBooks = Enumerable.Range(1, 10)
-                .Select(i => new Book { Id = Guid.NewGuid(), Title = $"Book {i:D2}", CoverUrl = "" })
+                .Select(i => new UserBook { UserId = userId, BookId = Guid.NewGuid(), Book = new Book { Id = Guid.NewGuid(), Title = $"Book {i:D2}", CoverUrl = "" } })
                 .ToList();
             _repoMock.Setup(r => r.GetFavoriteBooksAsync(userId)).ReturnsAsync(favBooks);
 
@@ -366,7 +363,6 @@ namespace OnlineLibrary.Tests
                 Title = "Editable Book",
                 Description = "Desc",
                 Genre = BookGenre.History,
-                IsRead = true,
                 Rating = 8,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = pubId,
@@ -398,7 +394,6 @@ namespace OnlineLibrary.Tests
                 Title = "Updated",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 Rating = 5,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = pubId,
@@ -459,6 +454,37 @@ namespace OnlineLibrary.Tests
 
             Assert.That(result, Is.True);
             _repoMock.Verify(r => r.DeleteBookAsync(bookId, userId), Times.Once);
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // UpdateFavBookReadStatusDtoAsync
+        // ──────────────────────────────────────────────────────────────────────
+
+        [Test]
+        public async Task UpdateFavBookReadStatusDtoAsync_DelegatesToRepository()
+        {
+            var bookId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var dateRead = new DateTime(2025, 6, 1);
+            _repoMock.Setup(r => r.UpdateFavBookReadStatusAsync(userId, bookId, true, dateRead))
+                .Returns(Task.CompletedTask);
+
+            await _sut.UpdateFavBookReadStatusDtoAsync(bookId, userId, true, dateRead);
+
+            _repoMock.Verify(r => r.UpdateFavBookReadStatusAsync(userId, bookId, true, dateRead), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateFavBookReadStatusDtoAsync_IsReadFalse_DelegatesToRepositoryWithNullDate()
+        {
+            var bookId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            _repoMock.Setup(r => r.UpdateFavBookReadStatusAsync(userId, bookId, false, null))
+                .Returns(Task.CompletedTask);
+
+            await _sut.UpdateFavBookReadStatusDtoAsync(bookId, userId, false, null);
+
+            _repoMock.Verify(r => r.UpdateFavBookReadStatusAsync(userId, bookId, false, null), Times.Once);
         }
     }
 }

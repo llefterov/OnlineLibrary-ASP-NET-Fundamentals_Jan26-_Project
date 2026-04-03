@@ -16,10 +16,6 @@ namespace OnlineLibrary.Web.ViewModels.Books
 
         public BookGenre Genre { get; set; }
 
-        public bool IsRead { get; set; }
-
-        public string? DateRead { get; set; }
-
         public int Rating { get; set; }
 
         public string CoverUrl { get; set; } = null!;

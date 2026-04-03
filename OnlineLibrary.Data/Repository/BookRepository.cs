@@ -188,19 +188,13 @@ namespace OnlineLibrary.Data.Repository
             }
         }
 
-        public async Task<IEnumerable<Book>> GetFavoriteBooksAsync(Guid userId)
+        public async Task<IEnumerable<UserBook>> GetFavoriteBooksAsync(Guid userId)
         {
-            var favBooks = await DbContext.UsersBooks
+            return await DbContext.UsersBooks
                 .Where(ub => ub.UserId == userId)
                 .Include(ub => ub.Book)
-                .Select(ub => new Book
-                {
-                    Id = ub.Book.Id,
-                    Title = ub.Book.Title,
-                    CoverUrl = ub.Book.CoverUrl ?? string.Empty
-                })
+                .AsNoTracking()
                 .ToListAsync();
-            return favBooks;
         }
 
         public async Task SaveFevBookAsync(Guid id, Guid userId)
@@ -231,6 +225,21 @@ namespace OnlineLibrary.Data.Repository
             }
 
             DbContext.UsersBooks.Remove(userBook);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateFavBookReadStatusAsync(Guid userId, Guid bookId, bool isRead, DateTime? dateRead)
+        {
+            var userBook = await DbContext.UsersBooks
+                .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == bookId);
+
+            if (userBook == null)
+            {
+                return;
+            }
+
+            userBook.IsRead = isRead;
+            userBook.DateRead = isRead ? dateRead : null;
             await DbContext.SaveChangesAsync();
         }
 
@@ -288,8 +297,6 @@ namespace OnlineLibrary.Data.Repository
             bookEntity.Title = inputModel.Title;
             bookEntity.Description = inputModel.Description;
             bookEntity.Genre = inputModel.Genre;
-            bookEntity.IsRead = inputModel.IsRead;
-            bookEntity.DateRead = inputModel.DateRead;
             bookEntity.Rating = inputModel.Rating;
             bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
             bookEntity.DateAdded = inputModel.DateAdded;
@@ -465,8 +472,6 @@ namespace OnlineLibrary.Data.Repository
             bookEntity.Title = inputModel.Title;
             bookEntity.Description = inputModel.Description;
             bookEntity.Genre = inputModel.Genre;
-            bookEntity.IsRead = inputModel.IsRead;
-            bookEntity.DateRead = inputModel.DateRead;
             bookEntity.Rating = inputModel.Rating;
             bookEntity.CoverUrl = inputModel.CoverUrl ?? string.Empty;
             bookEntity.DateAdded = inputModel.DateAdded;

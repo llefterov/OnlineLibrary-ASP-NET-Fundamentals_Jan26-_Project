@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineLibrary.Data;
 
@@ -11,9 +12,11 @@ using OnlineLibrary.Data;
 namespace OnlineLibrary.Data.Migrations
 {
     [DbContext(typeof(OnlineLibraryDbContext))]
-    partial class OnlineLibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260403130659_MoveIsReadDateReadToUserBook")]
+    partial class MoveIsReadDateReadToUserBook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

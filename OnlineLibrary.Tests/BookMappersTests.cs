@@ -15,7 +15,6 @@ namespace OnlineLibrary.Tests
             var id = Guid.NewGuid();
             var publisherId = Guid.NewGuid();
             var authorIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-            var dateRead = DateTime.UtcNow.AddDays(-1);
             var dateAdded = DateTime.UtcNow.AddDays(-10);
 
             var dto = new BookEditDto
@@ -24,8 +23,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Fantasy,
-                IsRead = true,
-                DateRead = dateRead,
                 Rating = 5,
                 CoverUrl = "https://example.com/cover.jpg",
                 DateAdded = dateAdded,
@@ -41,8 +38,6 @@ namespace OnlineLibrary.Tests
                 Assert.That(result.Title, Is.EqualTo(dto.Title));
                 Assert.That(result.Description, Is.EqualTo(dto.Description));
                 Assert.That(result.Genre, Is.EqualTo(dto.Genre));
-                Assert.That(result.IsRead, Is.EqualTo(dto.IsRead));
-                Assert.That(result.DateRead, Is.EqualTo(dto.DateRead));
                 Assert.That(result.Rating, Is.EqualTo(dto.Rating));
                 Assert.That(result.CoverUrl, Is.EqualTo(dto.CoverUrl));
                 Assert.That(result.DateAdded, Is.EqualTo(dto.DateAdded));
@@ -63,7 +58,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Mystery,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 BooksAuthors = new List<BookAuthor>
@@ -87,7 +81,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AddedByUser = null!,
@@ -113,7 +106,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AddedByUser = new ApplicationUser { UserName = "reader1" },
@@ -156,7 +148,7 @@ namespace OnlineLibrary.Tests
         }
 
         [Test]
-        public void MapBookDetailsDtoToBookDetailsViewModel_WhenIsReadFalse_NullsDateReadWithoutMutatingDto()
+        public void MapBookDetailsDtoToBookDetailsViewModel_MapsAllProperties()
         {
             var dto = new BookDetailsDto
             {
@@ -165,8 +157,6 @@ namespace OnlineLibrary.Tests
                 Description = "Description",
                 Genre = BookGenre.History,
                 GenreName = "History",
-                IsRead = false,
-                DateRead = "2026-02-01",
                 Rating = 3,
                 CoverUrl = "https://example.com/cover.jpg",
                 DateAdded = "2026-01-01",
@@ -182,13 +172,16 @@ namespace OnlineLibrary.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(result.DateRead, Is.Null);
-                Assert.That(dto.DateRead, Is.EqualTo("2026-02-01"));
+                Assert.That(result.Title, Is.EqualTo(dto.Title));
+                Assert.That(result.GenreName, Is.EqualTo(dto.GenreName));
+                Assert.That(result.Rating, Is.EqualTo(dto.Rating));
+                Assert.That(result.IsAddedByUser, Is.True);
+                Assert.That(result.CoverUrl, Is.EqualTo(dto.CoverUrl));
             });
         }
 
         [Test]
-        public void MapBookDetailsDtoToBookDetailsViewModel_WhenIsReadTrue_KeepDateRead()
+        public void MapBookDetailsDtoToBookDetailsViewModel_NullCoverUrl_ReturnsEmptyString()
         {
             var dto = new BookDetailsDto
             {
@@ -197,8 +190,6 @@ namespace OnlineLibrary.Tests
                 Description = "Description",
                 Genre = BookGenre.History,
                 GenreName = "History",
-                IsRead = true,
-                DateRead = "2026-02-01",
                 Rating = 3,
                 CoverUrl = null!,
                 DateAdded = "2026-01-01",
@@ -212,46 +203,64 @@ namespace OnlineLibrary.Tests
 
             var result = BookMappers.MapBookDetailsDtoToBookDetailsViewModel(dto);
 
+            Assert.That(result.CoverUrl, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void MapUserBookToBookFavoritesDto_NullCoverUrl_ReturnsEmptyString()
+        {
+            var userBook = new UserBook
+            {
+                UserId = Guid.NewGuid(),
+                BookId = Guid.NewGuid(),
+                IsRead = false,
+                Book = new Book
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Title",
+                    Description = "Description",
+                    Genre = BookGenre.Romance,
+                    DateAdded = DateTime.UtcNow,
+                    PublisherId = Guid.NewGuid(),
+                    CoverUrl = null
+                }
+            };
+
+            var result = BookMappers.MapUserBookToBookFavoritesDto(userBook);
+
+            Assert.That(result.CoverUrl, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void MapUserBookToBookFavoritesDto_MapsIsReadAndDateRead()
+        {
+            var dateRead = new DateTime(2025, 6, 1);
+            var userBook = new UserBook
+            {
+                UserId = Guid.NewGuid(),
+                BookId = Guid.NewGuid(),
+                IsRead = true,
+                DateRead = dateRead,
+                Book = new Book
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Read Book",
+                    Description = "Desc",
+                    Genre = BookGenre.Fiction,
+                    DateAdded = DateTime.UtcNow,
+                    PublisherId = Guid.NewGuid(),
+                    CoverUrl = "http://example.com/cover.jpg"
+                }
+            };
+
+            var result = BookMappers.MapUserBookToBookFavoritesDto(userBook);
+
             Assert.Multiple(() =>
             {
-                Assert.That(result.DateRead, Is.EqualTo("2026-02-01"));
-                Assert.That(result.CoverUrl, Is.EqualTo(string.Empty));
+                Assert.That(result.IsRead, Is.True);
+                Assert.That(result.DateRead, Is.EqualTo("2025-06-01"));
+                Assert.That(result.Title, Is.EqualTo("Read Book"));
             });
-        }
-
-        [Test]
-        public void MapBookToBookFavoritesDto_NullCoverUrl_ReturnsEmptyString()
-        {
-            var book = new Book
-            {
-                Id = Guid.NewGuid(),
-                Title = "Title",
-                Description = "Description",
-                Genre = BookGenre.Romance,
-                IsRead = false,
-                DateAdded = DateTime.UtcNow,
-                PublisherId = Guid.NewGuid(),
-                CoverUrl = null
-            };
-
-            var result = BookMappers.MapBookToBookFavoritesDto(book);
-
-            Assert.That(result.CoverUrl, Is.EqualTo(string.Empty));
-        }
-
-        [Test]
-        public void MapBookFavoritesDtoToBookFavoritesViewModel_NullCoverUrl_ReturnsEmptyString()
-        {
-            var dto = new BookFavoritesDto
-            {
-                Id = Guid.NewGuid(),
-                Title = "Title",
-                CoverUrl = null!
-            };
-
-            var result = BookMappers.MapBookFavoritesDtoToBookFavoritesViewModel(dto);
-
-            Assert.That(result.CoverUrl, Is.EqualTo(string.Empty));
         }
 
         [Test]
@@ -279,8 +288,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Thriller,
-                IsRead = true,
-                DateRead = DateTime.UtcNow.Date,
                 Rating = 5,
                 CoverUrl = "https://example.com/cover.jpg",
                 DateAdded = DateTime.UtcNow,
@@ -309,8 +316,6 @@ namespace OnlineLibrary.Tests
                 Title = "Title",
                 Description = "Description",
                 Genre = BookGenre.Biography,
-                IsRead = true,
-                DateRead = DateTime.UtcNow.Date,
                 Rating = 4,
                 CoverUrl = "https://example.com/cover.jpg",
                 DateAdded = DateTime.UtcNow,
