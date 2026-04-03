@@ -79,7 +79,6 @@ namespace OnlineLibrary.Tests
             Description = "Desc",
             Genre = BookGenre.Fiction,
             GenreName = "Fiction",
-            IsRead = false,
             Rating = 5,
             CoverUrl = "http://example.com/cover.jpg",
             DateAdded = DateTime.UtcNow.ToString("dd-MM-yyyy"),
@@ -95,7 +94,6 @@ namespace OnlineLibrary.Tests
             Title = "Editable Book",
             Description = "Desc",
             Genre = BookGenre.Fiction,
-            IsRead = false,
             Rating = 5,
             DateAdded = DateTime.UtcNow,
             PublisherId = Guid.NewGuid(),
@@ -267,7 +265,6 @@ namespace OnlineLibrary.Tests
                 Title = "Book",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid()
             };
@@ -287,7 +284,6 @@ namespace OnlineLibrary.Tests
                 Title = "New Book",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -312,7 +308,6 @@ namespace OnlineLibrary.Tests
                 Title = "Book",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -336,7 +331,6 @@ namespace OnlineLibrary.Tests
                 Title = "Book",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -360,7 +354,6 @@ namespace OnlineLibrary.Tests
                 Title = "Book",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -615,7 +608,6 @@ namespace OnlineLibrary.Tests
                 Title = "Updated",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -640,7 +632,6 @@ namespace OnlineLibrary.Tests
                 Title = "Updated",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -667,7 +658,6 @@ namespace OnlineLibrary.Tests
                 Title = "Updated",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -693,7 +683,6 @@ namespace OnlineLibrary.Tests
                 Title = "Updated",
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 DateAdded = DateTime.UtcNow,
                 PublisherId = Guid.NewGuid(),
                 AuthorIds = new List<Guid>()
@@ -822,6 +811,58 @@ namespace OnlineLibrary.Tests
             var result = await _sut.DeleteConfirmed(Guid.NewGuid(), null);
 
             Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // UpdateReadStatus (POST)
+        // ──────────────────────────────────────────────────────────────────────
+
+        [Test]
+        public async Task UpdateReadStatus_EmptyUserId_RedirectsToLogin()
+        {
+            SetAnonymousUser();
+
+            var result = await _sut.UpdateReadStatus(Guid.NewGuid(), true, DateTime.UtcNow);
+
+            var redirect = result as RedirectToActionResult;
+            Assert.That(redirect, Is.Not.Null);
+            Assert.That(redirect!.ActionName, Is.EqualTo("Login"));
+            Assert.That(redirect.ControllerName, Is.EqualTo("Account"));
+        }
+
+        [Test]
+        public async Task UpdateReadStatus_ValidUserId_IsReadTrue_CallsServiceAndRedirectsToFavorites()
+        {
+            var userId = Guid.NewGuid();
+            var bookId = Guid.NewGuid();
+            var dateRead = new DateTime(2025, 6, 1);
+            SetUser(userId);
+            _serviceMock.Setup(s => s.UpdateFavBookReadStatusDtoAsync(bookId, userId, true, dateRead))
+                .Returns(Task.CompletedTask);
+
+            var result = await _sut.UpdateReadStatus(bookId, true, dateRead);
+
+            _serviceMock.Verify(s => s.UpdateFavBookReadStatusDtoAsync(bookId, userId, true, dateRead), Times.Once);
+            var redirect = result as RedirectToActionResult;
+            Assert.That(redirect, Is.Not.Null);
+            Assert.That(redirect!.ActionName, Is.EqualTo("Favorites"));
+        }
+
+        [Test]
+        public async Task UpdateReadStatus_ValidUserId_IsReadFalse_CallsServiceWithNullDateAndRedirects()
+        {
+            var userId = Guid.NewGuid();
+            var bookId = Guid.NewGuid();
+            SetUser(userId);
+            _serviceMock.Setup(s => s.UpdateFavBookReadStatusDtoAsync(bookId, userId, false, null))
+                .Returns(Task.CompletedTask);
+
+            var result = await _sut.UpdateReadStatus(bookId, false, null);
+
+            _serviceMock.Verify(s => s.UpdateFavBookReadStatusDtoAsync(bookId, userId, false, null), Times.Once);
+            var redirect = result as RedirectToActionResult;
+            Assert.That(redirect, Is.Not.Null);
+            Assert.That(redirect!.ActionName, Is.EqualTo("Favorites"));
         }
     }
 }

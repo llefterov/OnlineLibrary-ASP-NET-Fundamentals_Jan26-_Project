@@ -35,7 +35,6 @@ namespace OnlineLibrary.Tests
                 Title = title,
                 Description = "A description",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 Rating = 5,
                 CoverUrl = "http://example.com/cover.jpg",
                 DateAdded = DateTime.UtcNow,
@@ -462,7 +461,7 @@ namespace OnlineLibrary.Tests
             var result = (await repo.GetFavoriteBooksAsync(userId)).ToList();
 
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result[0].Title, Is.EqualTo("Fav Book"));
+            Assert.That(result[0].Book.Title, Is.EqualTo("Fav Book"));
         }
 
         // ──────────────────────────────────────────────────────────────────────
@@ -796,6 +795,63 @@ namespace OnlineLibrary.Tests
 
             var bookAuthor = await ctx.BooksAuthors.FirstAsync(ba => ba.BookId == bookId);
             Assert.That(bookAuthor.IsDeleted, Is.True);
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // UpdateFavBookReadStatusAsync
+        // ──────────────────────────────────────────────────────────────────────
+
+        [Test]
+        public async Task UpdateFavBookReadStatusAsync_NonExistingEntry_DoesNotThrow()
+        {
+            await using var ctx = CreateContext(nameof(UpdateFavBookReadStatusAsync_NonExistingEntry_DoesNotThrow));
+            var repo = new BookRepository(ctx);
+
+            Assert.DoesNotThrowAsync(async () =>
+                await repo.UpdateFavBookReadStatusAsync(Guid.NewGuid(), Guid.NewGuid(), true, DateTime.UtcNow));
+        }
+
+        [Test]
+        public async Task UpdateFavBookReadStatusAsync_IsReadTrue_SetsIsReadAndDateRead()
+        {
+            await using var ctx = CreateContext(nameof(UpdateFavBookReadStatusAsync_IsReadTrue_SetsIsReadAndDateRead));
+            var userId = Guid.NewGuid();
+            var pubId = Guid.NewGuid();
+            var bookId = Guid.NewGuid();
+            var dateRead = new DateTime(2025, 6, 1);
+            ctx.Users.Add(MakeUser(userId));
+            ctx.Publishers.Add(MakePublisher(pubId));
+            ctx.Books.Add(MakeBook(bookId, "Fav Book", pubId, userId));
+            ctx.UsersBooks.Add(new UserBook { UserId = userId, BookId = bookId, IsRead = false, DateRead = null });
+            await ctx.SaveChangesAsync();
+            var repo = new BookRepository(ctx);
+
+            await repo.UpdateFavBookReadStatusAsync(userId, bookId, true, dateRead);
+
+            var userBook = await ctx.UsersBooks.FindAsync(userId, bookId);
+            Assert.That(userBook!.IsRead, Is.True);
+            Assert.That(userBook.DateRead, Is.EqualTo(dateRead));
+        }
+
+        [Test]
+        public async Task UpdateFavBookReadStatusAsync_IsReadFalse_SetsDateReadToNull()
+        {
+            await using var ctx = CreateContext(nameof(UpdateFavBookReadStatusAsync_IsReadFalse_SetsDateReadToNull));
+            var userId = Guid.NewGuid();
+            var pubId = Guid.NewGuid();
+            var bookId = Guid.NewGuid();
+            ctx.Users.Add(MakeUser(userId));
+            ctx.Publishers.Add(MakePublisher(pubId));
+            ctx.Books.Add(MakeBook(bookId, "Fav Book", pubId, userId));
+            ctx.UsersBooks.Add(new UserBook { UserId = userId, BookId = bookId, IsRead = true, DateRead = new DateTime(2025, 1, 1) });
+            await ctx.SaveChangesAsync();
+            var repo = new BookRepository(ctx);
+
+            await repo.UpdateFavBookReadStatusAsync(userId, bookId, false, new DateTime(2025, 6, 1));
+
+            var userBook = await ctx.UsersBooks.FindAsync(userId, bookId);
+            Assert.That(userBook!.IsRead, Is.False);
+            Assert.That(userBook.DateRead, Is.Null);
         }
     }
 }

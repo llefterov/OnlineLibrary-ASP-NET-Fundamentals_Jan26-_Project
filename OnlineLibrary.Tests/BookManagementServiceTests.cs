@@ -27,7 +27,6 @@ namespace OnlineLibrary.Tests
                 Title = title,
                 Description = "Desc",
                 Genre = BookGenre.Fiction,
-                IsRead = false,
                 Rating = 5,
                 CoverUrl = "http://example.com/cover.jpg",
                 DateAdded = DateTime.UtcNow,
