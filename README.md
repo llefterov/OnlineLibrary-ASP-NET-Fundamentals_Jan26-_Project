@@ -12,7 +12,7 @@ A comprehensive online library management system built with **ASP.NET Core MVC**
 - **Book Management**: Add, edit, view, and delete books with detailed information
 - **User Authentication**: Secure user registration and login using ASP.NET Core Identity
 - **Role-Based Authorization**: Admin, Manager, and User roles with a separate Admin area
-- **Reading Tracking**: Mark books as read, add reading dates, and rate books (1-5 stars)
+- **Reading Tracking**: Mark books as read and record reading dates *per user* — read status (`IsRead`, `DateRead`) is stored in the `UserBook` join table, so each user tracks their own reading progress independently
 - **Genre Categorization**: Organize books by genres (Fiction, NonFiction, Mystery, Fantasy, ScienceFiction, Biography, History, Romance, Thriller, SelfHelp, Other)
 - **Author & Publisher Management**: Complete CRUD operations for authors and publishers (both regular and admin)
 - **Quick Add Feature**: Add new authors/publishers on-the-fly while creating books
@@ -94,10 +94,10 @@ OnlineLibrary/
 ├── OnlineLibrary.Data.Models/                  # Domain/entity models
 │   ├── ApplicationUser.cs                      # IdentityUser<Guid>
 │   ├── Author.cs
-│   ├── Book.cs                                 # Includes IsDeleted soft-delete flag
+│   ├── Book.cs                                 # Includes IsDeleted soft-delete flag; IsRead/DateRead moved to UserBook
 │   ├── Publisher.cs
 │   ├── BookAuthor.cs                           # Many-to-many (Book ↔ Author)
-│   └── UserBook.cs                             # Many-to-many (User ↔ Book favorites)
+│   └── UserBook.cs                             # Many-to-many (User ↔ Book): favorites + per-user read status (IsRead, DateRead)
 │
 ├── OnlineLibrary.Services.Core/                # Business logic layer
 │   ├── Interfaces/
@@ -244,8 +244,6 @@ Authenticated admins are **automatically redirected** to `/Admin/Home/Index` whe
 | `Title` | string (max 250) | Required |
 | `Description` | string (max 1000) | Required |
 | `Genre` | Enum | Required (Fiction, NonFiction, Mystery, Fantasy, ScienceFiction, Biography, History, Romance, Thriller, SelfHelp, Other) |
-| `IsRead` | bool | |
-| `DateRead` | DateTime? | Optional |
 | `Rating` | int (0–5) | 0 = not rated |
 | `CoverUrl` | string? (max 2083) | Optional, valid URL when provided |
 | `DateAdded` | DateTime | Required |
@@ -272,11 +270,13 @@ Authenticated admins are **automatically redirected** to `/Admin/Home/Index` whe
 | `AuthorId` | Guid (FK) |
 | `IsDeleted` | bool |
 
-**UsersBooks** (User Favorites — Many-to-Many)
-| Column | Type |
-|--------|------|
-| `UserId` | Guid (FK) |
-| `BookId` | Guid (FK) |
+**UsersBooks** (User Favorites & Read Status — Many-to-Many)
+| Column | Type | Notes |
+|--------|------|-------|
+| `UserId` | Guid (FK) | |
+| `BookId` | Guid (FK) | |
+| `IsRead` | bool | Per-user read flag (default: false) |
+| `DateRead` | DateTime? | Optional date when the user marked the book as read |
 
 ---
 
@@ -376,7 +376,7 @@ Navigate to `https://localhost:5001` or `http://localhost:5000`
 ### Adding a Book
 1. Log in to your account
 2. Navigate to **Books** > **Add New Book**
-3. Fill in: Title, Description, Genre, Cover URL, Publisher, Author(s), reading status and rating
+3. Fill in: Title, Description, Genre, Cover URL, Publisher, Author(s), and rating
 4. Use the **Quick Add** links to create a new author or publisher on-the-fly
 5. Click **Create**
 
@@ -387,6 +387,7 @@ Navigate to **Books** > **My Books** to see all books you have personally added,
 - Navigate to **Books** > **Favorites** to see your personal favorites collection
 - Click **Save** on any book to add it to your favorites
 - Click **Remove** to take it out of your favorites
+- In the Favorites list, tick **Mark as Read** and optionally set a **Date Read** to track your personal reading progress (stored per user in `UserBook`)
 
 ### Filtering & Search
 Use the search box and dropdowns on the **All Books**, **My Books**, and **Favorites** pages to filter by:
@@ -691,7 +692,7 @@ This project is created for educational purposes as part of the SoftUni ASP.NET 
 
 ## 🙏 Acknowledgments
 
-- **SoftUni** - For the excellent ASP.NET Fundamentals course
+- **SoftUni** - For the excellent ASP.NET Fundamentals and Advance courses
 - **Microsoft** - For the comprehensive .NET documentation
 - **Bootstrap Team** - For the amazing UI framework
 
