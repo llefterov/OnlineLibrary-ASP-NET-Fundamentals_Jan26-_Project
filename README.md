@@ -679,7 +679,7 @@ This is an educational project for SoftUni. If you'd like to contribute:
 
 ## 📄 License
 
-This project is created for educational purposes as part of the SoftUni ASP.NET Fundamentals course (January 2026).
+This project is created for educational purposes as part of the SoftUni ASP.NET Fundamentals and Advaanced courses (January-February 2026).
 
 ---
 
