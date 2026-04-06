@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Services.Models.Author;
+using OnlineLibrary.Services.Models.Author;
 using OnlineLibrary.Web.ViewModels.Author;
 
 namespace OnlineLibrary.Services.CustomMappers

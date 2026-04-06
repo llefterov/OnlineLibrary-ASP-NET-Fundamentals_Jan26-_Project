@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 
 namespace OnlineLibrary.Data.Repository
 {
-    public class PublisherRepository: BaseRepository, IPublisherRepository
+    public class PublisherRepository : BaseRepository, IPublisherRepository
     {
         public PublisherRepository(OnlineLibraryDbContext dbContext)
             : base(dbContext)

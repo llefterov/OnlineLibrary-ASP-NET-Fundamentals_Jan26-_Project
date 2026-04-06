@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using static OnlineLibrary.GCommon.ApplicationConstants;

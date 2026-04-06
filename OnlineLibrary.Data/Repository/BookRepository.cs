@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
@@ -261,22 +261,6 @@ namespace OnlineLibrary.Data.Repository
             {
                 return null;
             }
-
-            //// Map to view model in-memory (safe for string.Join and enum ToString)
-            //var bookDetails = new Book
-            //{
-            //    Id = bookEntity.Id,
-            //    Title = bookEntity.Title,
-            //    Description = bookEntity.Description,
-            //    Genre = bookEntity.Genre,
-            //    IsRead = bookEntity.IsRead,
-            //    DateRead = bookEntity.DateRead,
-            //    Rating = bookEntity.Rating,
-            //    CoverUrl = bookEntity.CoverUrl,
-            //    DateAdded = bookEntity.DateAdded,
-            //    PublisherId = bookEntity.PublisherId,
-            //    AuthorIds = bookEntity.BooksAuthors.Select(ba => ba.AuthorId).ToList()
-            //};
 
             return (bookEntity);
         }

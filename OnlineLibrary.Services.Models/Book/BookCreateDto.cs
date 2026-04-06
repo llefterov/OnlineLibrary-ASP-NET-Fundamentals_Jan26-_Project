@@ -1,6 +1,6 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using System.ComponentModel.DataAnnotations;
-using static OnlineLibrary.GCommon.ValidationConstants; 
+using static OnlineLibrary.GCommon.ValidationConstants;
 
 namespace OnlineLibrary.Services.Models.Book
 {

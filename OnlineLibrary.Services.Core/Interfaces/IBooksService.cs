@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using OnlineLibrary.Services.Models.Book;
 
 namespace OnlineLibrary.Services.Core.Interfaces

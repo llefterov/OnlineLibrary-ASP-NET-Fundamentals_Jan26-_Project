@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Interfaces;
@@ -287,7 +287,7 @@ namespace OnlineLibrary.Web.Controllers
 
                 return View("Delete", publisherToDelete);
             }
-         }
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using OnlineLibrary.Services.Models.Book;
 using OnlineLibrary.Web.ViewModels.Books;
 using System.Globalization;

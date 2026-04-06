@@ -1,4 +1,4 @@
-﻿
+
 namespace OnlineLibrary.Data.Models
 {
     using System;

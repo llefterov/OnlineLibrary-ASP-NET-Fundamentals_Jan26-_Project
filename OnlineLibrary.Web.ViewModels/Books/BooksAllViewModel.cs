@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,14 +13,14 @@ namespace OnlineLibrary.Web.ViewModels.Books
         public Guid Id { get; set; }
 
         public string Title { get; set; } = null!;
-       
+
         public BookGenre Genre { get; set; }
 
         public int Rating { get; set; }
 
         public string CoverUrl { get; set; } = null!;
 
-       public string? AddedByUserName { get; set; }
+        public string? AddedByUserName { get; set; }
 
         public Guid PublisherId { get; set; }
 

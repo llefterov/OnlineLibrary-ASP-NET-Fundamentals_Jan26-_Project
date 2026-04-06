@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.Services.Core.Interfaces;
 using OnlineLibrary.Services.Models.Book;
@@ -74,8 +74,6 @@ namespace OnlineLibrary.Services.Core
             // Use the dedicated repository method that filters at DB level
             var allBooks = await bookRepository.GetBooksByUserOrderedByTitleThenByGenreAscAsync(userId);
 
-            // No need for: allBooks = allBooks.Where(b => b.AddedByUserId == userId);
-            // The repository method already filters by user
 
             if (!string.IsNullOrEmpty(searchQuery))
             {

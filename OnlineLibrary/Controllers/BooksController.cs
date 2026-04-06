@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
@@ -25,7 +25,7 @@ namespace OnlineLibrary.Web.Controllers
         {
             var userId = GetUserId();
 
-            var (allBooksDto, totalPages) = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId,  searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5); 
+            var (allBooksDto, totalPages) = await booksService.GetAllBooksDtoOrderedByTitleThenByGenreAscAsync(userId, searchQuery, publisherFilter, genreFilter, pageNumber, pageSize: 5);
             var allBooksViewModel = allBooksDto.Select(MapBookAllDtoToBooksAllViewModel);
 
             ViewData["SearchQuery"] = searchQuery;

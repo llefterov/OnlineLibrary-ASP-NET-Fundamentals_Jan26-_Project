@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 //using Book = OnlineLibrary.Data.Models.Book;
 
 namespace OnlineLibrary.Services.Models.Publisher
@@ -11,4 +11,3 @@ namespace OnlineLibrary.Services.Models.Publisher
 
     }
 }
-    

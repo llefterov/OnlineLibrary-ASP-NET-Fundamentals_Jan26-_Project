@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Web.ViewModels.Author;
+using OnlineLibrary.Web.ViewModels.Author;
 
 namespace OnlineLibrary.Services.Models.Author
 {
