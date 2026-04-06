@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;
 using OnlineLibrary.Services.Core.Admin.Interfaces;
 using OnlineLibrary.Services.Models.Publisher;
@@ -23,7 +23,7 @@ namespace OnlineLibrary.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Manage()
         {
             var publishers = await publisherManagementService.GetAllPublishersAsync();
-            return View(publishers);
+            return View(publishers.PublisherAllDtos);
         }
 
         [HttpGet]

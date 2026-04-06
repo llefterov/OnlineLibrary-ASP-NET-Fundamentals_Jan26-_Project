@@ -106,7 +106,7 @@ namespace OnlineLibrary
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-               // .WithStaticAssets();
+            // .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
 

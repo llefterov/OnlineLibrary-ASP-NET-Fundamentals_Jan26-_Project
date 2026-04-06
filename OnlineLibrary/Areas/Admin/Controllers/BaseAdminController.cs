@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -17,8 +17,6 @@ namespace OnlineLibrary.Web.Areas.Admin.Controllers
             {
 
                 return Guid.Empty;
-
-                //throw new InvalidOperationException("User ID claim not found.");
             }
 
             return Guid.Parse(userId);

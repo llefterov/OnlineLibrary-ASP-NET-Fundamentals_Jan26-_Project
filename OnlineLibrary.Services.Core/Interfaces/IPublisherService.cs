@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Services.Models.Publisher;
+using OnlineLibrary.Services.Models.Publisher;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {

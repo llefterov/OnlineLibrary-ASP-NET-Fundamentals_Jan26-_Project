@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineLibrary.Data.Models;
 
@@ -13,12 +13,14 @@ namespace OnlineLibrary.Data.Configuration
         public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {
             // Fast path: if already seeded, skip immediately
-            if (_rolesSeeded) return;
+            if (_rolesSeeded)
+                return;
 
             lock (_lock)
             {
                 // Double-check after acquiring lock
-                if (_rolesSeeded) return;
+                if (_rolesSeeded)
+                    return;
 
                 var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
@@ -48,12 +50,14 @@ namespace OnlineLibrary.Data.Configuration
         public static async Task AssignAdminRoleAsync(IServiceProvider serviceProvider)
         {
             // Fast path: if already seeded, skip immediately
-            if (_adminSeeded) return;
+            if (_adminSeeded)
+                return;
 
             lock (_lock)
             {
                 // Double-check after acquiring lock
-                if (_adminSeeded) return;
+                if (_adminSeeded)
+                    return;
 
                 var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 

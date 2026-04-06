@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Web.ViewModels.Admin.UserManagement;

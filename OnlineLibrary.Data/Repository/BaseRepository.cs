@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Data.Repository
+namespace OnlineLibrary.Data.Repository
 {
     public class BaseRepository : IDisposable
     {

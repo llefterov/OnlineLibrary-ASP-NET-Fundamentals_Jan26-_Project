@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.Services.Core.Admin.Interfaces;

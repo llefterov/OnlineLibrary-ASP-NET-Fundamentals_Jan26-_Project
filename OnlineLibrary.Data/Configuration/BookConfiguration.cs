@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OnlineLibrary.Data.Models;
 using System;
@@ -7,7 +7,7 @@ using System.Text;
 
 namespace OnlineLibrary.Data.Configuration
 {
-    public class BookConfiguration: IEntityTypeConfiguration<Book>
+    public class BookConfiguration : IEntityTypeConfiguration<Book>
     {
         public void Configure(EntityTypeBuilder<Book> builder)
         {

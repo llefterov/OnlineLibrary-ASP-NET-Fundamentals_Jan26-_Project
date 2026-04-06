@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Services.Models.Book
+namespace OnlineLibrary.Services.Models.Book
 {
     public class BookDeleteDto
     {

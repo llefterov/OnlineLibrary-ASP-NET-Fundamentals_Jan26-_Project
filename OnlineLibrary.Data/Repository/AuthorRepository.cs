@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data.Models;
 using OnlineLibrary.Data.Repository.Contracts;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;

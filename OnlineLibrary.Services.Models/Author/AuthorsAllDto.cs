@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Services.Models.Author
+namespace OnlineLibrary.Services.Models.Author
 {
     public class AuthorsAllDto
     {

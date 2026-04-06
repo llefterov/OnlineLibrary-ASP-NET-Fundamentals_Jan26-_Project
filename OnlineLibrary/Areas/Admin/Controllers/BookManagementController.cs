@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 using OnlineLibrary.GCommon.Exceptions.PublisherExceptions;

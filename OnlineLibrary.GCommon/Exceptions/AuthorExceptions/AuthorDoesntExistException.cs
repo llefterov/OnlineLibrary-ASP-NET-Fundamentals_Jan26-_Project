@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.GCommon.Exceptions.AuthorExceptions
+namespace OnlineLibrary.GCommon.Exceptions.AuthorExceptions
 {
     [Serializable]
     public class AuthorDoesntExistException : Exception

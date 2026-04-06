@@ -1,10 +1,10 @@
-﻿using OnlineLibrary.Services.Models.Author;
+using OnlineLibrary.Services.Models.Author;
 using System;
 using System.Collections.Generic;
 
 namespace OnlineLibrary.Services.Core.Interfaces
 {
-    public interface IAuthorService 
+    public interface IAuthorService
     {
         Task<(IEnumerable<AuthorsAllDto> AuthorsAllDtos, int TotalPages)> GetAllAuthorsForViewModelAsync(string? searchQuery = null, int pageNumber = 1, int pageSize = 20);
         Task<AuthorDetailsDto?> GetAuthorDetailsByIdAsync(Guid id);

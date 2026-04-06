@@ -9,9 +9,9 @@ namespace OnlineLibrary.Controllers
     [AllowAnonymous]
     public class HomeController : BaseController
     {
-        public HomeController() 
+        public HomeController()
         {
-        
+
         }
         public IActionResult Index()
         {

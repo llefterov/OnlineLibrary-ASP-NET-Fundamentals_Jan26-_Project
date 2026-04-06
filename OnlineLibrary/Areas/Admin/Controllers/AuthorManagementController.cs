@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.GCommon.Exceptions.AuthorExceptions;
 using OnlineLibrary.Services.Core.Admin.Interfaces;
 using OnlineLibrary.Services.Models.Author;
@@ -23,7 +23,7 @@ namespace OnlineLibrary.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Manage()
         {
             var authors = await authorManagementService.GetAllAuthorsForViewModelAsync();
-            return View(authors);
+            return View(authors.AuthorsAllDtos);
         }
 
         [HttpGet]

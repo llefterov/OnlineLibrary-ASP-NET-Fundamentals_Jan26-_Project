@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.GCommon
+namespace OnlineLibrary.GCommon
 {
     public static class ValidationConstants
     {

@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Services.Models.Publisher
+namespace OnlineLibrary.Services.Models.Publisher
 {
     public class PublisherBookDto
     {

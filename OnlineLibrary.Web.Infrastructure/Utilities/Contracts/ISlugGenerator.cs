@@ -1,4 +1,4 @@
-﻿namespace OnlineLibrary.Web.Infrastructure.Utilities.Contracts
+namespace OnlineLibrary.Web.Infrastructure.Utilities.Contracts
 {
     public interface ISlugGenerator
     {

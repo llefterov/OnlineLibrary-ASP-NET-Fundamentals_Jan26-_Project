@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Data.Models;
+using OnlineLibrary.Data.Models;
 
 namespace OnlineLibrary.Data.Repository.Contracts
 {

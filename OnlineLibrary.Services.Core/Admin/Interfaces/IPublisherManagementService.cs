@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Services.Core.Interfaces;
+using OnlineLibrary.Services.Core.Interfaces;
 
 namespace OnlineLibrary.Services.Core.Admin.Interfaces
 {

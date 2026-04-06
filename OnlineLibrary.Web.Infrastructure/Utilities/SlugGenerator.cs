@@ -1,4 +1,4 @@
-﻿using OnlineLibrary.Web.Infrastructure.Utilities.Contracts;
+using OnlineLibrary.Web.Infrastructure.Utilities.Contracts;
 using System.Text.RegularExpressions;
 
 namespace OnlineLibrary.Web.Infrastructure.Utilities
